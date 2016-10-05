@@ -112,3 +112,4 @@ attribute boot_control_hal;
 # Domain type used for debugfs access
 attribute qti_debugfs_domain;
 
+

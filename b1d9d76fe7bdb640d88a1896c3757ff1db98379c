@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8098520_be59815e",
+        "filename": "domain.te",
+        "patchSetId": 6
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 1000026
+      },
+      "writtenOn": "2016-10-06T11:40:17Z",
+      "side": 1,
+      "message": "hm - not sure if I understand this - before there was only -appdomain in the exception - now there is -init -system_server AND your things - and only yours are protected by the userdebug rule. Also you added -appdomain again in the userdebug clause - but its already in there before",
+      "revId": "b1d9d76fe7bdb640d88a1896c3757ff1db98379c",
+      "serverId": "56841c99-7c94-43d4-bf0b-cb4707e66d55",
+      "unresolved": false
+    }
+  ]
+}

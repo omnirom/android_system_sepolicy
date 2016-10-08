@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8098520_ccf24fcc",
+        "filename": "domain.te",
+        "patchSetId": 7
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 1000026
+      },
+      "writtenOn": "2016-10-08T10:02:36Z",
+      "side": 1,
+      "message": "-init -system_server -dumpstate - where not there before - so do you need them? if yes they must also be in the userdebug clause. If not - which I personally believe - killem :)",
+      "revId": "21d47aa4b27acfcc512ee6d70535ae50bf6b4819",
+      "serverId": "56841c99-7c94-43d4-bf0b-cb4707e66d55",
+      "unresolved": false
+    }
+  ]
+}

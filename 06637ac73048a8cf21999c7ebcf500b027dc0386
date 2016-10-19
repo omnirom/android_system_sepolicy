@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8098520_ed24ed0c",
+        "filename": "Android.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1000026
+      },
+      "writtenOn": "2016-10-19T12:38:07Z",
+      "side": 1,
+      "message": "I hate to say it :) - but - if the other lines use tabs this should be respected",
+      "revId": "06637ac73048a8cf21999c7ebcf500b027dc0386",
+      "serverId": "56841c99-7c94-43d4-bf0b-cb4707e66d55",
+      "unresolved": false
+    }
+  ]
+}

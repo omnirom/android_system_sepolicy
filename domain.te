@@ -572,6 +572,7 @@ neverallow {
   -recovery
   -sdcardd
   -vold
+  -fsck_untrusted
 } fuse_device:chr_file open;
 neverallow {
   domain
@@ -583,6 +584,7 @@ neverallow {
   -system_server
   -ueventd
   -vold
+  -fsck_untrusted
 } fuse_device:chr_file *;
 
 # Profiles contain untrusted data and profman parses that. We should only run

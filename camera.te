@@ -1,2 +1,4 @@
 # camera
-type camera, domain;
+ifelse(omni_device, `omni_mako',
+    ` type camera, domain;'
+,)

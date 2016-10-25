@@ -96,6 +96,7 @@ $(sepolicy_policy.conf): $(call build_policy, $(sepolicy_build_files))
 		-D mls_num_sens=$(PRIVATE_MLS_SENS) -D mls_num_cats=$(PRIVATE_MLS_CATS) \
 		-D target_build_variant=$(TARGET_BUILD_VARIANT) \
 		-D omni_device=$(TARGET_PRODUCT) \
+		-D target_has_legacy_camera_hal1=$(TARGET_HAS_LEGACY_CAMERA_HAL1) \
 		-s $^ > $@
 	$(hide) sed '/dontaudit/d' $@ > $@.dontaudit
 

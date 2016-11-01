@@ -97,6 +97,7 @@ $(sepolicy_policy.conf): $(call build_policy, $(sepolicy_build_files))
 		-D target_build_variant=$(TARGET_BUILD_VARIANT) \
 		-D omni_device=$(TARGET_PRODUCT) \
 		-D target_has_legacy_camera_hal1=$(TARGET_HAS_LEGACY_CAMERA_HAL1) \
+		-D custom_camera_perm=$(TARGET_USES_CUSTOM_CAMERA_PERMISSION) \
 		-s $^ > $@
 	$(hide) sed '/dontaudit/d' $@ > $@.dontaudit
 

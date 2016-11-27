@@ -116,3 +116,6 @@ attribute update_engine_common;
 
 # Domain type used for debugfs access
 attribute qti_debugfs_domain;
+
+# All domains used for lvm service.
+attribute lvm_placeholder;

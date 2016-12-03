@@ -274,14 +274,14 @@ allow appdomain cache_file:dir getattr;
 
 # Superuser capabilities.
 # bluetooth requires net_admin and wake_alarm.
-neverallow { appdomain -bluetooth } self:capability *;
-neverallow { appdomain -bluetooth } self:capability2 *;
+neverallow { appdomain -su -bluetooth } self:capability *;
+neverallow { appdomain -su -bluetooth } self:capability2 *;
 
 # Block device access.
-neverallow appdomain dev_type:blk_file { read write };
+neverallow { appdomain -su } dev_type:blk_file { read write };
 
 # Access to any of the following character devices.
-neverallow appdomain {
+neverallow { appdomain -su } {
     audio_device
     camera_device
     dm_device
@@ -294,14 +294,14 @@ neverallow appdomain {
 # Note: Try expanding list of app domains in the future.
 neverallow { untrusted_app isolated_app shell } graphics_device:chr_file { read write };
 
-neverallow { appdomain -nfc } nfc_device:chr_file
+neverallow { appdomain -nfc -su } nfc_device:chr_file
     { read write };
-neverallow { appdomain -bluetooth } hci_attach_dev:chr_file
+neverallow { appdomain -bluetooth -su } hci_attach_dev:chr_file
     { read write };
-neverallow appdomain tee_device:chr_file { read write };
+neverallow { appdomain -su } tee_device:chr_file { read write };
 
 # Privileged netlink socket interfaces.
-neverallow appdomain
+neverallow { appdomain -su }
     domain:{
         netlink_firewall_socket
         netlink_tcpdiag_socket
@@ -315,29 +315,29 @@ neverallow appdomain
 # These messages are broadcast messages from the kernel to userspace.
 # Do not allow the writing of netlink messages, which has been a source
 # of rooting vulns in the past.
-neverallow appdomain domain:netlink_kobject_uevent_socket { write append };
+neverallow { appdomain -su } domain:netlink_kobject_uevent_socket { write append };
 
 # Sockets under /dev/socket that are not specifically typed.
-neverallow appdomain socket_device:sock_file write;
+neverallow { appdomain -su } socket_device:sock_file write;
 
 # Unix domain sockets.
-neverallow appdomain adbd_socket:sock_file write;
-neverallow appdomain installd_socket:sock_file write;
-neverallow { appdomain -radio } rild_socket:sock_file write;
-neverallow appdomain vold_socket:sock_file write;
-neverallow appdomain zygote_socket:sock_file write;
+neverallow { appdomain -su } adbd_socket:sock_file write;
+neverallow { appdomain -su } installd_socket:sock_file write;
+neverallow { appdomain -su -radio } rild_socket:sock_file write;
+neverallow { appdomain -su } vold_socket:sock_file write;
+neverallow { appdomain -su } zygote_socket:sock_file write;
 
 # ptrace access to non-app domains.
-neverallow appdomain { domain -appdomain }:process ptrace;
+neverallow { appdomain -su } { domain -appdomain }:process ptrace;
 
 # Write access to /proc/pid entries for any non-app domain.
-neverallow appdomain { domain -appdomain }:file write;
+neverallow { appdomain -su } { domain -appdomain }:file write;
 
 # signal access to non-app domains.
 # sigchld allowed for parent death notification.
 # signull allowed for kill(pid, 0) existence test.
 # All others prohibited.
-neverallow appdomain { domain -appdomain }:process
+neverallow { appdomain -su } { domain -appdomain }:process
     { sigkill sigstop signal };
 
 # Transition to a non-app domain.
@@ -347,87 +347,85 @@ neverallow { appdomain -shell userdebug_or_eng(`-su') } { domain -appdomain }:pr
     { transition dyntransition };
 
 # Write to rootfs.
-neverallow appdomain rootfs:dir_file_class_set
+neverallow { appdomain -su } rootfs:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
 
 # Write to /system.
-neverallow appdomain system_file:dir_file_class_set
+neverallow { appdomain -su } system_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
 
 # Write to entrypoint executables.
-neverallow appdomain exec_type:file
+neverallow { appdomain -su } exec_type:file
     { create write setattr relabelfrom relabelto append unlink link rename };
 
 # Write to system-owned parts of /data.
 # This is the default type for anything under /data not otherwise
 # specified in file_contexts.  Define a different type for portions
 # that should be writable by apps.
-neverallow appdomain system_data_file:dir_file_class_set
+neverallow { appdomain -su } system_data_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
 
 # Write to various other parts of /data.
-neverallow appdomain drm_data_file:dir_file_class_set
+neverallow { appdomain -su } drm_data_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
-neverallow { appdomain -system_app }
+neverallow { appdomain -system_app -su }
     gps_data_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
-neverallow { appdomain -platform_app }
+neverallow { appdomain -platform_app -su }
     apk_data_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
-neverallow { appdomain -platform_app }
+neverallow { appdomain -platform_app -su }
     apk_tmp_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
-neverallow { appdomain -platform_app }
+neverallow { appdomain -platform_app -su }
     apk_private_data_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
-neverallow { appdomain -platform_app }
+neverallow { appdomain -platform_app -su }
     apk_private_tmp_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
-neverallow { appdomain -shell }
+neverallow { appdomain -shell -su }
     shell_data_file:dir_file_class_set
     { create setattr relabelfrom relabelto append unlink link rename };
-neverallow { appdomain -bluetooth }
+neverallow { appdomain -bluetooth -su }
     bluetooth_data_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
-neverallow appdomain
+neverallow { appdomain -su }
     keystore_data_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
-neverallow appdomain
+neverallow { appdomain -su }
     systemkeys_data_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
-neverallow appdomain
+neverallow { appdomain -su }
     wifi_data_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
-neverallow appdomain
+neverallow { appdomain -su }
     dhcp_data_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
 
 # access tmp apk files
-neverallow { appdomain -platform_app -priv_app }
+neverallow { appdomain -platform_app -priv_app -su }
     { apk_tmp_file apk_private_tmp_file }:dir_file_class_set *;
 
 # Access to factory files.
-neverallow appdomain efs_file:dir_file_class_set write;
-neverallow { appdomain -shell } efs_file:dir_file_class_set read;
+neverallow { appdomain -su } efs_file:dir_file_class_set write;
+neverallow { appdomain -shell -su } efs_file:dir_file_class_set read;
 
 # Write to various pseudo file systems.
-neverallow { appdomain -bluetooth -nfc }
-    sysfs:dir_file_class_set write;
-neverallow appdomain
+neverallow { appdomain -su }
     proc:dir_file_class_set write;
 
 # Access to syslog(2) or /proc/kmsg.
-neverallow { appdomain -system_app }
+neverallow { appdomain -system_app -su }
     kernel:system { syslog_mod syslog_console };
-neverallow { appdomain -system_app -shell }
+neverallow { appdomain -system_app -shell -su }
     kernel:system syslog_read;
 
 # Ability to perform any filesystem operation other than statfs(2).
 # i.e. no mount(2), unmount(2), etc.
-neverallow appdomain fs_type:filesystem ~getattr;
+neverallow { appdomain -su } fs_type:filesystem ~getattr;
 
 # prevent creation/manipulation of globally readable symlinks
-neverallow appdomain {
+neverallow { appdomain -su } {
   apk_data_file
   cache_file
   cache_recovery_file
@@ -454,5 +452,5 @@ neverallow {
 }:file no_x_file_perms;
 
 # Foreign dex profiles are just markers. Prevent apps to do anything but touch them.
-neverallow appdomain user_profile_foreign_dex_data_file:file rw_file_perms;
-neverallow appdomain user_profile_foreign_dex_data_file:dir { open getattr read ioctl remove_name };
+neverallow { appdomain -su } user_profile_foreign_dex_data_file:file rw_file_perms;
+neverallow { appdomain -su } user_profile_foreign_dex_data_file:dir { open getattr read ioctl remove_name };

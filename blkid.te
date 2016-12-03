@@ -15,6 +15,6 @@ allow blkid vold:fifo_file { read write getattr };
 allow blkid blkid_exec:file rx_file_perms;
 
 # Only allow entry from vold
-neverallow { domain -vold } blkid:process transition;
-neverallow * blkid:process dyntransition;
+neverallow { domain -vold -su } blkid:process transition;
+neverallow { domain -su } blkid:process dyntransition;
 neverallow blkid { file_type fs_type -blkid_exec -shell_exec }:file entrypoint;

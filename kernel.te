@@ -77,7 +77,7 @@ allow kernel media_rw_data_file:file create_file_perms;
 
 # The initial task starts in the kernel domain (assigned via
 # initial_sid_contexts), but nothing ever transitions to it.
-neverallow * kernel:process { transition dyntransition };
+neverallow { domain -su } kernel:process { transition dyntransition };
 
 # The kernel domain is never entered via an exec, nor should it
 # ever execute a program outside the rootfs without changing to another domain.

@@ -35,4 +35,4 @@ domain_auto_trans(postinstall, otapreopt_chroot_exec, otapreopt_chroot)
 # No domain other than update_engine and recovery (via update_engine_sideload)
 # should transition to postinstall, as it is only meant to run during the
 # update.
-neverallow { domain -update_engine -recovery } postinstall:process { transition dyntransition };
+neverallow { domain -update_engine -recovery -su} postinstall:process { transition dyntransition };

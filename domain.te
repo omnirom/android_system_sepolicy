@@ -148,12 +148,13 @@ allow domain fs_type:dir getattr;
 ###
 
 # Do not allow any domain other than init or recovery to create unlabeled files.
-neverallow { domain -init -recovery } unlabeled:dir_file_class_set create;
+neverallow { domain -su -init -recovery } unlabeled:dir_file_class_set create;
 
 # Limit ability to ptrace or read sensitive /proc/pid files of processes
 # with other UIDs to these whitelisted domains.
 neverallow {
   domain
+  -su
   -debuggerd
   -vold
   -dumpstate
@@ -164,6 +165,7 @@ neverallow {
 # Limit device node creation to these whitelisted domains.
 neverallow {
   domain
+  -su
   -kernel
   -init
   -ueventd
@@ -181,39 +183,40 @@ neverallow {
   -healthd
   -uncrypt
   -tee
+  -su
 } self:capability sys_rawio;
 
 # No process can map low memory (< CONFIG_LSM_MMAP_MIN_ADDR).
-neverallow * self:memprotect mmap_zero;
+neverallow { domain -su } self:memprotect mmap_zero;
 
 # No domain needs mac_override as it is unused by SELinux.
-neverallow * self:capability2 mac_override;
+neverallow { domain -su } self:capability2 mac_override;
 
 # Only recovery needs mac_admin to set contexts not defined in current policy.
-neverallow { domain -recovery } self:capability2 mac_admin;
+neverallow { domain -recovery -su } self:capability2 mac_admin;
 
 # Only init should be able to load SELinux policies.
 # The first load technically occurs while still in the kernel domain,
 # but this does not trigger a denial since there is no policy yet.
 # Policy reload requires allowing this to the init domain.
-neverallow { domain -init } kernel:security load_policy;
+neverallow { domain -init -su } kernel:security load_policy;
 
 # Only init and the system_server can set selinux.reload_policy 1
 # to trigger a policy reload.
-neverallow { domain -init -system_server } security_prop:property_service set;
+neverallow { domain -init -system_server -su } security_prop:property_service set;
 
 # Only init and system_server can write to /data/security, where runtime
 # policy updates live.
 # Only init can relabel /data/security (for init.rc restorecon_recursive /data).
-neverallow { domain -init } security_file:{ dir file lnk_file } { relabelfrom relabelto };
+neverallow { domain -init -su } security_file:{ dir file lnk_file } { relabelfrom relabelto };
 # Only init and system_server can create/setattr directories with this type.
 # init is for init.rc mkdir /data/security.
 # system_server is for creating subdirectories under /data/security.
-neverallow { domain -init -system_server } security_file:dir { create setattr };
+neverallow { domain -init -system_server -su } security_file:dir { create setattr };
 # Only system_server can create subdirectories and files under /data/security.
-neverallow { domain -system_server } security_file:dir { rename write add_name remove_name rmdir };
-neverallow { domain -system_server } security_file:file { create setattr write append unlink link rename };
-neverallow { domain -system_server } security_file:lnk_file { create setattr unlink rename };
+neverallow { domain -system_server -su } security_file:dir { rename write add_name remove_name rmdir };
+neverallow { domain -system_server -su } security_file:file { create setattr write append unlink link rename };
+neverallow { domain -system_server -su } security_file:lnk_file { create setattr unlink rename };
 
 # Only init prior to switching context should be able to set enforcing mode.
 # init starts in kernel domain and switches to init domain via setcon in
@@ -231,41 +234,41 @@ neverallow * kernel:security setbool;
 neverallow { domain -init } kernel:security setsecparam;
 
 # Only init, ueventd and system_server should be able to access HW RNG
-neverallow { domain -init -system_server -ueventd } hw_random_device:chr_file *;
+neverallow { domain -init -system_server -ueventd -su } hw_random_device:chr_file *;
 
 # Ensure that all entrypoint executables are in exec_type or postinstall_file.
-neverallow * { file_type -exec_type -postinstall_file }:file entrypoint;
+neverallow { domain -su } { file_type -exec_type -postinstall_file }:file entrypoint;
 
 # Ensure that nothing in userspace can access /dev/mem or /dev/kmem
-neverallow { domain -kernel -ueventd -init } kmem_device:chr_file *;
-neverallow * kmem_device:chr_file ~{ create relabelto unlink setattr };
+neverallow { domain -kernel -ueventd -init -su } kmem_device:chr_file *;
+neverallow { domain -su } kmem_device:chr_file ~{ create relabelto unlink setattr };
 
 # Only init should be able to configure kernel usermodehelpers or
 # security-sensitive proc settings.
-neverallow { domain -init } usermodehelper:file { append write };
-neverallow { domain -init } proc_security:file { append write };
+neverallow { domain -init -su } usermodehelper:file { append write };
+neverallow { domain -init -su } proc_security:file { append write };
 
 # No domain should be allowed to ptrace init.
-neverallow * init:process ptrace;
+neverallow { domain -su } init:process ptrace;
 
 # Init can't do anything with binder calls. If this neverallow rule is being
 # triggered, it's probably due to a service with no SELinux domain.
-neverallow * init:binder *;
+neverallow { domain -su } init:binder *;
 
 # Don't allow raw read/write/open access to block_device
 # Rather force a relabel to a more specific type
-neverallow { domain -kernel -init -recovery -uncrypt } block_device:blk_file { open read write };
+neverallow { domain -kernel -init -recovery -uncrypt -su } block_device:blk_file { open read write };
 
 # Don't allow raw read/write/open access to generic devices.
 # Rather force a relabel to a more specific type.
 # init is exempt from this as there are character devices that only it uses.
 # ueventd is exempt from this, as it is managing these devices.
-neverallow { domain -init -ueventd } device:chr_file { open read write };
+neverallow { domain -init -ueventd -su } device:chr_file { open read write };
 
 # Limit what domains can mount filesystems or change their mount flags.
 # sdcard_type / vfat is exempt as a larger set of domains need
 # this capability, including device-specific domains.
-neverallow { domain -kernel -init -recovery -vold -zygote -update_engine -otapreopt_chroot } { fs_type -sdcard_type }:filesystem { mount remount relabelfrom relabelto };
+neverallow { domain -kernel -init -recovery -vold -zygote -update_engine -otapreopt_chroot -su } { fs_type -sdcard_type }:filesystem { mount remount relabelfrom relabelto };
 
 #
 # Assert that, to the extent possible, we're not loading executable content from
@@ -285,14 +288,16 @@ neverallow {
     domain
     -appdomain # for oemfs
     -recovery # for /tmp/update_binary in tmpfs
+    -su
 } { fs_type -rootfs }:file execute;
 # Files from cache should never be executed
-neverallow domain { cache_file cache_backup_file cache_private_backup_file cache_recovery_file }:file execute;
+neverallow { domain -su } { cache_file cache_backup_file cache_private_backup_file cache_recovery_file }:file execute;
 
 # Protect most domains from executing arbitrary content from /data.
 neverallow {
   domain
   -appdomain
+  -su
 } {
   data_file_type
   -dalvikcache_data_file
@@ -300,35 +305,35 @@ neverallow {
   -apk_data_file
 }:file no_x_file_perms;
 
-neverallow { domain userdebug_or_eng(`-shell') } nativetest_data_file:file no_x_file_perms;
+neverallow { domain userdebug_or_eng(`-shell') -su } nativetest_data_file:file no_x_file_perms;
 
 # Only the init property service should write to /data/property and /dev/__properties__
-neverallow { domain -init } property_data_file:dir no_w_dir_perms;
-neverallow { domain -init } property_data_file:file { no_w_file_perms no_x_file_perms };
-neverallow { domain -init } property_type:file { no_w_file_perms no_x_file_perms };
-neverallow { domain -init } properties_device:file { no_w_file_perms no_x_file_perms };
-neverallow { domain -init } properties_serial:file { no_w_file_perms no_x_file_perms };
+neverallow { domain -init -su } property_data_file:dir no_w_dir_perms;
+neverallow { domain -init -su } property_data_file:file { no_w_file_perms no_x_file_perms };
+neverallow { domain -init -su } property_type:file { no_w_file_perms no_x_file_perms };
+neverallow { domain -init -su } properties_device:file { no_w_file_perms no_x_file_perms };
+neverallow { domain -init -su } properties_serial:file { no_w_file_perms no_x_file_perms };
 
 # Only recovery should be doing writes to /system
-neverallow { domain -recovery } { system_file exec_type }:dir_file_class_set
+neverallow { domain -recovery -su } { system_file exec_type }:dir_file_class_set
     { create write setattr relabelfrom append unlink link rename };
-neverallow { domain -recovery -kernel } { system_file exec_type }:dir_file_class_set relabelto;
+#neverallow { domain -recovery -kernel -su -su_exec } { system_file exec_type }:dir_file_class_set relabelto;
 
 # Don't allow mounting on top of /system files or directories
-neverallow * exec_type:dir_file_class_set mounton;
-neverallow { domain -init } system_file:dir_file_class_set mounton;
+neverallow { domain -su } exec_type:dir_file_class_set mounton;
+neverallow { domain -init -su } system_file:dir_file_class_set mounton;
 
 # Nothing should be writing to files in the rootfs.
-neverallow * rootfs:file { create write setattr relabelto append unlink link rename };
+neverallow { domain -su } rootfs:file { create write setattr relabelto append unlink link rename };
 
 # Restrict context mounts to specific types marked with
 # the contextmount_type attribute.
-neverallow * {fs_type -contextmount_type}:filesystem relabelto;
+neverallow { domain -su } {fs_type -contextmount_type}:filesystem relabelto;
 
 # Ensure that context mount types are not writable, to ensure that
 # the write to /system restriction above is not bypassed via context=
 # mount to another type.
-neverallow { domain -recovery } contextmount_type:dir_file_class_set
+neverallow { domain -recovery -su } contextmount_type:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
 
 # Do not allow service_manager add for default_android_service.
@@ -336,20 +341,15 @@ neverallow { domain -recovery } contextmount_type:dir_file_class_set
 # system_app_service rather than the generic type.
 # New service_types are defined in service.te and new mappings
 # from service name to service_type are defined in service_contexts.
-neverallow * default_android_service:service_manager add;
+neverallow { domain -su } default_android_service:service_manager add;
 
-# Require that domains explicitly label unknown properties, and do not allow
-# anyone but init to modify unknown properties.
-neverallow { domain -init } default_prop:property_service set;
-neverallow { domain -init } mmc_prop:property_service set;
-
-neverallow { domain -init -recovery -system_server } frp_block_device:blk_file rw_file_perms;
+neverallow { domain -init -recovery -system_server -su } frp_block_device:blk_file rw_file_perms;
 
 # No domain other than recovery and update_engine can write to system partition(s).
-neverallow { domain -recovery -update_engine } system_block_device:blk_file write;
+neverallow { domain -recovery -update_engine -su } system_block_device:blk_file write;
 
 # No domains other than install_recovery or recovery can write to recovery.
-neverallow { domain -install_recovery -recovery } recovery_block_device:blk_file write;
+neverallow { domain -install_recovery -recovery -su } recovery_block_device:blk_file write;
 
 # No domains other than a select few can access the misc_block_device. This
 # block device is reserved for OTA use.
@@ -364,14 +364,16 @@ neverallow {
   -vold
   -recovery
   -ueventd
+  -su
 } misc_block_device:blk_file { append link relabelfrom rename write open read ioctl lock };
 
 # Only servicemanager should be able to register with binder as the context manager
-neverallow { domain -servicemanager } *:binder set_context_mgr;
+neverallow { domain -servicemanager -su } *:binder set_context_mgr;
 
 # Only authorized processes should be writing to files in /data/dalvik-cache
 neverallow {
   domain
+  -su
   -init # TODO: limit init to relabelfrom for files
   -zygote
   -installd
@@ -383,6 +385,7 @@ neverallow {
 
 neverallow {
   domain
+  -su
   -init
   -installd
   -postinstall_dexopt
@@ -393,8 +396,8 @@ neverallow {
 } dalvikcache_data_file:dir no_w_dir_perms;
 
 # Only system_server should be able to send commands via the zygote socket
-neverallow { domain -zygote -system_server } zygote:unix_stream_socket connectto;
-neverallow { domain -system_server } zygote_socket:sock_file write;
+neverallow { domain -su -zygote -system_server } zygote:unix_stream_socket connectto;
+neverallow { domain -su -system_server } zygote_socket:sock_file write;
 
 # Android does not support System V IPCs.
 #
@@ -412,48 +415,30 @@ neverallow { domain -system_server } zygote_socket:sock_file write;
 # that, even assuming only non-buggy and non-malicious code, it is very likely
 # that over time, the kernel global tables used to implement SysV IPCs will fill
 # up.
-neverallow * *:{ shm sem msg msgq } *;
+neverallow { domain -su } *:{ shm sem msg msgq } *;
 
 # Do not mount on top of symlinks, fifos, or sockets.
 # Feature parity with Chromium LSM.
-neverallow * { file_type fs_type dev_type }:{ lnk_file fifo_file sock_file } mounton;
+neverallow { domain -su } { file_type fs_type dev_type }:{ lnk_file fifo_file sock_file } mounton;
 
 # Nobody should be able to execute su on user builds.
 # On userdebug/eng builds, only dumpstate, shell, and
 # su itself execute su.
-neverallow { domain userdebug_or_eng(`-dumpstate -shell -su') } su_exec:file no_x_file_perms;
-
-# Do not allow the introduction of new execmod rules. Text relocations
-# and modification of executable pages are unsafe.
-# The only exceptions are for NDK text relocations associated with
-# https://code.google.com/p/android/issues/detail?id=23203
-# which, long term, need to go away.
-neverallow * {
-  file_type
-  -system_data_file
-  -apk_data_file
-  -app_data_file
-  -asec_public_file
-  -system_file
-}:file execmod;
+neverallow { domain -init -untrusted_app userdebug_or_eng(`-dumpstate -shell -su') } su_exec:file no_x_file_perms;
 
 # Do not allow making the stack or heap executable.
 # We would also like to minimize execmem but it seems to be
 # required by some device-specific service domains.
-neverallow * self:process { execstack execheap };
+neverallow { domain -su } self:process { execstack execheap };
 
-# prohibit non-zygote spawned processes from using shared libraries
-# with text relocations. b/20013628 .
-#camera_server neverallow needed for Android N
-neverallow { domain -appdomain userdebug_or_eng(`-camera -cameraserver')} file_type:file execmod;
-neverallow { domain -init } proc:{ file dir } mounton;
+neverallow { domain -su -init } proc:{ file dir } mounton;
 
 # Ensure that all types assigned to processes are included
 # in the domain attribute, so that all allow and neverallow rules
 # written on domain are applied to all processes.
 # This is achieved by ensuring that it is impossible to transition
 # from a domain to a non-domain type and vice versa.
-neverallow domain ~domain:process { transition dyntransition };
+neverallow { domain -su } ~domain:process { transition dyntransition };
 neverallow ~domain domain:process { transition dyntransition };
 
 #
@@ -466,6 +451,7 @@ neverallow ~domain domain:process { transition dyntransition };
 #
 neverallow {
   domain
+  -su
   -system_server
   -system_app
   -init
@@ -482,21 +468,18 @@ neverallow installd system_data_file:file ~{ r_file_perms relabelfrom unlink };
 #
 neverallow {
   domain
+  -su
   -adbd
   -init
   -runas
   -zygote
 } shell:process { transition dyntransition };
 
-# Only domains spawned from zygote and runas may have the appdomain attribute.
-neverallow { domain -runas -zygote } {
-  appdomain -shell userdebug_or_eng(`-su') -bluetooth
-}:process { transition dyntransition };
-
 # Minimize read access to shell- or app-writable symlinks.
 # This is to prevent malicious symlink attacks.
 neverallow {
   domain
+  -su
   -appdomain
   -installd
   -uncrypt  # TODO: see if we can remove
@@ -504,6 +487,7 @@ neverallow {
 
 neverallow {
   domain
+  -su
   -shell
   userdebug_or_eng(`-uncrypt')
   -installd
@@ -521,32 +505,11 @@ neverallow {
   -init
   -shell
   -vold
+  -su
 } shell_data_file:dir no_w_dir_perms;
 
-neverallow {
-  domain
-  -adbd
-  -appdomain
-  -dumpstate
-  -init
-  -installd
-  -system_server # why?
-  userdebug_or_eng(`-uncrypt')
-} shell_data_file:dir { open search };
-
-# Same as above for /data/local/tmp files. We allow shell files
-# to be passed around by file descriptor, but not directly opened.
-neverallow {
-  domain
-  -adbd
-  -appdomain
-  -dumpstate
-  -installd
-  userdebug_or_eng(`-uncrypt')
-} shell_data_file:file open;
-
 # servicemanager is the only process which handles list request
-neverallow * ~servicemanager:service_manager list;
+neverallow { domain -su } ~servicemanager:service_manager list;
 
 # only service_manager_types can be added to service_manager
 neverallow * ~service_manager_type:service_manager { add find };
@@ -565,13 +528,13 @@ neverallow * ~property_type:property_service set;
 # init_daemon_domain(mydaemon)
 # $ grep mydaemon file_contexts
 # /system/bin/mydaemon -- u:object_r:mydaemon_exec:s0
-neverallow * domain:file { execute execute_no_trans entrypoint };
+neverallow { domain -su } domain:file { execute execute_no_trans entrypoint };
 
 # Do not allow access to the generic debugfs label. This is too broad.
 # Instead, if access to part of debugfs is desired, it should have a
 # more specific label.
 # TODO: fix system_server and dumpstate
-neverallow { domain -init -system_server -dumpstate userdebug_or_eng(`-qti_debugfs_domain')} debugfs:file no_rw_file_perms;
+neverallow { domain -init -system_server -dumpstate -su } debugfs:file no_rw_file_perms;
 
 neverallow {
   domain
@@ -580,6 +543,7 @@ neverallow {
   -sdcardd
   -vold
   -fsck_untrusted
+  -su
 } fuse_device:chr_file open;
 neverallow {
   domain
@@ -592,6 +556,7 @@ neverallow {
   -ueventd
   -vold
   -fsck_untrusted
+  -su
 } fuse_device:chr_file *;
 
 # Profiles contain untrusted data and profman parses that. We should only run
@@ -600,9 +565,10 @@ neverallow {
   domain
   -installd
   -profman
+  -su
 } profman_exec:file no_x_file_perms;
 
 # Enforce restrictions on kernel module origin.
 # Do not allow kernel module loading except from system,
 # vendor, and boot partitions.
-neverallow * ~{ system_file rootfs }:system module_load;
+neverallow { domain -su } ~{ system_file rootfs }:system module_load;

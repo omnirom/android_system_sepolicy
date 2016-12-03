@@ -17,6 +17,7 @@
 /charger            u:object_r:rootfs:s0
 /init               u:object_r:init_exec:s0
 /sbin(/.*)?         u:object_r:rootfs:s0
+/sbin/su		u:object_r:su_exec:s0
 
 # Empty directories
 /lost\+found        u:object_r:rootfs:s0

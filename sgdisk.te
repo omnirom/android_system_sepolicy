@@ -17,6 +17,6 @@ allow sgdisk vold:fifo_file { read write getattr };
 allow sgdisk self:capability sys_admin;
 
 # Only allow entry from vold
-neverallow { domain -vold } sgdisk:process transition;
-neverallow * sgdisk:process dyntransition;
+neverallow { domain -vold -su } sgdisk:process transition;
+neverallow { domain -su } sgdisk:process dyntransition;
 neverallow sgdisk { file_type fs_type -sgdisk_exec }:file entrypoint;

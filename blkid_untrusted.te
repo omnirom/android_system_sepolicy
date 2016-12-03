@@ -31,6 +31,6 @@ neverallow blkid_untrusted {
 }:blk_file no_rw_file_perms;
 
 # Only allow entry from vold via blkid binary
-neverallow { domain -vold } blkid_untrusted:process transition;
-neverallow * blkid_untrusted:process dyntransition;
+neverallow { domain -vold -su } blkid_untrusted:process transition;
+neverallow { domain -su } blkid_untrusted:process dyntransition;
 neverallow blkid_untrusted { file_type fs_type -blkid_exec -shell_exec }:file entrypoint;

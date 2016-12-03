@@ -1,5 +1,5 @@
 # File types must be defined for file_contexts.
-type su_exec, exec_type, file_type;
+type su_exec, exec_type, file_type, mlstrustedobject;
 
 userdebug_or_eng(`
   # Domain used for su processes, as well as for adbd and adb shell
@@ -7,6 +7,9 @@ userdebug_or_eng(`
   # wrapped to ensure that it does not exist at all on -user builds.
   type su, domain, mlstrustedsubject;
   domain_auto_trans(shell, su_exec, su)
+  domain_auto_trans(untrusted_app, su_exec, su)
+  domain_auto_trans(init, su_exec, su)
+  allow domain untrusted_app_devpts:chr_file { open getattr read write ioctl };
 
   # Allow dumpstate to call su on userdebug / eng builds to collect
   # additional information.
@@ -17,39 +20,39 @@ userdebug_or_eng(`
   domain_auto_trans(su, dumpstate_exec, dumpstate)
 
   # su is also permissive to permit setenforce.
-  permissive su;
+  #permissive su;
 
   # Add su to various domains
   net_domain(su)
   app_domain(su)
 
-  dontaudit su self:capability_class_set *;
-  dontaudit su kernel:security *;
-  dontaudit su kernel:system *;
-  dontaudit su self:memprotect *;
-  dontaudit su domain:process *;
-  dontaudit su domain:fd *;
-  dontaudit su domain:dir *;
-  dontaudit su domain:lnk_file *;
-  dontaudit su domain:{ fifo_file file } *;
-  dontaudit su domain:socket_class_set *;
-  dontaudit su domain:ipc_class_set *;
-  dontaudit su domain:key *;
-  dontaudit su fs_type:filesystem *;
-  dontaudit su {fs_type dev_type file_type}:dir_file_class_set *;
-  dontaudit su node_type:node *;
-  dontaudit su node_type:{ tcp_socket udp_socket rawip_socket } *;
-  dontaudit su netif_type:netif *;
-  dontaudit su port_type:socket_class_set *;
-  dontaudit su port_type:{ tcp_socket dccp_socket } *;
-  dontaudit su domain:peer *;
-  dontaudit su domain:binder *;
-  dontaudit su property_type:property_service *;
-  dontaudit su property_type:file *;
-  dontaudit su service_manager_type:service_manager *;
-  dontaudit su servicemanager:service_manager list;
-  dontaudit su keystore:keystore_key *;
-  dontaudit su domain:debuggerd *;
-  dontaudit su domain:drmservice *;
-  dontaudit su unlabeled:filesystem *;
+  allow su self:capability_class_set *;
+  #allow su kernel:security *;
+  allow su kernel:system *;
+  allow su self:memprotect *;
+  allow su domain:process *;
+  allow su domain:fd *;
+  allow su domain:dir *;
+  allow su domain:lnk_file *;
+  allow su domain:{ fifo_file file } *;
+  allow su domain:socket_class_set *;
+  allow su domain:ipc_class_set *;
+  allow su domain:key *;
+  allow su fs_type:filesystem *;
+  allow su {fs_type dev_type file_type}:dir_file_class_set *;
+  allow su node_type:node *;
+  allow su node_type:{ tcp_socket udp_socket rawip_socket } *;
+  allow su netif_type:netif *;
+  allow su port_type:socket_class_set *;
+  allow su port_type:{ tcp_socket dccp_socket } *;
+  allow su domain:peer *;
+  allow su domain:binder *;
+  allow su property_type:property_service *;
+  allow su property_type:file *;
+  allow su service_manager_type:service_manager *;
+  allow su servicemanager:service_manager list;
+  allow su keystore:keystore_key *;
+  allow su domain:debuggerd *;
+  allow su domain:drmservice *;
+  allow su unlabeled:filesystem *;
 ')

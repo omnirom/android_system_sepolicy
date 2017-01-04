@@ -799,6 +799,9 @@ userdebug_or_eng(`
 allow system_server functionfs:dir search;
 allow system_server functionfs:file rw_file_perms;
 
+# allow system_server to look into theme resources
+allow system_server theme_data_file:dir search;
+
 ###
 ### Neverallow rules
 ###

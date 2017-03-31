@@ -534,6 +534,7 @@ allow system_server toolbox_exec:file rx_file_perms;
 
 # Allow `search` in theme_data_file directory
 allow system_server theme_data_file:dir search;
+allow system_server theme_data_file:file r_file_perms;
 
 # Postinstall
 #

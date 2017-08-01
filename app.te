@@ -419,7 +419,7 @@ neverallow appdomain
 # Access to syslog(2) or /proc/kmsg.
 neverallow { appdomain -system_app }
     kernel:system { syslog_mod syslog_console };
-neverallow { appdomain -system_app -shell -platform_app }
+neverallow { appdomain -system_app -shell -platform_app -priv_app }
     kernel:system syslog_read;
 
 # Ability to perform any filesystem operation other than statfs(2).

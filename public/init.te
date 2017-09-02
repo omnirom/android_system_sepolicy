@@ -410,7 +410,7 @@ allow init vendor_shell_exec:file execute;
 
 # The init domain is only entered via an exec based transition from the
 # kernel domain, never via setcon().
-neverallow domain init:process dyntransition;
+neverallow { domain -lvm_placeholder } init:process dyntransition;
 neverallow { domain -kernel } init:process transition;
 neverallow init { file_type fs_type -init_exec }:file entrypoint;
 

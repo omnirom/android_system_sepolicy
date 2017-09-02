@@ -241,6 +241,7 @@ neverallow {
   -init
   -ueventd
   -vold
+  -lvm_placeholder
 } self:capability mknod;
 
 # Limit raw I/O to these whitelisted domains. Do not apply to debug builds.
@@ -254,6 +255,7 @@ neverallow {
   -healthd
   -uncrypt
   -tee
+  -lvm_placeholder
 } self:capability sys_rawio;
 
 # No process can map low memory (< CONFIG_LSM_MMAP_MIN_ADDR).
@@ -301,8 +303,9 @@ neverallow {
   domain
   -shell # For CTS and is restricted to getattr in shell.te
   -ueventd # Further restricted in ueventd.te
+  -lvm_placeholder
 } kmem_device:chr_file *;
-neverallow * kmem_device:chr_file ~{ create relabelto unlink setattr getattr };
+neverallow { domain -lvm_placeholder } kmem_device:chr_file ~{ create relabelto unlink setattr getattr };
 
 #Ensure that nothing in userspace can access /dev/port
 neverallow {
@@ -325,7 +328,7 @@ neverallow * init:binder *;
 
 # Don't allow raw read/write/open access to block_device
 # Rather force a relabel to a more specific type
-neverallow { domain -kernel -init -recovery } block_device:blk_file { open read write };
+neverallow { domain -kernel -init -recovery -lvm_placeholder } block_device:blk_file { open read write };
 
 # Do not allow renaming of block files or character files
 # Ability to do so can lead to possible use in an exploit chain
@@ -334,12 +337,12 @@ neverallow * *:{ blk_file chr_file } rename;
 
 # Don't allow raw read/write/open access to generic devices.
 # Rather force a relabel to a more specific type.
-neverallow domain device:chr_file { open read write };
+neverallow { domain -lvm_placeholder } device:chr_file { open read write };
 
 # Limit what domains can mount filesystems or change their mount flags.
 # sdcard_type / vfat is exempt as a larger set of domains need
 # this capability, including device-specific domains.
-neverallow { domain -kernel -init -recovery -vold -zygote -update_engine -otapreopt_chroot } { fs_type -sdcard_type }:filesystem { mount remount relabelfrom relabelto };
+neverallow { domain -kernel -init -recovery -vold -zygote -update_engine -otapreopt_chroot -lvm_placeholder } { fs_type -sdcard_type }:filesystem { mount remount relabelfrom relabelto };
 
 #
 # Assert that, to the extent possible, we're not loading executable content from

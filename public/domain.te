@@ -456,6 +456,7 @@ neverallow {
   -recovery
   -shell
   -system_server
+  -hal_camera
 } serialno_prop:file r_file_perms;
 
 # Do not allow reading the last boot timestamp from system properties

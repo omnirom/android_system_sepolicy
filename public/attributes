@@ -289,3 +289,5 @@ attribute hal_wifi_supplicant_server;
 
 attribute display_service_server;
 attribute wifi_keystore_service_server;
+
+attribute priv_app_property_exceptions;

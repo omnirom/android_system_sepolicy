@@ -55,6 +55,9 @@ allow netd net_data_file:file create_file_perms;
 allow netd net_data_file:dir rw_dir_perms;
 allow netd self:capability fowner;
 
+# Needed to lock the iptables lock.
+allow netd system_file:file lock;
+
 # Allow netd to spawn dnsmasq in it's own domain
 allow netd dnsmasq:process signal;
 
@@ -62,6 +65,7 @@ allow netd dnsmasq:process signal;
 allow netd clatd:process signal;
 
 set_prop(netd, ctl_mdnsd_prop)
+set_prop(netd, netd_stable_secret_prop)
 
 # Allow netd to publish a binder service and make binder calls.
 binder_use(netd)
@@ -115,3 +119,11 @@ neverallow { domain -system_server -dumpstate -netd } netd_service:service_manag
 # apps may not interact with netd over binder.
 neverallow appdomain netd:binder call;
 neverallow netd { appdomain userdebug_or_eng(`-su') }:binder call;
+
+# persist.netd.stable_secret contains RFC 7217 secret key which should never be
+# leaked to other processes. Make sure it never leaks.
+neverallow { domain -netd -init } netd_stable_secret_prop:file r_file_perms;
+
+# We want to ensure that no other process ever tries tampering with persist.netd.stable_secret,
+# the RFC 7217 secret key managed by netd. Doing so could compromise user privacy.
+neverallow { domain -netd -init } netd_stable_secret_prop:property_service set;

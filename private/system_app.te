@@ -156,6 +156,9 @@ get_prop(system_app, device_logging_prop)
 allow system_app system_server:udp_socket {
         connect getattr read recvfrom sendto write getopt setopt };
 
+#selinux status
+allow system_app selinuxfs:file r_file_perms;
+
 ###
 ### Neverallow rules
 ###

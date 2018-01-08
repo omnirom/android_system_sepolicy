@@ -8,12 +8,12 @@ wakelock_use(dumpstate)
 
 # Allow setting process priority, protect from OOM killer, and dropping
 # privileges by switching UID / GID
-allow dumpstate self:capability { setuid setgid sys_resource };
+allow dumpstate self:global_capability_class_set { setuid setgid sys_resource };
 
 # Allow dumpstate to scan through /proc/pid for all processes
 r_dir_file(dumpstate, domain)
 
-allow dumpstate self:capability {
+allow dumpstate self:global_capability_class_set {
     # Send signals to processes
     kill
     # Run iptables
@@ -33,7 +33,7 @@ allow dumpstate toolbox_exec:file rx_file_perms;
 allow dumpstate system_file:dir r_dir_perms;
 
 # Create and write into /data/anr/
-allow dumpstate self:capability { dac_override chown fowner fsetid };
+allow dumpstate self:global_capability_class_set { dac_override chown fowner fsetid };
 allow dumpstate anr_data_file:dir rw_dir_perms;
 allow dumpstate anr_data_file:file create_file_perms;
 
@@ -42,7 +42,7 @@ allow dumpstate anr_data_file:file create_file_perms;
 allow dumpstate system_data_file:file r_file_perms;
 
 # Read dmesg
-allow dumpstate self:capability2 syslog;
+allow dumpstate self:global_capability2_class_set syslog;
 allow dumpstate kernel:system syslog_read;
 
 # Read /sys/fs/pstore/console-ramoops
@@ -116,7 +116,7 @@ hal_client_domain(dumpstate, hal_vibrator)
 allow dumpstate sysfs_vibrator:file { rw_file_perms getattr };
 
 # Reading /proc/PID/maps of other processes
-allow dumpstate self:capability sys_ptrace;
+allow dumpstate self:global_capability_class_set sys_ptrace;
 
 # Allow the bugreport service to create a file in
 # /data/data/com.android.shell/files/bugreports/bugreport
@@ -151,12 +151,15 @@ control_logd(dumpstate)
 read_runtime_log_tags(dumpstate)
 
 # Read files in /proc
-allow dumpstate proc_cmdline:file r_file_perms;
-allow dumpstate proc_meminfo:file r_file_perms;
-allow dumpstate proc_net:file r_file_perms;
-allow dumpstate proc_pagetypeinfo:file r_file_perms;
-allow dumpstate proc_version:file r_file_perms;
-allow dumpstate proc_vmallocinfo:file r_file_perms;
+allow dumpstate {
+  proc_cmdline
+  proc_meminfo
+  proc_net
+  proc_pipe_conf
+  proc_pagetypeinfo
+  proc_version
+  proc_vmallocinfo
+}:file r_file_perms;
 r_dir_file(dumpstate, proc)
 
 # Read network state info files.
@@ -249,11 +252,6 @@ r_dir_file(dumpstate, sysfs)
 
 # Allow dumpstate to run top
 allow dumpstate proc_stat:file r_file_perms;
-
-# Allow dumpstate to read backlight details
-allow dumpstate sysfs_leds:lnk_file r_file_perms;
-allow dumpstate sysfs_leds:file r_file_perms;
-allow dumpstate sysfs_leds:dir search;
 
 # Allow dumpstate to talk to installd over binder
 binder_call(dumpstate, installd);

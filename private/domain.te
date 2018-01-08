@@ -12,7 +12,7 @@ neverallow {
   -storaged
   -system_server
   userdebug_or_eng(`-perfprofd')
-} self:capability sys_ptrace;
+} self:global_capability_class_set sys_ptrace;
 
 # Limit ability to generate hardware unique device ID attestations to priv_apps
 neverallow { domain -priv_app } *:keystore_key gen_unique_id;
@@ -25,10 +25,8 @@ full_treble_only(`
   neverallow {
     coredomain
     -dumpstate
-    -init
     -platform_app
     -priv_app
-    -shell
     -system_app
     -vold
     -vendor_init
@@ -37,16 +35,12 @@ full_treble_only(`
   # /sys
   neverallow {
     coredomain
-    -charger
     -dumpstate
-    -healthd
     -init
-    -mediaserver
     -priv_app
     -storaged
     -system_app
     -ueventd
-    -update_verifier
     -vold
     -vendor_init
   } sysfs:file no_rw_file_perms;
@@ -76,7 +70,7 @@ full_treble_only(`
     userdebug_or_eng(`-atrace')
     -dumpstate
     -init
-    -perfprofd
+    userdebug_or_eng(`-perfprofd')
     -shell
     -vendor_init
   } debugfs_tracing:file no_rw_file_perms;

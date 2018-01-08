@@ -33,10 +33,9 @@ allow domain self:unix_stream_socket { create_stream_socket_perms connectto };
 allow domain init:fd use;
 
 userdebug_or_eng(`
-  # Same as adbd rules above, except allow su to do the same thing
-  allow domain su:unix_stream_socket connectto;
   allow domain su:fd use;
-  allow domain su:unix_stream_socket { getattr getopt read write shutdown };
+  allow domain su:unix_stream_socket { connectto getattr getopt read write shutdown };
+  allow domain su:unix_dgram_socket sendto;
 
   allow { domain -init } su:binder { call transfer };
 
@@ -78,8 +77,11 @@ allow { domain -servicemanager -vndservicemanager -isolated_app } hwbinder_devic
 allow domain ptmx_device:chr_file rw_file_perms;
 allow domain alarm_device:chr_file r_file_perms;
 allow domain random_device:chr_file rw_file_perms;
+allow domain proc_random:dir r_dir_perms;
+allow domain proc_random:file r_file_perms;
 allow domain properties_device:dir { search getattr };
 allow domain properties_serial:file r_file_perms;
+allow domain property_info:file r_file_perms;
 
 # For now, everyone can access core property files
 # Device specific properties are not granted by default
@@ -237,7 +239,7 @@ neverallowxperm domain domain:socket_class_set ioctl { SIOCATMARK };
 # http://www.openwall.com/lists/oss-security/2016/09/26/14
 neverallowxperm * devpts:chr_file ioctl TIOCSTI;
 
-# Do not allow any domain other than init or recovery to create unlabeled files.
+# Do not allow any domain other than init to create unlabeled files.
 neverallow { domain -init -recovery } unlabeled:dir_file_class_set create;
 
 # Limit device node creation to these whitelisted domains.
@@ -247,7 +249,7 @@ neverallow {
   -init
   -ueventd
   -vold
-} self:capability mknod;
+} self:global_capability_class_set mknod;
 
 # Limit raw I/O to these whitelisted domains. Do not apply to debug builds.
 neverallow {
@@ -260,16 +262,18 @@ neverallow {
   -healthd
   -uncrypt
   -tee
-} self:capability sys_rawio;
+} self:global_capability_class_set sys_rawio;
 
 # No process can map low memory (< CONFIG_LSM_MMAP_MIN_ADDR).
 neverallow * self:memprotect mmap_zero;
 
 # No domain needs mac_override as it is unused by SELinux.
-neverallow * self:capability2 mac_override;
+neverallow * self:global_capability2_class_set mac_override;
 
-# Only recovery needs mac_admin to set contexts not defined in current policy.
-neverallow { domain -recovery } self:capability2 mac_admin;
+# Disallow attempts to set contexts not defined in current policy
+# This helps guarantee that unknown or dangerous contents will not ever
+# be set.
+neverallow * self:global_capability2_class_set mac_admin;
 
 # Once the policy has been loaded there shall be none to modify the policy.
 # It is sealed.
@@ -375,6 +379,7 @@ neverallow {
     -bootanim # for oemfs
     -recovery # for /tmp/update_binary in tmpfs
 } { fs_type -rootfs }:file execute;
+
 # Files from cache should never be executed
 neverallow domain { cache_file cache_backup_file cache_private_backup_file cache_recovery_file }:file execute;
 
@@ -398,10 +403,12 @@ neverallow { domain -init } property_type:file { no_w_file_perms no_x_file_perms
 neverallow { domain -init } properties_device:file { no_w_file_perms no_x_file_perms };
 neverallow { domain -init } properties_serial:file { no_w_file_perms no_x_file_perms };
 
-# Only recovery should be doing writes to /system & /vendor
+# Nobody should be doing writes to /system & /vendor
+# These partitions are intended to be read-only and must never be
+# modified. Doing so would violate important Android security guarantees
+# and invalidate dm-verity signatures.
 neverallow {
     domain
-    -recovery
     with_asan(`-asan_extract')
 } {
     system_file
@@ -409,7 +416,7 @@ neverallow {
     exec_type
 }:dir_file_class_set { create write setattr relabelfrom append unlink link rename };
 
-neverallow { domain -recovery -kernel with_asan(`-asan_extract') } { system_file vendor_file_type exec_type }:dir_file_class_set relabelto;
+neverallow { domain -kernel with_asan(`-asan_extract') } { system_file vendor_file_type exec_type }:dir_file_class_set relabelto;
 
 # Don't allow mounting on top of /system files or directories
 neverallow * exec_type:dir_file_class_set mounton;
@@ -425,7 +432,7 @@ neverallow * {fs_type -contextmount_type}:filesystem relabelto;
 # Ensure that context mount types are not writable, to ensure that
 # the write to /system restriction above is not bypassed via context=
 # mount to another type.
-neverallow { domain -recovery } contextmount_type:dir_file_class_set
+neverallow * contextmount_type:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
 
 # Do not allow service_manager add for default service labels.
@@ -451,14 +458,18 @@ neverallow * hidl_base_hwservice:hwservice_manager find;
 neverallow { domain -init } default_prop:property_service set;
 neverallow { domain -init } mmc_prop:property_service set;
 
+# Only core domains are allowed to access package_manager properties
+neverallow { domain -init -system_server } pm_prop:property_service set;
+neverallow { domain -coredomain } pm_prop:file no_rw_file_perms;
+
 # Do not allow reading device's serial number from system properties except form
 # a few whitelisted domains.
 neverallow {
   domain
   -adbd
   -dumpstate
-  -hal_drm
-  -hal_cas
+  -hal_drm_server
+  -hal_cas_server
   -init
   -mediadrmserver
   -recovery
@@ -498,7 +509,7 @@ neverallow { domain -install_recovery -recovery } recovery_block_device:blk_file
 neverallow {
   domain
   userdebug_or_eng(`-domain') # exclude debuggable builds
-  -hal_bootctl
+  -hal_bootctl_server
   -init
   -uncrypt
   -update_engine
@@ -552,7 +563,6 @@ full_treble_only(`
     -mediaserver_service
     -nfc_service
     -radio_service
-    -surfaceflinger_service
     -virtual_touchpad_service
     -vr_hwc_service
     -vr_manager_service
@@ -669,6 +679,79 @@ full_treble_only(`
   }:sock_file ~{ append getattr ioctl read write };
 ')
 
+# On TREBLE devices, vendor and system components are only allowed to share
+# files by passing open FDs over hwbinder. Ban all directory access and all file
+# accesses other than what can be applied to an open FD such as
+# ioctl/stat/read/write/append. This is enforced by segregating /data.
+# Vendor domains may directly access file in /data/vendor by path, but may only
+# access files outside of /data/vendor via an open FD passed over hwbinder.
+# Likewise, core domains may only directly access files outside /data/vendor by
+# path and files in /data/vendor by open FD.
+full_treble_only(`
+  # only coredomains may only access core_data_file_type, particularly not
+  # /data/vendor
+  neverallow {
+    coredomain
+    -appdomain # TODO(b/34980020) remove exemption for appdomain
+    -data_between_core_and_vendor_violators
+    -init
+    -vendor_init
+  } {
+    data_file_type
+    -core_data_file_type
+  }:file_class_set ~{ append getattr ioctl read write };
+  neverallow {
+    coredomain
+    -appdomain # TODO(b/34980020) remove exemption for appdomain
+    -data_between_core_and_vendor_violators
+    -init
+    -vendor_init
+    } {
+      data_file_type
+      -core_data_file_type
+    }:dir *;
+
+')
+full_treble_only(`
+  # vendor domains may only access files in /data/vendor, never core_data_file_types
+  neverallow {
+    domain
+    -appdomain # TODO(b/34980020) remove exemption for appdomain
+    -coredomain
+    -data_between_core_and_vendor_violators # TODO(b/34980020) Remove once all violators have been cleaned up
+  } {
+    core_data_file_type
+    # libc includes functions like mktime and localtime which attempt to access
+    # files in /data/misc/zoneinfo/tzdata file. These functions are considered
+    # vndk-stable and thus must be allowed for all processes.
+    -zoneinfo_data_file
+    }:file_class_set ~{ append getattr ioctl read write };
+')
+full_treble_only(`
+  # vendor domains may only access dirs in /data/vendor, never core_data_file_types
+  neverallow {
+    domain
+    -appdomain # TODO(b/34980020) remove exemption for appdomain
+    -coredomain
+    -data_between_core_and_vendor_violators
+    } {
+      core_data_file_type
+      -system_data_file # default label for files on /data. Covered below...
+      -zoneinfo_data_file
+    }:dir *;
+')
+full_treble_only(`
+  # vendor domains may only access dirs in /data/vendor, never core_data_file_types
+  neverallow {
+    domain
+    -appdomain # TODO(b/34980020) remove exemption for appdomain
+    -coredomain
+    -data_between_core_and_vendor_violators # TODO(b/34980020) Remove once all violators have been cleaned up
+    } {
+      system_data_file # default label for files on /data. Covered below
+    }:dir ~{ getattr search };
+')
+
 # On TREBLE devices, a limited set of files in /vendor are accessible to
 # only a few whitelisted coredomains to keep system/vendor separation.
 full_treble_only(`
@@ -680,6 +763,7 @@ full_treble_only(`
         -idmap
         -init
         -installd
+        userdebug_or_eng(`-perfprofd')
         -postinstall_dexopt
         -system_server
         -vendor_init
@@ -692,6 +776,7 @@ full_treble_only(`
         -idmap
         -init
         -installd
+        userdebug_or_eng(`-perfprofd')
         -postinstall_dexopt
         -system_server
         -vendor_init
@@ -1014,12 +1099,9 @@ neverallow {
 # vendor, and boot partitions.
 neverallow * ~{ system_file vendor_file rootfs }:system module_load;
 
-# Only allow filesystem caps to be set at build time or
-# during upgrade by recovery.
-neverallow {
-  domain
-  -recovery
-} self:capability setfcap;
+# Only allow filesystem caps to be set at build time. Runtime changes
+# to filesystem capabilities are not permitted.
+neverallow * self:global_capability_class_set setfcap;
 
 # Enforce AT_SECURE for executing crash_dump.
 neverallow domain crash_dump:process noatsecure;
@@ -1032,3 +1114,16 @@ neverallow ~coredomain coredomain_hwservice:hwservice_manager add;
 # be passthrough only (i.e., run in the process of their clients instead of a
 # separate server process).
 neverallow * same_process_hwservice:hwservice_manager add;
+
+# On TREBLE devices, most coredomains should not access vendor_files.
+full_treble_only(`
+  neverallow {
+    coredomain
+    -halclientdomain
+    -init
+    -ueventd
+    -crash_dump
+    -perfprofd
+    -vendor_init
+  } vendor_file:file { create_file_perms x_file_perms };
+')

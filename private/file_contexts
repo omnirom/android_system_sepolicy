@@ -31,6 +31,7 @@
 /sys                u:object_r:sysfs:s0
 
 # Symlinks
+/bin                u:object_r:rootfs:s0
 /bugreports         u:object_r:rootfs:s0
 /d                  u:object_r:rootfs:s0
 /etc                u:object_r:rootfs:s0
@@ -168,6 +169,7 @@
 /dev/xt_qtaguid	u:object_r:qtaguid_device:s0
 /dev/zero		u:object_r:zero_device:s0
 /dev/__properties__ u:object_r:properties_device:s0
+/dev/__properties__/property_info   u:object_r:property_info:s0
 #############################
 # System files
 #
@@ -177,7 +179,8 @@
 /system/bin/mke2fs		u:object_r:e2fs_exec:s0
 /system/bin/e2fsck	--	u:object_r:fsck_exec:s0
 /system/bin/fsck\.f2fs	--	u:object_r:fsck_exec:s0
-/system/bin/make_f2fs	--	u:object_r:fsck_exec:s0
+/system/bin/sload_f2fs	--	u:object_r:e2fs_exec:s0
+/system/bin/make_f2fs	--	u:object_r:e2fs_exec:s0
 /system/bin/fsck_msdos	--	u:object_r:fsck_exec:s0
 /system/bin/tune2fs	--	u:object_r:fsck_exec:s0
 /system/bin/toolbox	--	u:object_r:toolbox_exec:s0
@@ -228,7 +231,7 @@
 /system/bin/pppd	u:object_r:ppp_exec:s0
 /system/bin/racoon	u:object_r:racoon_exec:s0
 /system/xbin/su		u:object_r:su_exec:s0
-/system/xbin/perfprofd  u:object_r:perfprofd_exec:s0
+/system/bin/perfprofd  u:object_r:perfprofd_exec:s0
 /system/bin/dnsmasq     u:object_r:dnsmasq_exec:s0
 /system/bin/healthd     u:object_r:healthd_exec:s0
 /system/bin/clatd	u:object_r:clatd_exec:s0
@@ -272,6 +275,8 @@
 /system/bin/vr_hwc               u:object_r:vr_hwc_exec:s0
 /system/bin/adbd                 u:object_r:adbd_exec:s0
 /system/bin/vold_prepare_subdirs u:object_r:vold_prepare_subdirs_exec:s0
+/system/bin/stats                u:object_r:stats_exec:s0
+/system/bin/statsd               u:object_r:statsd_exec:s0
 
 #############################
 # Vendor files
@@ -289,6 +294,7 @@
 /(vendor|system/vendor)/manifest.xml           u:object_r:vendor_configs_file:s0
 /(vendor|system/vendor)/compatibility_matrix.xml u:object_r:vendor_configs_file:s0
 /(vendor|system/vendor)/app(/.*)?              u:object_r:vendor_app_file:s0
+/(vendor|system/vendor)/priv-app(/.*)?         u:object_r:vendor_app_file:s0
 /(vendor|system/vendor)/overlay(/.*)?          u:object_r:vendor_overlay_file:s0
 /(vendor|system/vendor)/framework(/.*)?        u:object_r:vendor_framework_file:s0
 
@@ -309,7 +315,11 @@
 #############################
 # OEM and ODM files
 #
-/odm(/.*)?              u:object_r:system_file:s0
+/odm(/.*)?                                    u:object_r:vendor_file:s0
+/odm/lib(64)?/egl(/.*)?                       u:object_r:same_process_hal_file:s0
+/odm/lib(64)?/hw                              u:object_r:vendor_hal_file:s0
+/odm/lib(64)?/vndk-sp(/.*)?                   u:object_r:vndk_sp_file:s0
+
 /oem(/.*)?              u:object_r:oemfs:s0
 
 
@@ -339,6 +349,7 @@
 /data/app-private(/.*)?               u:object_r:apk_private_data_file:s0
 /data/app-private/vmdl.*\.tmp(/.*)?   u:object_r:apk_private_tmp_file:s0
 /data/tombstones(/.*)?	u:object_r:tombstone_data_file:s0
+/data/vendor/tombstones/wifi(/.*)? u:object_r:tombstone_wifi_data_file:s0
 /data/local/tmp(/.*)?	u:object_r:shell_data_file:s0
 /data/media(/.*)?	u:object_r:media_rw_data_file:s0
 /data/mediadrm(/.*)?	u:object_r:media_data_file:s0
@@ -374,6 +385,8 @@
 /data/misc/recovery(/.*)?       u:object_r:recovery_data_file:s0
 /data/misc/shared_relro(/.*)?   u:object_r:shared_relro_file:s0
 /data/misc/sms(/.*)?            u:object_r:radio_data_file:s0
+/data/misc/stats-data(/.*)?     u:object_r:stats_data_file:s0
+/data/misc/stats-service(/.*)?  u:object_r:stats_data_file:s0
 /data/misc/systemkeys(/.*)?     u:object_r:systemkeys_data_file:s0
 /data/misc/textclassifier(/.*)?       u:object_r:textclassifier_data_file:s0
 /data/misc/user(/.*)?           u:object_r:misc_user_data_file:s0
@@ -385,8 +398,10 @@
 /data/misc/vold(/.*)?           u:object_r:vold_data_file:s0
 /data/misc/perfprofd(/.*)?      u:object_r:perfprofd_data_file:s0
 /data/misc/update_engine(/.*)?  u:object_r:update_engine_data_file:s0
+/data/misc/update_engine_log(/.*)?  u:object_r:update_engine_log_data_file:s0
 /data/system/heapdump(/.*)?     u:object_r:heapdump_data_file:s0
 /data/misc/trace(/.*)?          u:object_r:method_trace_data_file:s0
+/data/misc/wmtrace(/.*)?        u:object_r:wm_trace_data_file:s0
 # TODO(calin) label profile reference differently so that only
 # profman run as a special user can write to them
 /data/misc/profiles/cur(/.*)?       u:object_r:user_profile_data_file:s0

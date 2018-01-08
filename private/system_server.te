@@ -52,7 +52,7 @@ bluetooth_domain(system_server)
 
 # These are the capabilities assigned by the zygote to the
 # system server.
-allow system_server self:capability {
+allow system_server self:global_capability_class_set {
     ipc_lock
     kill
     net_admin
@@ -72,7 +72,7 @@ wakelock_use(system_server)
 allow system_server kernel:system module_request;
 
 # Allow alarmtimers to be set
-allow system_server self:capability2 wake_alarm;
+allow system_server self:global_capability2_class_set wake_alarm;
 
 # Create and share netlink_netfilter_sockets for tetheroffload.
 allow system_server self:netlink_netfilter_socket create_socket_perms_no_ioctl;
@@ -124,23 +124,14 @@ r_dir_file(system_server, domain)
 allow system_server qtaguid_proc:file rw_file_perms;
 allow system_server qtaguid_device:chr_file rw_file_perms;
 
-# Read /proc/uid_cputime/show_uid_stat.
-allow system_server proc_uid_cputime_showstat:file r_file_perms;
-
 # Write /proc/uid_cputime/remove_uid_range.
 allow system_server proc_uid_cputime_removeuid:file { w_file_perms getattr };
 
 # Write /proc/uid_procstat/set.
 allow system_server proc_uid_procstat_set:file { w_file_perms getattr };
 
-# Read /proc/uid_time_in_state.
-allow system_server proc_uid_time_in_state:file r_file_perms;
-
 # Write to /proc/sysrq-trigger.
 allow system_server proc_sysrq:file rw_file_perms;
-
-# Read /proc/stat for CPU usage statistics
-allow system_server proc_stat:file r_file_perms;
 
 # Read /sys/kernel/debug/wakeup_sources.
 allow system_server debugfs:file r_file_perms;
@@ -177,6 +168,7 @@ binder_call(system_server, gatekeeperd)
 binder_call(system_server, installd)
 binder_call(system_server, incidentd)
 binder_call(system_server, netd)
+binder_call(system_server, statsd)
 binder_call(system_server, storaged)
 binder_call(system_server, vold)
 binder_call(system_server, wificond)
@@ -587,6 +579,7 @@ allow system_server mediadrmserver_service:service_manager find;
 allow system_server netd_service:service_manager find;
 allow system_server nfc_service:service_manager find;
 allow system_server radio_service:service_manager find;
+allow system_server stats_service:service_manager find;
 allow system_server storaged_service:service_manager find;
 allow system_server surfaceflinger_service:service_manager find;
 allow system_server vold_service:service_manager find;
@@ -652,6 +645,10 @@ userdebug_or_eng(`
 
   # Allow system server to read dmesg
   allow system_server kernel:system syslog_read;
+
+  # Allow writing and removing window traces in /data/misc/wmtrace.
+  allow system_server wm_trace_data_file:dir rw_dir_perms;
+  allow system_server wm_trace_data_file:file { getattr setattr create unlink w_file_perms };
 ')
 
 # For AppFuse.
@@ -692,20 +689,24 @@ r_dir_file(system_server, cgroup)
 allow system_server ion_device:chr_file r_file_perms;
 
 r_dir_file(system_server, proc_asound)
-r_dir_file(system_server, proc_loadavg)
-r_dir_file(system_server, proc_meminfo)
 r_dir_file(system_server, proc_net)
-r_dir_file(system_server, proc_pagetypeinfo)
-r_dir_file(system_server, proc_version)
-r_dir_file(system_server, proc_vmallocinfo)
-r_dir_file(system_server, rootfs)
+allow system_server {
+  proc_loadavg
+  proc_meminfo
+  proc_pagetypeinfo
+  proc_pipe_conf
+  proc_stat
+  proc_uid_cputime_showstat
+  proc_uid_time_in_state
+  proc_uid_concurrent_active_time
+  proc_uid_concurrent_policy_time
+  proc_version
+  proc_vmallocinfo
+}:file r_file_perms;
 
-### Rules needed when Light HAL runs inside system_server process.
-### These rules should eventually be granted only when needed.
-allow system_server sysfs_leds:lnk_file read;
-allow system_server sysfs_leds:file rw_file_perms;
-allow system_server sysfs_leds:dir r_dir_perms;
-###
+allow system_server proc_uid_time_in_state:dir r_dir_perms;
+
+r_dir_file(system_server, rootfs)
 
 # Allow WifiService to start, stop, and read wifi-specific trace events.
 allow system_server debugfs_tracing_instances:dir search;
@@ -719,6 +720,13 @@ with_asan(`
   allow system_server asanwrapper_exec:file rx_file_perms;
   allow system_server zygote_exec:file rx_file_perms;
 ')
+
+# ART Profiles.
+# Allow system_server to open profile snapshots for read.
+# System server never reads the actual content. It passes the descriptor to
+# to privileged apps which acquire the permissions to inspect the profiles.
+allow system_server user_profile_data_file:dir { search };
+allow system_server user_profile_data_file:file { getattr open read };
 
 ###
 ### Neverallow rules
@@ -787,8 +795,5 @@ neverallow system_server { domain -system_server }:process ptrace;
 
 # CAP_SYS_RESOURCE was traditionally needed for sensitive /proc/PID
 # file read access. However, that is now unnecessary (b/34951864)
-# This neverallow can be removed after b/34951864 is fixed.
-neverallow system_server system_server:capability sys_resource;
+neverallow system_server system_server:global_capability_class_set sys_resource;
 
-# TODO(b/67468181): Remove following lines upon resolution of this bug
-dontaudit system_server statscompanion_service:service_manager { add find };

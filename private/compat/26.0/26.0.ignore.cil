@@ -6,6 +6,7 @@
   ( adbd_exec
     bootloader_boot_reason_prop
     broadcastradio_service
+    crossprofileapps_service
     e2fs
     e2fs_exec
     hal_broadcastradio_hwservice
@@ -21,7 +22,17 @@
     lowpan_service
     mediaprovider_tmpfs
     netd_stable_secret_prop
+    network_watchlist_service
     package_native_service
+    property_info
+    slice_service
+    stats
+    stats_data_file
+    stats_exec
+    stats_service
+    statsd
+    statsd_exec
+    statsd_tmpfs
     statscompanion_service
     storaged_data_file
     sysfs_fs_ext4_features
@@ -34,6 +45,8 @@
     thermalserviced_tmpfs
     timezone_service
     tombstoned_java_trace_socket
+    tombstone_wifi_data_file
+    update_engine_log_data_file
     vendor_init
     vold_prepare_subdirs
     vold_prepare_subdirs_exec
@@ -41,7 +54,8 @@
     wpantund
     wpantund_exec
     wpantund_service
-    wpantund_tmpfs))
+    wpantund_tmpfs
+    wm_trace_data_file))
 
 ;; private_objects - a collection of types that were labeled differently in
 ;;     older policy, but that should not remain accessible to vendor policy.

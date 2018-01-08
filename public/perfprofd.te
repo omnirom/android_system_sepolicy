@@ -7,6 +7,9 @@ userdebug_or_eng(`
   typeattribute perfprofd coredomain;
   typeattribute perfprofd mlstrustedsubject;
 
+  # perfprofd access to sysfs directory structure.
+  allow perfprofd sysfs_type:dir search;
+
   # perfprofd needs to control CPU hot-plug in order to avoid kernel
   # perfevents problems in cases where CPU goes on/off during measurement;
   # this means read access to /sys/devices/system/cpu/possible
@@ -20,7 +23,7 @@ userdebug_or_eng(`
   # perfprofd reads a config file from /data/data/com.google.android.gms/files
   allow perfprofd app_data_file:file r_file_perms;
   allow perfprofd app_data_file:dir search;
-  allow perfprofd self:capability { dac_override };
+  allow perfprofd self:global_capability_class_set { dac_override };
 
   # perfprofd opens a file for writing in /data/misc/perfprofd
   allow perfprofd perfprofd_data_file:file create_file_perms;
@@ -33,27 +36,64 @@ userdebug_or_eng(`
   # perfprofd inspects /sys/power/wake_unlock
   wakelock_use(perfprofd);
 
+  # perfprofd looks at thermals.
+  allow perfprofd sysfs_thermal:dir r_dir_perms;
+
+  # perfprofd checks power_supply.
+  r_dir_file(perfprofd, sysfs_batteryinfo)
+
+  # simpleperf reads kernel notes.
+  allow perfprofd sysfs_kernel_notes:file r_file_perms;
+
+  # Simpleperf & perfprofd query a range of proc stats.
+  allow perfprofd proc_loadavg:file r_file_perms;
+  allow perfprofd proc_stat:file r_file_perms;
+  allow perfprofd proc_modules:file r_file_perms;
+
+  # simpleperf writes to perf_event_paranoid under /proc.
+  allow perfprofd proc_perf:file write;
+
+  # Simpleperf: kptr_restrict. This would be required to dump kernel symbols.
+  dontaudit perfprofd proc_security:file *;
+
   # simpleperf uses ioctl() to turn on kernel perf events measurements
-  allow perfprofd self:capability sys_admin;
+  allow perfprofd self:global_capability_class_set sys_admin;
 
   # simpleperf needs to examine /proc to collect task/thread info
   r_dir_file(perfprofd, domain)
 
   # simpleperf needs to access /proc/<pid>/exec
-  allow perfprofd self:capability { sys_resource sys_ptrace };
+  allow perfprofd self:global_capability_class_set { sys_resource sys_ptrace };
   neverallow perfprofd domain:process ptrace;
 
   # simpleperf needs open/read any file that turns up in a profile
   # to see whether it has a build ID
   allow perfprofd exec_type:file r_file_perms;
+  # App & ART artifacts.
+  r_dir_file(perfprofd, apk_data_file)
+  r_dir_file(perfprofd, dalvikcache_data_file)
+  # Vendor libraries.
+  r_dir_file(perfprofd, vendor_file)
+  # Vendor apps.
+  r_dir_file(perfprofd, vendor_app_file)
+
+  # simpleperf will set security.perf_harden to enable access to perf_event_open()
+  set_prop(perfprofd, shell_prop)
 
   # simpleperf examines debugfs on startup to collect tracepoint event types
-  allow perfprofd debugfs_tracing:file r_file_perms;
+  r_dir_file(perfprofd, debugfs_tracing)
+  allow perfprofd debugfs_tracing_debug:file r_file_perms;
 
   # simpleperf is going to execute "sleep"
   allow perfprofd toolbox_exec:file rx_file_perms;
 
   # needed for simpleperf on some kernels
-  allow perfprofd self:capability ipc_lock;
+  allow perfprofd self:global_capability_class_set ipc_lock;
+
+  # simpleperf attempts to put a temp file into /data/local/tmp. Do not allow,
+  # use the fallback cwd code, do not spam the log. But ensure this is correctly
+  # removed at some point. b/70232908.
+  dontaudit perfprofd shell_data_file:dir *;
+  dontaudit perfprofd shell_data_file:file *;
 
 ')

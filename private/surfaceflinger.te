@@ -52,6 +52,12 @@ set_prop(surfaceflinger, ctl_bootanim_prop)
 allow surfaceflinger appdomain:fd use;
 allow surfaceflinger app_data_file:file { read write };
 
+# Allow writing surface traces to /data/misc/wmtrace.
+userdebug_or_eng(`
+  allow surfaceflinger wm_trace_data_file:dir rw_dir_perms;
+  allow surfaceflinger wm_trace_data_file:file { getattr setattr create w_file_perms };
+')
+
 # Use socket supplied by adbd, for cmd gpu vkjson etc.
 allow surfaceflinger adbd:unix_stream_socket { read write getattr };
 
@@ -81,7 +87,7 @@ allow surfaceflinger window_service:service_manager find;
 
 
 # allow self to set SCHED_FIFO
-allow surfaceflinger self:capability sys_nice;
+allow surfaceflinger self:global_capability_class_set sys_nice;
 allow surfaceflinger proc_meminfo:file r_file_perms;
 r_dir_file(surfaceflinger, cgroup)
 r_dir_file(surfaceflinger, system_file)

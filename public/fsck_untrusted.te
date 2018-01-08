@@ -46,4 +46,4 @@ neverallow fsck_untrusted {
 # Only allow entry from vold via fsck binaries
 neverallow { domain -vold } fsck_untrusted:process transition;
 neverallow * fsck_untrusted:process dyntransition;
-neverallow fsck_untrusted { file_type fs_type -fsck_exec }:file entrypoint;
+neverallow fsck_untrusted { file_type fs_type -fsck_exec -toolbox_exec }:file entrypoint;

@@ -24,7 +24,6 @@ allow vold {
   proc_filesystems
   proc_meminfo
   proc_mounts
-  proc_overflowuid
 }:file r_file_perms;
 
 #Get file contexts
@@ -125,6 +124,8 @@ allow vold kernel:process setsched;
 
 # Property Service
 set_prop(vold, vold_prop)
+set_prop(vold, exported_vold_prop)
+set_prop(vold, exported2_vold_prop)
 set_prop(vold, powerctl_prop)
 set_prop(vold, ctl_fuse_prop)
 set_prop(vold, restorecon_prop)

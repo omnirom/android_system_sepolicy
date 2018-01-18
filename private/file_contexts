@@ -145,6 +145,8 @@
 /dev/socket/tombstoned_crash u:object_r:tombstoned_crash_socket:s0
 /dev/socket/tombstoned_java_trace u:object_r:tombstoned_java_trace_socket:s0
 /dev/socket/tombstoned_intercept u:object_r:tombstoned_intercept_socket:s0
+/dev/socket/traced_producer	u:object_r:traced_producer_socket:s0
+/dev/socket/traced_consumer	u:object_r:traced_consumer_socket:s0
 /dev/socket/uncrypt	u:object_r:uncrypt_socket:s0
 /dev/socket/webview_zygote	u:object_r:webview_zygote_socket:s0
 /dev/socket/wpa_eth[0-9] u:object_r:wpa_socket:s0
@@ -238,6 +240,8 @@
 /system/bin/lmkd        u:object_r:lmkd_exec:s0
 /system/bin/inputflinger u:object_r:inputflinger_exec:s0
 /system/bin/logd        u:object_r:logd_exec:s0
+/system/bin/traced        u:object_r:traced_exec:s0
+/system/bin/traced_probes        u:object_r:traced_probes_exec:s0
 /system/bin/uncrypt     u:object_r:uncrypt_exec:s0
 /system/bin/update_verifier u:object_r:update_verifier_exec:s0
 /system/bin/logwrapper  u:object_r:system_file:s0
@@ -284,6 +288,7 @@
 /(vendor|system/vendor)(/.*)?                  u:object_r:vendor_file:s0
 /(vendor|system/vendor)/bin/sh                 u:object_r:vendor_shell_exec:s0
 /(vendor|system/vendor)/bin/toybox_vendor      u:object_r:vendor_toolbox_exec:s0
+/(vendor|system/vendor)/bin/toolbox            u:object_r:vendor_toolbox_exec:s0
 /(vendor|system/vendor)/etc(/.*)?              u:object_r:vendor_configs_file:s0
 
 /(vendor|system/vendor)/lib(64)?/egl(/.*)?     u:object_r:same_process_hal_file:s0
@@ -373,6 +378,7 @@
 /data/misc/bluedroid/\.a2dp_ctrl u:object_r:bluetooth_socket:s0
 /data/misc/bluedroid/\.a2dp_data u:object_r:bluetooth_socket:s0
 /data/misc/camera(/.*)?         u:object_r:camera_data_file:s0
+/data/misc/carrierid(/.*)?      u:object_r:radio_data_file:s0
 /data/misc/dhcp(/.*)?           u:object_r:dhcp_data_file:s0
 /data/misc/dhcp-6.8.2(/.*)?     u:object_r:dhcp_data_file:s0
 /data/misc/gatekeeper(/.*)?     u:object_r:gatekeeper_data_file:s0
@@ -382,6 +388,7 @@
 /data/misc/logd(/.*)?           u:object_r:misc_logd_file:s0
 /data/misc/media(/.*)?          u:object_r:media_data_file:s0
 /data/misc/net(/.*)?            u:object_r:net_data_file:s0
+/data/misc/network_watchlist(/.*)? u:object_r:network_watchlist_data_file:s0
 /data/misc/recovery(/.*)?       u:object_r:recovery_data_file:s0
 /data/misc/shared_relro(/.*)?   u:object_r:shared_relro_file:s0
 /data/misc/sms(/.*)?            u:object_r:radio_data_file:s0

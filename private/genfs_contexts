@@ -17,6 +17,7 @@ genfscon proc /modules u:object_r:proc_modules:s0
 genfscon proc /mounts u:object_r:proc_mounts:s0
 genfscon proc /net u:object_r:proc_net:s0
 genfscon proc /net/xt_qtaguid/ctrl u:object_r:qtaguid_proc:s0
+genfscon proc /net/xt_qtaguid/ u:object_r:proc_qtaguid_stat:s0
 genfscon proc /cpuinfo u:object_r:proc_cpuinfo:s0
 genfscon proc /pagetypeinfo u:object_r:proc_pagetypeinfo:s0
 genfscon proc /softirqs u:object_r:proc_timer:s0
@@ -38,7 +39,6 @@ genfscon proc /sys/kernel/hung_task_timeout_secs u:object_r:proc_hung_task:s0
 genfscon proc /sys/kernel/kptr_restrict u:object_r:proc_security:s0
 genfscon proc /sys/kernel/modprobe u:object_r:usermodehelper:s0
 genfscon proc /sys/kernel/modules_disabled u:object_r:proc_security:s0
-genfscon proc /sys/kernel/overflowuid u:object_r:proc_overflowuid:s0
 genfscon proc /sys/kernel/panic_on_oops u:object_r:proc_panic:s0
 genfscon proc /sys/kernel/perf_event_max_sample_rate u:object_r:proc_perf:s0
 genfscon proc /sys/kernel/perf_event_paranoid u:object_r:proc_perf:s0
@@ -84,6 +84,7 @@ genfscon proc /zoneinfo u:object_r:proc_zoneinfo:s0
 # selinuxfs booleans can be individually labeled.
 genfscon selinuxfs / u:object_r:selinuxfs:s0
 genfscon cgroup / u:object_r:cgroup:s0
+genfscon cgroup2 / u:object_r:cgroup_bpf:s0
 # sysfs labels can be set by userspace.
 genfscon sysfs / u:object_r:sysfs:s0
 genfscon sysfs /devices/system/cpu u:object_r:sysfs_devices_system_cpu:s0
@@ -173,3 +174,4 @@ genfscon pstore / u:object_r:pstorefs:s0
 genfscon functionfs / u:object_r:functionfs:s0
 genfscon usbfs / u:object_r:usbfs:s0
 genfscon binfmt_misc / u:object_r:binfmt_miscfs:s0
+genfscon bpf / u:object_r:fs_bpf:s0

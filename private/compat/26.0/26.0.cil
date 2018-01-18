@@ -464,7 +464,6 @@
     proc_loadavg
     proc_max_map_count
     proc_mounts
-    proc_overflowuid
     proc_page_cluster
     proc_pagetypeinfo
     proc_panic
@@ -488,7 +487,9 @@
 (typeattributeset proc_meminfo_26_0 (proc_meminfo))
 (typeattributeset proc_misc_26_0 (proc_misc))
 (typeattributeset proc_modules_26_0 (proc_modules))
-(typeattributeset proc_net_26_0 (proc_net))
+(typeattributeset proc_net_26_0
+  ( proc_net
+    proc_qtaguid_stat))
 (typeattributeset proc_overcommit_memory_26_0 (proc_overcommit_memory))
 (typeattributeset proc_perf_26_0 (proc_perf))
 (typeattributeset proc_security_26_0 (proc_security))

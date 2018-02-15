@@ -404,6 +404,7 @@ compatible_property_only(`
     -system_prop
     -system_radio_prop
     -test_boot_reason_prop
+    -theme_prop
     -traced_enabled_prop
     -vendor_default_prop
     -vendor_security_patch_level_prop

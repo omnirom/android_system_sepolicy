@@ -316,6 +316,9 @@ type hwservice_contexts_file, file_type;
 # vndservice_contexts file
 type vndservice_contexts_file, file_type;
 
+# Themes
+type theme_data_file, file_type, data_file_type, core_data_file_type;
+
 # Allow files to be created in their appropriate filesystems.
 allow fs_type self:filesystem associate;
 allow sysfs_type sysfs:filesystem associate;
@@ -335,3 +338,5 @@ allow postinstall_file self:filesystem associate;
 # Should be:
 #   type apk_data_file, file_type, data_file_type;
 neverallow fs_type file_type:filesystem associate;
+
+

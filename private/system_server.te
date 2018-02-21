@@ -36,6 +36,7 @@ allow system_server zygote:process sigchld;
 # May kill zygote on crashes.
 allow system_server zygote:process sigkill;
 allow system_server crash_dump:process sigkill;
+allow system_server webview_zygote:process sigkill;
 
 # Read /system/bin/app_process.
 allow system_server zygote_exec:file r_file_perms;
@@ -681,7 +682,7 @@ allow system_server app_fuse_file:file { read write open getattr append };
 
 # For configuring sdcardfs
 allow system_server configfs:dir { create_dir_perms };
-allow system_server configfs:file { getattr open unlink write };
+allow system_server configfs:file { getattr open create unlink write };
 
 # Connect to adbd and use a socket transferred from it.
 # Used for e.g. jdwp.

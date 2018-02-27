@@ -28,6 +28,7 @@ allow statsd stats_data_file:file create_file_perms;
 
 # Allow statsd to make binder calls to any binder service.
 binder_call(statsd, appdomain)
+binder_call(statsd, healthd)
 binder_call(statsd, incidentd)
 binder_call(statsd, statscompanion_service)
 binder_call(statsd, system_server)
@@ -36,15 +37,22 @@ binder_call(statsd, system_server)
 read_logd(statsd)
 control_logd(statsd)
 
-# Allow to control Perfetto traced and consume its traces.
-unix_socket_connect(statsd, traced_consumer, traced)
+# Allow to exec the perfetto cmdline client and pass it the trace config on
+# stdint through a pipe. It allows statsd to  capture traces and hand them
+# to Android dropbox.
+allow statsd perfetto_exec:file rx_file_perms;
+domain_auto_trans(statsd, perfetto_exec, perfetto)
 
 # Grant statsd with permissions to register the services.
 allow statsd {
-  statscompanion_service
   app_api_service
+  incident_service
+  statscompanion_service
   system_api_service
 }:service_manager find;
+
+# Grant statsd to access health hal to access battery metrics.
+allow statsd hal_health_hwservice:hwservice_manager find;
 
 # Only statsd can publish the binder service.
 add_service(statsd, stats_service)
@@ -52,6 +60,10 @@ add_service(statsd, stats_service)
 # Allow pipes from (and only from) stats.
 allow statsd stats:fd use;
 allow statsd stats:fifo_file write;
+
+# Allow statsd to send dump info to dumpstate
+allow statsd dumpstate:fd use;
+allow statsd dumpstate:fifo_file { getattr write };
 
 # Allow statsd to call back to stats with status updates.
 binder_call(statsd, stats)
@@ -80,7 +92,7 @@ neverallow {
 # Only statsd and the other root services in limited circumstances.
 # can get to the files in /data/misc/stats-data, /data/misc/stats-service.
 # Other services are prohibitted from accessing the file.
-neverallow { domain -statsd -init -vold -vendor_init } stats_data_file:file *;
+neverallow { domain -statsd -init -vold } stats_data_file:file *;
 
 # Limited access to the directory itself.
-neverallow { domain -statsd -init -vold -vendor_init } stats_data_file:dir *;
+neverallow { domain -statsd -init -vold } stats_data_file:dir *;

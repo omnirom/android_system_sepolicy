@@ -124,7 +124,10 @@
 (typeattributeset dalvikcache_data_file_26_0 (dalvikcache_data_file))
 (typeattributeset dalvik_prop_26_0 (dalvik_prop))
 (typeattributeset dbinfo_service_26_0 (dbinfo_service))
-(typeattributeset debugfs_26_0 (debugfs))
+(typeattributeset debugfs_26_0
+  ( debugfs
+    debugfs_wakeup_sources
+  ))
 (typeattributeset debugfs_mmc_26_0 (debugfs_mmc))
 (typeattributeset debugfs_trace_marker_26_0 (debugfs_trace_marker))
 (typeattributeset debugfs_tracing_26_0 (debugfs_tracing))
@@ -453,6 +456,7 @@
   ( proc
     proc_abi
     proc_asound
+    proc_buddyinfo
     proc_cmdline
     proc_dirty
     proc_diskstats
@@ -463,6 +467,7 @@
     proc_kmsg
     proc_loadavg
     proc_max_map_count
+    proc_min_free_order_shift
     proc_mounts
     proc_page_cluster
     proc_pagetypeinfo
@@ -475,9 +480,11 @@
     proc_uid_time_in_state
     proc_uid_concurrent_active_time
     proc_uid_concurrent_policy_time
+    proc_uid_cpupower
     proc_uptime
     proc_version
-    proc_vmallocinfo))
+    proc_vmallocinfo
+    proc_vmstat))
 (typeattributeset proc_bluetooth_writable_26_0 (proc_bluetooth_writable))
 (typeattributeset proc_cpuinfo_26_0 (proc_cpuinfo))
 (typeattributeset proc_drop_caches_26_0 (proc_drop_caches))
@@ -628,7 +635,9 @@
 (typeattributeset system_app_data_file_26_0 (system_app_data_file))
 (typeattributeset system_app_service_26_0 (system_app_service))
 (typeattributeset system_block_device_26_0 (system_block_device))
-(typeattributeset system_data_file_26_0 (system_data_file))
+(typeattributeset system_data_file_26_0
+  ( system_data_file
+    vendor_data_file))
 (typeattributeset system_file_26_0 (system_file))
 (typeattributeset systemkeys_data_file_26_0 (systemkeys_data_file))
 (typeattributeset system_ndebug_socket_26_0 (system_ndebug_socket))
@@ -671,7 +680,9 @@
 (typeattributeset unencrypted_data_file_26_0 (unencrypted_data_file))
 (typeattributeset unlabeled_26_0 (unlabeled))
 (typeattributeset untrusted_app_25_26_0 (untrusted_app_25))
-(typeattributeset untrusted_app_26_0 (untrusted_app))
+(typeattributeset untrusted_app_26_0
+  ( untrusted_app
+    untrusted_app_27))
 (typeattributeset untrusted_v2_app_26_0 (untrusted_v2_app))
 (typeattributeset update_engine_26_0 (update_engine))
 (typeattributeset update_engine_data_file_26_0 (update_engine_data_file))

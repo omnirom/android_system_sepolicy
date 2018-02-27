@@ -32,6 +32,7 @@ attribute data_file_type;
 expandattribute data_file_type false;
 # All types in /data, not in /data/vendor
 attribute core_data_file_type;
+expandattribute core_data_file_type false;
 # All types in /vendor
 attribute vendor_file_type;
 
@@ -130,6 +131,7 @@ attribute coredomain;
 
 # All socket devices owned by core domain components
 attribute coredomain_socket;
+expandattribute coredomain_socket false;
 
 # All vendor domains which violate the requirement of not using Binder
 # TODO(b/35870313): Remove this once there are no violations
@@ -153,6 +155,12 @@ expandattribute vendor_executes_system_violators false;
 # TODO(b/34980020)
 attribute data_between_core_and_vendor_violators;
 expandattribute data_between_core_and_vendor_violators false;
+
+# All system domains which violate the requirement of not executing vendor
+# binaries/libraries.
+# TODO(b/62041836)
+attribute system_executes_vendor_violators;
+expandattribute system_executes_vendor_violators false;
 
 # hwservices that are accessible from untrusted applications
 # WARNING: Use of this attribute should be avoided unless
@@ -198,11 +206,13 @@ expandattribute halclientdomain true;
 # HALs
 hal_attribute(allocator);
 hal_attribute(audio);
+hal_attribute(authsecret);
 hal_attribute(bluetooth);
 hal_attribute(bootctl);
 hal_attribute(broadcastradio);
 hal_attribute(camera);
 hal_attribute(configstore);
+hal_attribute(confirmationui);
 hal_attribute(contexthub);
 hal_attribute(drm);
 hal_attribute(cas);
@@ -222,6 +232,7 @@ hal_attribute(neuralnetworks);
 hal_attribute(nfc);
 hal_attribute(oemlock);
 hal_attribute(power);
+hal_attribute(secure_element);
 hal_attribute(sensors);
 hal_attribute(telephony);
 hal_attribute(tetheroffload);
@@ -229,10 +240,12 @@ hal_attribute(thermal);
 hal_attribute(tv_cec);
 hal_attribute(tv_input);
 hal_attribute(usb);
+hal_attribute(usb_gadget);
 hal_attribute(vibrator);
 hal_attribute(vr);
 hal_attribute(weaver);
 hal_attribute(wifi);
+hal_attribute(wifi_hostapd);
 hal_attribute(wifi_offload);
 hal_attribute(wifi_supplicant);
 

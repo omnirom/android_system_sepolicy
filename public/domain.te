@@ -129,11 +129,11 @@ get_prop(domain, debug_prop)
 get_prop(domain, exported_config_prop)
 get_prop(domain, exported_default_prop)
 get_prop(domain, exported_dumpstate_prop)
+get_prop(domain, exported_fingerprint_prop)
 get_prop(domain, exported_radio_prop)
 get_prop(domain, exported_system_prop)
 get_prop(domain, exported_vold_prop)
 get_prop(domain, exported2_default_prop)
-get_prop(domain, fingerprint_prop)
 get_prop(domain, logd_prop)
 
 # Let everyone read log properties, so that liblog can avoid sending unloggable
@@ -208,11 +208,15 @@ r_dir_file(domain, sysfs_devices_system_cpu)
 r_dir_file(domain, sysfs_usb);
 
 # files under /data.
-not_full_treble(`allow domain system_data_file:dir getattr;')
+not_full_treble(`
+  allow domain system_data_file:dir getattr;
+')
 allow { coredomain appdomain } system_data_file:dir getattr;
 # /data has the label system_data_file. Vendor components need the search
 # permission on system_data_file for path traversal to /data/vendor.
 allow domain system_data_file:dir search;
+# TODO restrict this to non-coredomain
+allow domain vendor_data_file:dir { getattr search };
 
 # required by the dynamic linker
 allow domain proc:lnk_file { getattr read };
@@ -416,6 +420,7 @@ neverallow {
     userdebug_or_eng(`-su')
     -webview_zygote
     -zygote
+    userdebug_or_eng(`-mediaextractor')
 } {
     file_type
     -system_file
@@ -506,10 +511,12 @@ neverallow * hidl_base_hwservice:hwservice_manager find;
 
 # Require that domains explicitly label unknown properties, and do not allow
 # anyone but init to modify unknown properties.
-neverallow { domain -init } default_prop:property_service set;
-neverallow { domain -init } mmc_prop:property_service set;
+neverallow { domain -init -vendor_init } default_prop:property_service set;
+neverallow { domain -init -vendor_init } mmc_prop:property_service set;
 
 compatible_property_only(`
+    neverallow { domain -init } default_prop:property_service set;
+    neverallow { domain -init } mmc_prop:property_service set;
     neverallow { domain -init -vendor_init } exported_default_prop:property_service set;
     neverallow { domain -init -vendor_init } exported2_default_prop:property_service set;
     neverallow { domain -init -vendor_init } exported3_default_prop:property_service set;
@@ -556,8 +563,14 @@ neverallow {
 # The metadata block device is set aside for device encryption and
 # verified boot metadata. It may be reset at will and should not
 # be used by other domains.
-neverallow { domain -init -recovery -vold } metadata_block_device:blk_file
-  { append link rename write open read ioctl lock };
+neverallow {
+  domain
+  -init
+  -recovery
+  -vold
+  -e2fs
+  -fsck
+} metadata_block_device:blk_file { append link rename write open read ioctl lock };
 
 # No domain other than recovery and update_engine can write to system partition(s).
 neverallow { domain -recovery -update_engine } system_block_device:blk_file { write append };
@@ -661,7 +674,6 @@ full_treble_only(`
 
 # On full TREBLE devices, socket communications between core components and vendor components are
 # not permitted.
-full_treble_only(`
   # Most general rules first, more specific rules below.
 
   # Core domains are not permitted to initiate communications to vendor domain sockets.
@@ -669,6 +681,7 @@ full_treble_only(`
   # to obtain an already established socket via some public/official/stable API and then exchange
   # data with its peer over that socket. The wire format in this scenario is dicatated by the API
   # and thus does not break the core-vendor separation.
+full_treble_only(`
   neverallow_establish_socket_comms({
     coredomain
     -init
@@ -678,7 +691,9 @@ full_treble_only(`
     -coredomain
     -socket_between_core_and_vendor_violators
   });
+')
   # Vendor domains are not permitted to initiate communications to core domain sockets
+full_treble_only(`
   neverallow_establish_socket_comms({
     domain
     -coredomain
@@ -694,26 +709,34 @@ full_treble_only(`
     -incidentd # TODO(b/35870313): Remove incidentd from this list once vendor domains no longer declare Binder services
     -tombstoned # TODO(b/36604251): Remove tombstoned from this list once mediacodec (OMX HAL) no longer declares Binder services
   });
+')
 
   # Vendor domains (except netdomain) are not permitted to initiate communications to netd sockets
+full_treble_only(`
   neverallow_establish_socket_comms({
     domain
     -coredomain
     -netdomain
     -socket_between_core_and_vendor_violators
   }, netd);
+')
 
   # Vendor domains are not permitted to initiate create/open sockets owned by core domains
+full_treble_only(`
   neverallow {
     domain
     -coredomain
     -appdomain # appdomain restrictions below
+    -data_between_core_and_vendor_violators # b/70393317
     -socket_between_core_and_vendor_violators
+    -vendor_init
   } {
     coredomain_socket
     core_data_file_type
     unlabeled # used only by core domains
   }:sock_file ~{ append getattr ioctl read write };
+')
+full_treble_only(`
   neverallow {
     appdomain
     -coredomain
@@ -725,14 +748,15 @@ full_treble_only(`
     -pdx_endpoint_socket_type # used by VR layer
     -pdx_channel_socket_type # used by VR layer
   }:sock_file ~{ append getattr ioctl read write };
+')
 
   # Core domains are not permitted to create/open sockets owned by vendor domains
+full_treble_only(`
   neverallow {
     coredomain
     -init
     -ueventd
     -socket_between_core_and_vendor_violators
-    -vendor_init
   } {
     file_type
     dev_type
@@ -740,6 +764,107 @@ full_treble_only(`
     -core_data_file_type
     -unlabeled
   }:sock_file ~{ append getattr ioctl read write };
+')
+
+# On TREBLE devices, vendor and system components are only allowed to share
+# files by passing open FDs over hwbinder. Ban all directory access and all file
+# accesses other than what can be applied to an open FD such as
+# ioctl/stat/read/write/append. This is enforced by segregating /data.
+# Vendor domains may directly access file in /data/vendor by path, but may only
+# access files outside of /data/vendor via an open FD passed over hwbinder.
+# Likewise, core domains may only directly access files outside /data/vendor by
+# path and files in /data/vendor by open FD.
+full_treble_only(`
+  # only coredomains may only access core_data_file_type, particularly not
+  # /data/vendor
+  neverallow {
+    coredomain
+    -appdomain # TODO(b/34980020) remove exemption for appdomain
+    -data_between_core_and_vendor_violators
+    -init
+    -vold_prepare_subdirs
+  } {
+    data_file_type
+    -core_data_file_type
+  }:file_class_set ~{ append getattr ioctl read write };
+  neverallow {
+    coredomain
+    -appdomain # TODO(b/34980020) remove exemption for appdomain
+    -data_between_core_and_vendor_violators
+    -init
+    -vold_prepare_subdirs
+    } {
+      data_file_type
+      -core_data_file_type
+      # TODO(b/72998741) Remove exemption. Further restricted in a subsequent
+      # neverallow. Currently only getattr and search are allowed.
+      -vendor_data_file
+    }:dir *;
+
+')
+full_treble_only(`
+  # vendor domains may only access files in /data/vendor, never core_data_file_types
+  neverallow {
+    domain
+    -appdomain # TODO(b/34980020) remove exemption for appdomain
+    -coredomain
+    -data_between_core_and_vendor_violators # TODO(b/34980020) Remove once all violators have been cleaned up
+  } {
+    core_data_file_type
+    # libc includes functions like mktime and localtime which attempt to access
+    # files in /data/misc/zoneinfo/tzdata file. These functions are considered
+    # vndk-stable and thus must be allowed for all processes.
+    -zoneinfo_data_file
+    }:file_class_set ~{ append getattr ioctl read write };
+')
+full_treble_only(`
+  # vendor domains may only access dirs in /data/vendor, never core_data_file_types
+  neverallow {
+    domain
+    -appdomain # TODO(b/34980020) remove exemption for appdomain
+    -coredomain
+    -data_between_core_and_vendor_violators
+    } {
+      core_data_file_type
+      -system_data_file # default label for files on /data. Covered below...
+      -vendor_data_file
+      -zoneinfo_data_file
+    }:dir *;
+')
+full_treble_only(`
+  # vendor domains may only access dirs in /data/vendor, never core_data_file_types
+  neverallow {
+    domain
+    -appdomain # TODO(b/34980020) remove exemption for appdomain
+    -coredomain
+    -data_between_core_and_vendor_violators # TODO(b/34980020) Remove once all violators have been cleaned up
+    } {
+      system_data_file # default label for files on /data. Covered below
+    }:dir ~{ getattr search };
+')
+
+full_treble_only(`
+  #  coredomains may not access dirs in /data/vendor.
+  neverallow {
+    coredomain
+    -data_between_core_and_vendor_violators # TODO(b/34980020) Remove once all violators have been cleaned up
+    -init
+    -vold # vold creates per-user storage for both system and vendor
+    -vold_prepare_subdirs
+    } {
+      vendor_data_file # default label for files on /data. Covered below
+    }:dir ~{ getattr search };
+')
+
+full_treble_only(`
+  #  coredomains may not access dirs in /data/vendor.
+  neverallow {
+    coredomain
+    -data_between_core_and_vendor_violators # TODO(b/34980020) Remove once all violators have been cleaned up
+    -init
+    } {
+      vendor_data_file # default label for files on /data/vendor{,_ce,_de}.
+    }:file_class_set ~{ append getattr ioctl read write };
 ')
 
 # On TREBLE devices, a limited set of files in /vendor are accessible to
@@ -756,7 +881,6 @@ full_treble_only(`
         userdebug_or_eng(`-perfprofd')
         -postinstall_dexopt
         -system_server
-        -vendor_init
     } vendor_app_file:dir { open read getattr search };
 
     neverallow {
@@ -769,7 +893,6 @@ full_treble_only(`
         userdebug_or_eng(`-perfprofd')
         -postinstall_dexopt
         -system_server
-        -vendor_init
     } vendor_app_file:{ file lnk_file } r_file_perms;
 
     # Limit access to /vendor/overlay
@@ -781,7 +904,6 @@ full_treble_only(`
         -installd
         -system_server
         -zygote
-        -vendor_init
     } vendor_overlay_file:dir { getattr open read search };
 
     neverallow {
@@ -792,7 +914,6 @@ full_treble_only(`
         -installd
         -system_server
         -zygote
-        -vendor_init
     } vendor_overlay_file:{ file lnk_file } r_file_perms;
 
     # Non-vendor domains are not allowed to file execute shell
@@ -800,7 +921,7 @@ full_treble_only(`
     neverallow {
         coredomain
         -init
-        -vendor_init
+        -shell
     } vendor_shell_exec:file { execute execute_no_trans };
 
     # Do not allow vendor components to execute files from system
@@ -818,6 +939,24 @@ full_treble_only(`
         -crash_dump_exec
         -netutils_wrapper_exec
     }:file { entrypoint execute execute_no_trans };
+
+    # Do not allow system components to execute files from vendor
+    # except for the ones whitelisted here.
+    neverallow {
+      coredomain
+      -init
+      -system_executes_vendor_violators
+    } {
+      vendor_file_type
+      -same_process_hal_file
+      -vndk_sp_file
+      -vendor_app_file
+    }:file execute;
+
+    neverallow {
+      coredomain
+      -system_executes_vendor_violators
+    } vendor_file_type:file execute_no_trans;
 ')
 
 # Only authorized processes should be writing to files in /data/dalvik-cache
@@ -938,7 +1077,6 @@ neverallow {
   -system_server
   -system_app
   -init
-  -vendor_init
   -installd # for relabelfrom and unlink, check for this in explicit neverallow
   with_asan(`-asan_extract')
 } system_data_file:file no_w_file_perms;
@@ -1116,6 +1254,5 @@ full_treble_only(`
     -ueventd
     -crash_dump
     -perfprofd
-    -vendor_init
   } vendor_file:file { create_file_perms x_file_perms };
 ')

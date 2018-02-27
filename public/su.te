@@ -58,10 +58,12 @@ userdebug_or_eng(`
   typeattribute su halclientdomain;
   typeattribute su hal_allocator_client;
   typeattribute su hal_audio_client;
+  typeattribute su hal_authsecret_client;
   typeattribute su hal_bluetooth_client;
   typeattribute su hal_bootctl_client;
   typeattribute su hal_camera_client;
   typeattribute su hal_configstore_client;
+  typeattribute su hal_confirmationui_client;
   typeattribute su hal_contexthub_client;
   typeattribute su hal_drm_client;
   typeattribute su hal_cas_client;
@@ -80,6 +82,7 @@ userdebug_or_eng(`
   typeattribute su hal_nfc_client;
   typeattribute su hal_oemlock_client;
   typeattribute su hal_power_client;
+  typeattribute su hal_secure_element_client;
   typeattribute su hal_sensors_client;
   typeattribute su hal_telephony_client;
   typeattribute su hal_tetheroffload_client;
@@ -91,6 +94,7 @@ userdebug_or_eng(`
   typeattribute su hal_vr_client;
   typeattribute su hal_weaver_client;
   typeattribute su hal_wifi_client;
+  typeattribute su hal_wifi_hostapd_client;
   typeattribute su hal_wifi_offload_client;
   typeattribute su hal_wifi_supplicant_client;
 ')

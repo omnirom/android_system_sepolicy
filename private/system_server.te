@@ -135,6 +135,7 @@ allow system_server proc_sysrq:file rw_file_perms;
 
 # Read /sys/kernel/debug/wakeup_sources.
 allow system_server debugfs:file r_file_perms;
+allow system_server debugfs_wakeup_sources:file r_file_perms;
 
 # The DhcpClient and WifiWatchdog use packet_sockets
 allow system_server self:packet_socket create_socket_perms_no_ioctl;
@@ -177,6 +178,7 @@ binder_service(system_server)
 
 # Use HALs
 hal_client_domain(system_server, hal_allocator)
+hal_client_domain(system_server, hal_authsecret)
 hal_client_domain(system_server, hal_broadcastradio)
 hal_client_domain(system_server, hal_configstore)
 hal_client_domain(system_server, hal_contexthub)
@@ -198,10 +200,12 @@ hal_client_domain(system_server, hal_thermal)
 hal_client_domain(system_server, hal_tv_cec)
 hal_client_domain(system_server, hal_tv_input)
 hal_client_domain(system_server, hal_usb)
+hal_client_domain(system_server, hal_usb_gadget)
 hal_client_domain(system_server, hal_vibrator)
 hal_client_domain(system_server, hal_vr)
 hal_client_domain(system_server, hal_weaver)
 hal_client_domain(system_server, hal_wifi)
+hal_client_domain(system_server, hal_wifi_hostapd)
 hal_client_domain(system_server, hal_wifi_offload)
 hal_client_domain(system_server, hal_wifi_supplicant)
 
@@ -237,6 +241,7 @@ allow system_server {
   mediaserver
   mediametrics
   sdcardd
+  statsd
   surfaceflinger
 
   # This list comes from HAL_INTERFACES_OF_INTEREST in
@@ -280,7 +285,6 @@ r_dir_file(system_server, sysfs_switch)
 r_dir_file(system_server, sysfs_wakeup_reasons)
 
 allow system_server sysfs_nfc_power_writable:file rw_file_perms;
-allow system_server sysfs_devices_system_cpu:file w_file_perms;
 allow system_server sysfs_mac_address:file r_file_perms;
 allow system_server sysfs_power:dir search;
 allow system_server sysfs_power:file rw_file_perms;
@@ -368,6 +372,11 @@ allow system_server dumpstate:fifo_file append;
 # Read /data/misc/incidents - only read. The fd will be sent over binder,
 # with no DAC access to it, for dropbox to read.
 allow system_server incident_data_file:file read;
+
+# Allow dropbox to read /data/misc/perfetto-traces. Only the fd is sent over
+# binder.
+allow system_server perfetto_traces_data_file:file read;
+allow system_server perfetto:fd use;
 
 # Manage /data/backup.
 allow system_server backup_data_file:dir create_dir_perms;
@@ -480,6 +489,7 @@ set_prop(system_server, exported_system_radio_prop)
 set_prop(system_server, debug_prop)
 set_prop(system_server, powerctl_prop)
 set_prop(system_server, fingerprint_prop)
+set_prop(system_server, exported_fingerprint_prop)
 set_prop(system_server, device_logging_prop)
 set_prop(system_server, dumpstate_options_prop)
 set_prop(system_server, overlay_prop)
@@ -718,6 +728,7 @@ allow system_server {
 }:file r_file_perms;
 
 allow system_server proc_uid_time_in_state:dir r_dir_perms;
+allow system_server proc_uid_cpupower:file r_file_perms;
 
 r_dir_file(system_server, rootfs)
 
@@ -745,6 +756,11 @@ allow system_server netd:bpf { map_read map_write };
 # to privileged apps which acquire the permissions to inspect the profiles.
 allow system_server user_profile_data_file:dir { search };
 allow system_server user_profile_data_file:file { getattr open read };
+
+userdebug_or_eng(`
+  # Allow system server to notify mediaextractor of the plugin update.
+  allow system_server mediaextractor_update_service:service_manager find;
+')
 
 ###
 ### Neverallow rules
@@ -814,4 +830,3 @@ neverallow system_server { domain -system_server }:process ptrace;
 # CAP_SYS_RESOURCE was traditionally needed for sensitive /proc/PID
 # file read access. However, that is now unnecessary (b/34951864)
 neverallow system_server system_server:global_capability_class_set sys_resource;
-

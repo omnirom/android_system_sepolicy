@@ -11,7 +11,7 @@ allow vold cache_file:lnk_file r_file_perms;
 r_dir_file(vold, proc_net)
 r_dir_file(vold, sysfs_type)
 # XXX Label sysfs files with a specific type?
-allow vold sysfs:file w_file_perms;
+allow vold sysfs:file w_file_perms; # writing to /sys/*/uevent during coldboot.
 allow vold sysfs_dm:file w_file_perms;
 allow vold sysfs_usb:file w_file_perms;
 allow vold sysfs_zram_uevent:file w_file_perms;
@@ -89,9 +89,6 @@ allow vold domain:{ file lnk_file } r_file_perms;
 allow vold domain:process { signal sigkill };
 allow vold self:global_capability_class_set { sys_ptrace kill };
 
-# XXX Label sysfs files with a specific type?
-allow vold sysfs:file rw_file_perms;
-
 allow vold kmsg_device:chr_file rw_file_perms;
 
 # Run fsck in the fsck domain.
@@ -115,6 +112,9 @@ allow vold efs_file:file rw_file_perms;
 # Create and mount on /data/tmp_mnt and management of expansion mounts
 allow vold system_data_file:dir { create rw_dir_perms mounton setattr rmdir };
 allow vold system_data_file:lnk_file getattr;
+
+# Vold create users in /data/vendor_{ce,de}/[0-9]+
+allow vold vendor_data_file:dir create_dir_perms;
 
 # for secdiscard
 allow vold system_data_file:file read;

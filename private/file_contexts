@@ -38,6 +38,7 @@
 /sdcard             u:object_r:rootfs:s0
 
 # SELinux policy files
+/vendor_file_contexts   u:object_r:file_contexts_file:s0
 /nonplat_file_contexts  u:object_r:file_contexts_file:s0
 /plat_file_contexts     u:object_r:file_contexts_file:s0
 /mapping_sepolicy\.cil   u:object_r:sepolicy_file:s0
@@ -177,6 +178,7 @@
 #
 /system(/.*)?		u:object_r:system_file:s0
 /system/bin/atrace	u:object_r:atrace_exec:s0
+/system/bin/blank_screen	u:object_r:blank_screen_exec:s0
 /system/bin/e2fsdroid		u:object_r:e2fs_exec:s0
 /system/bin/mke2fs		u:object_r:e2fs_exec:s0
 /system/bin/e2fsck	--	u:object_r:fsck_exec:s0
@@ -204,6 +206,7 @@
 /system/bin/dumpstate   u:object_r:dumpstate_exec:s0
 /system/bin/incident   u:object_r:incident_exec:s0
 /system/bin/incidentd   u:object_r:incidentd_exec:s0
+/system/bin/incident_helper  u:object_r:incident_helper_exec:s0
 /system/bin/netutils-wrapper-1\.0    u:object_r:netutils_wrapper_exec:s0
 /system/bin/vold	u:object_r:vold_exec:s0
 /system/bin/netd	u:object_r:netd_exec:s0
@@ -238,8 +241,10 @@
 /system/bin/healthd     u:object_r:healthd_exec:s0
 /system/bin/clatd	u:object_r:clatd_exec:s0
 /system/bin/lmkd        u:object_r:lmkd_exec:s0
+/system/bin/usbd   u:object_r:usbd_exec:s0
 /system/bin/inputflinger u:object_r:inputflinger_exec:s0
 /system/bin/logd        u:object_r:logd_exec:s0
+/system/bin/perfetto        u:object_r:perfetto_exec:s0
 /system/bin/traced        u:object_r:traced_exec:s0
 /system/bin/traced_probes        u:object_r:traced_probes_exec:s0
 /system/bin/uncrypt     u:object_r:uncrypt_exec:s0
@@ -281,6 +286,7 @@
 /system/bin/vold_prepare_subdirs u:object_r:vold_prepare_subdirs_exec:s0
 /system/bin/stats                u:object_r:stats_exec:s0
 /system/bin/statsd               u:object_r:statsd_exec:s0
+/system/bin/bpfloader            u:object_r:bpfloader_exec:s0
 
 #############################
 # Vendor files
@@ -295,9 +301,9 @@
 
 /(vendor|system/vendor)/lib(64)?/vndk-sp(/.*)? u:object_r:vndk_sp_file:s0
 
-# TODO: b/36790901 move this to /vendor/etc
 /(vendor|system/vendor)/manifest.xml           u:object_r:vendor_configs_file:s0
 /(vendor|system/vendor)/compatibility_matrix.xml u:object_r:vendor_configs_file:s0
+/(vendor|system/vendor)/etc/vintf(/.*)?        u:object_r:vendor_configs_file:s0
 /(vendor|system/vendor)/app(/.*)?              u:object_r:vendor_app_file:s0
 /(vendor|system/vendor)/priv-app(/.*)?         u:object_r:vendor_app_file:s0
 /(vendor|system/vendor)/overlay(/.*)?          u:object_r:vendor_overlay_file:s0
@@ -305,17 +311,6 @@
 
 # HAL location
 /(vendor|system/vendor)/lib(64)?/hw            u:object_r:vendor_hal_file:s0
-
-/vendor/etc/selinux/nonplat_mac_permissions.xml u:object_r:mac_perms_file:s0
-/vendor/etc/selinux/nonplat_property_contexts   u:object_r:property_contexts_file:s0
-/vendor/etc/selinux/nonplat_service_contexts    u:object_r:nonplat_service_contexts_file:s0
-/vendor/etc/selinux/nonplat_hwservice_contexts    u:object_r:hwservice_contexts_file:s0
-/vendor/etc/selinux/nonplat_file_contexts   u:object_r:file_contexts_file:s0
-/vendor/etc/selinux/nonplat_seapp_contexts    u:object_r:seapp_contexts_file:s0
-/vendor/etc/selinux/nonplat_sepolicy.cil       u:object_r:sepolicy_file:s0
-/vendor/etc/selinux/precompiled_sepolicy        u:object_r:sepolicy_file:s0
-/vendor/etc/selinux/precompiled_sepolicy\.plat_and_mapping\.sha256 u:object_r:sepolicy_file:s0
-/vendor/etc/selinux/vndservice_contexts         u:object_r:vndservice_contexts_file:s0
 
 #############################
 # OEM and ODM files
@@ -327,6 +322,11 @@
 
 /oem(/.*)?              u:object_r:oemfs:s0
 
+
+#############################
+# Product files
+#
+/(product|system/product)(/.*)?               u:object_r:system_file:s0
 
 #############################
 # Data files
@@ -356,6 +356,7 @@
 /data/tombstones(/.*)?	u:object_r:tombstone_data_file:s0
 /data/vendor/tombstones/wifi(/.*)? u:object_r:tombstone_wifi_data_file:s0
 /data/local/tmp(/.*)?	u:object_r:shell_data_file:s0
+/data/local/traces(/.*)?	u:object_r:trace_data_file:s0
 /data/media(/.*)?	u:object_r:media_rw_data_file:s0
 /data/mediadrm(/.*)?	u:object_r:media_data_file:s0
 /data/nativetest(/.*)?	u:object_r:nativetest_data_file:s0
@@ -389,6 +390,7 @@
 /data/misc/media(/.*)?          u:object_r:media_data_file:s0
 /data/misc/net(/.*)?            u:object_r:net_data_file:s0
 /data/misc/network_watchlist(/.*)? u:object_r:network_watchlist_data_file:s0
+/data/misc/perfetto-traces(/.*)? u:object_r:perfetto_traces_data_file:s0
 /data/misc/recovery(/.*)?       u:object_r:recovery_data_file:s0
 /data/misc/shared_relro(/.*)?   u:object_r:shared_relro_file:s0
 /data/misc/sms(/.*)?            u:object_r:radio_data_file:s0
@@ -414,6 +416,9 @@
 /data/misc/profiles/cur(/.*)?       u:object_r:user_profile_data_file:s0
 /data/misc/profiles/ref(/.*)?       u:object_r:user_profile_data_file:s0
 /data/misc/profman(/.*)?        u:object_r:profman_dump_data_file:s0
+/data/vendor(/.*)?              u:object_r:vendor_data_file:s0
+/data/vendor_ce(/.*)?           u:object_r:vendor_data_file:s0
+/data/vendor_de(/.*)?           u:object_r:vendor_data_file:s0
 
 # storaged proto files
 /data/misc_de/[0-9]+/storaged(/.*)?       u:object_r:storaged_data_file:s0
@@ -421,6 +426,9 @@
 
 # Fingerprint data
 /data/system/users/[0-9]+/fpdata(/.*)? u:object_r:fingerprintd_data_file:s0
+
+# Fingerprint vendor data file
+/data/vendor_de/[0-9]+/fpdata(/.*)? u:object_r:fingerprint_vendor_data_file:s0
 
 # Bootchart data
 /data/bootchart(/.*)?		u:object_r:bootchart_data_file:s0

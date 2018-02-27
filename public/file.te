@@ -8,6 +8,7 @@ type proc, fs_type;
 type proc_security, fs_type;
 type proc_drop_caches, fs_type;
 type proc_overcommit_memory, fs_type;
+type proc_min_free_order_shift, fs_type;
 # proc, sysfs, or other nodes that permit configuration of kernel usermodehelpers.
 type usermodehelper, fs_type;
 type sysfs_usermodehelper, fs_type, sysfs_type;
@@ -16,6 +17,7 @@ type proc_qtaguid_stat, fs_type, mlstrustedobject;
 type proc_bluetooth_writable, fs_type;
 type proc_abi, fs_type;
 type proc_asound, fs_type;
+type proc_buddyinfo, fs_type;
 type proc_cmdline, fs_type;
 type proc_cpuinfo, fs_type;
 type proc_dirty, fs_type;
@@ -54,9 +56,11 @@ type proc_uid_procstat_set, fs_type;
 type proc_uid_time_in_state, fs_type;
 type proc_uid_concurrent_active_time, fs_type;
 type proc_uid_concurrent_policy_time, fs_type;
+type proc_uid_cpupower, fs_type;
 type proc_uptime, fs_type;
 type proc_version, fs_type;
 type proc_vmallocinfo, fs_type;
+type proc_vmstat, fs_type;
 type proc_zoneinfo, fs_type;
 type selinuxfs, fs_type, mlstrustedobject;
 type cgroup, fs_type, mlstrustedobject;
@@ -107,9 +111,10 @@ type vfat, sdcard_type, fs_type, mlstrustedobject;
 type debugfs, fs_type, debugfs_type;
 type debugfs_mmc, fs_type, debugfs_type;
 type debugfs_trace_marker, fs_type, debugfs_type, mlstrustedobject;
-type debugfs_tracing, fs_type, debugfs_type;
-type debugfs_tracing_debug, fs_type, debugfs_type;
+type debugfs_tracing, fs_type, debugfs_type, mlstrustedobject;
+type debugfs_tracing_debug, fs_type, debugfs_type, mlstrustedobject;
 type debugfs_tracing_instances, fs_type, debugfs_type;
+type debugfs_wakeup_sources, fs_type, debugfs_type;
 type debugfs_wifi_tracing, fs_type, debugfs_type;
 
 type pstorefs, fs_type;
@@ -152,6 +157,8 @@ type logcat_exec, exec_type, file_type;
 type coredump_file, file_type;
 # Default type for anything under /data.
 type system_data_file, file_type, data_file_type, core_data_file_type;
+# Default type for anything under /data/vendor{_ce,_de}.
+type vendor_data_file, file_type, data_file_type;
 # Unencrypted data
 type unencrypted_data_file, file_type, data_file_type, core_data_file_type;
 # /data/.layout_version or other installd-created files that
@@ -243,6 +250,7 @@ type recovery_data_file, file_type, data_file_type, core_data_file_type;
 type shared_relro_file, file_type, data_file_type, core_data_file_type;
 type systemkeys_data_file, file_type, data_file_type, core_data_file_type;
 type textclassifier_data_file, file_type, data_file_type, core_data_file_type;
+type trace_data_file, file_type, data_file_type, core_data_file_type, mlstrustedobject;
 type vpn_data_file, file_type, data_file_type, core_data_file_type;
 type wifi_data_file, file_type, data_file_type, core_data_file_type;
 type zoneinfo_data_file, file_type, data_file_type, core_data_file_type;
@@ -289,6 +297,8 @@ type backup_data_file, file_type, data_file_type, core_data_file_type, mlstruste
 type bluetooth_efs_file, file_type;
 # Type for fingerprint template file
 type fingerprintd_data_file, file_type, data_file_type, core_data_file_type;
+# Type for _new_ fingerprint template file
+type fingerprint_vendor_data_file, file_type, data_file_type;
 # Type for appfuse file.
 type app_fuse_file, file_type, data_file_type, core_data_file_type, mlstrustedobject;
 
@@ -311,7 +321,7 @@ type property_socket, file_type, coredomain_socket, mlstrustedobject;
 type racoon_socket, file_type, coredomain_socket;
 type rild_socket, file_type;
 type rild_debug_socket, file_type;
-type system_wpa_socket, file_type, data_file_type, coredomain_socket;
+type system_wpa_socket, file_type, data_file_type, core_data_file_type, coredomain_socket;
 type system_ndebug_socket, file_type, data_file_type, core_data_file_type, coredomain_socket, mlstrustedobject;
 type tombstoned_crash_socket, file_type, coredomain_socket, mlstrustedobject;
 type tombstoned_java_trace_socket, file_type, mlstrustedobject;
@@ -320,7 +330,7 @@ type traced_producer_socket, file_type, coredomain_socket;
 type traced_consumer_socket, file_type, coredomain_socket;
 type uncrypt_socket, file_type, coredomain_socket;
 type webview_zygote_socket, file_type, coredomain_socket;
-type wpa_socket, file_type, data_file_type;
+type wpa_socket, file_type, data_file_type, core_data_file_type;
 type zygote_socket, file_type, coredomain_socket;
 # UART (for GPS) control proc file
 type gps_control, file_type;

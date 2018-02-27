@@ -88,6 +88,7 @@ media.log                                 u:object_r:audioserver_service:s0
 media.player                              u:object_r:mediaserver_service:s0
 media.metrics                             u:object_r:mediametrics_service:s0
 media.extractor                           u:object_r:mediaextractor_service:s0
+media.extractor.update                    u:object_r:mediaextractor_update_service:s0
 media.codec                               u:object_r:mediacodec_service:s0
 media.resource_manager                    u:object_r:mediaserver_service:s0
 media.sound_trigger_hw                    u:object_r:audioserver_service:s0
@@ -133,6 +134,7 @@ rttmanager                                u:object_r:rttmanager_service:s0
 samplingprofiler                          u:object_r:samplingprofiler_service:s0
 scheduling_policy                         u:object_r:scheduling_policy_service:s0
 search                                    u:object_r:search_service:s0
+secure_element                            u:object_r:secure_element_service:s0
 sec_key_att_app_id_provider               u:object_r:sec_key_att_app_id_provider_service:s0
 sensorservice                             u:object_r:sensorservice_service:s0
 serial                                    u:object_r:serial_service:s0
@@ -152,6 +154,7 @@ storaged                                  u:object_r:storaged_service:s0
 storaged_pri                              u:object_r:storaged_service:s0
 storagestats                              u:object_r:storagestats_service:s0
 SurfaceFlinger                            u:object_r:surfaceflinger_service:s0
+system_update                             u:object_r:system_update_service:s0
 task                                      u:object_r:task_service:s0
 telecom                                   u:object_r:telecom_service:s0
 telephony.registry                        u:object_r:registry_service:s0

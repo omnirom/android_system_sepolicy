@@ -245,6 +245,7 @@ allow domain cgroup:file w_file_perms;
 # The reason behind this is documented in b/6513400
 allow domain debugfs:dir search;
 allow domain debugfs_tracing:dir search;
+allow domain debugfs_tracing_debug:dir search;
 allow domain debugfs_trace_marker:file w_file_perms;
 
 # Filesystem access.
@@ -1256,3 +1257,29 @@ full_treble_only(`
     -perfprofd
   } vendor_file:file { create_file_perms x_file_perms };
 ')
+
+# Minimize dac_override and dac_read_search.
+# Instead of granting them it is usually better to add the domain to
+# a Unix group or change the permissions of a file.
+neverallow {
+  domain
+  -dnsmasq
+  -dumpstate
+  -init
+  -installd
+  -install_recovery
+  -lmkd
+  -netd
+  -perfprofd
+  -postinstall_dexopt
+  -recovery
+  -sdcardd
+  -tee
+  -ueventd
+  -uncrypt
+  -vendor_init
+  -vold
+  -vold_prepare_subdirs
+  -zygote
+} self:capability dac_override;
+neverallow domain self:capability dac_read_search;

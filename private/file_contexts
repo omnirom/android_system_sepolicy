@@ -46,14 +46,20 @@
 /plat_sepolicy\.cil      u:object_r:sepolicy_file:s0
 /plat_property_contexts  u:object_r:property_contexts_file:s0
 /nonplat_property_contexts  u:object_r:property_contexts_file:s0
+/vendor_property_contexts   u:object_r:property_contexts_file:s0
 /seapp_contexts     u:object_r:seapp_contexts_file:s0
 /nonplat_seapp_contexts     u:object_r:seapp_contexts_file:s0
+/vendor_seapp_contexts      u:object_r:seapp_contexts_file:s0
 /plat_seapp_contexts     u:object_r:seapp_contexts_file:s0
 /sepolicy           u:object_r:sepolicy_file:s0
 /plat_service_contexts   u:object_r:service_contexts_file:s0
 /plat_hwservice_contexts   u:object_r:hwservice_contexts_file:s0
 /nonplat_service_contexts   u:object_r:nonplat_service_contexts_file:s0
+# Use nonplat_service_contexts_file to allow servicemanager to read it
+# on non full-treble devices.
+/vendor_service_contexts    u:object_r:nonplat_service_contexts_file:s0
 /nonplat_hwservice_contexts   u:object_r:hwservice_contexts_file:s0
+/vendor_hwservice_contexts    u:object_r:hwservice_contexts_file:s0
 /vndservice_contexts   u:object_r:vndservice_contexts_file:s0
 
 ##########################
@@ -165,6 +171,7 @@
 /dev/uio[0-9]*		u:object_r:uio_device:s0
 /dev/urandom		u:object_r:random_device:s0
 /dev/usb_accessory	u:object_r:usbaccessory_device:s0
+/dev/v4l-touch[0-9]*	u:object_r:input_device:s0
 /dev/vcs[0-9a-z]*	u:object_r:vcs_device:s0
 /dev/video[0-9]*	u:object_r:video_device:s0
 /dev/vndbinder		u:object_r:vndbinder_device:s0

@@ -6,9 +6,9 @@ typeattribute webview_zygote coredomain;
 # The webview_zygote needs to be able to transition domains.
 typeattribute webview_zygote mlstrustedsubject;
 
-# When init launches the WebView zygote's executable, transition the
-# resulting process into webview_zygote domain.
-init_daemon_domain(webview_zygote)
+# Allow access to temporary files, which is normally permitted through
+# a domain macro.
+tmpfs_domain(webview_zygote);
 
 # Allow reading/executing installed binaries to enable preloading the
 # installed WebView implementation.
@@ -47,6 +47,10 @@ allow webview_zygote isolated_app:process setpgid;
 # Suppress denials to storage. Webview zygote should not be accessing.
 dontaudit webview_zygote mnt_expand_file:dir getattr;
 
+# TODO (b/72957399) remove this when webview_zygote is reparented to
+# app_process zygote
+dontaudit webview_zygote dex2oat_exec:file execute;
+
 # Get seapp_contexts
 allow webview_zygote seapp_contexts_file:file r_file_perms;
 # Check validity of SELinux context before use.
@@ -56,6 +60,15 @@ selinux_check_access(webview_zygote)
 
 # Directory listing in /system.
 allow webview_zygote system_file:dir r_dir_perms;
+
+# Read system properties managed by zygote.
+allow webview_zygote zygote_tmpfs:file read;
+# Child of zygote.
+allow webview_zygote zygote:fd use;
+allow webview_zygote zygote:process sigchld;
+
+# Allow apps access to /vendor/overlay
+r_dir_file(webview_zygote, vendor_overlay_file)
 
 #####
 ##### Neverallow
@@ -71,9 +84,9 @@ neverallow webview_zygote { domain -crash_dump }:process transition;
 # Having said that, exec() above is not allowed.
 neverallow webview_zygote *:file execute_no_trans;
 
-# The only way to enter this domain is for init to exec() us.
-neverallow { domain -init } webview_zygote:process transition;
-neverallow * webview_zygote:process dyntransition;
+# The only way to enter this domain is for the zygote to fork a new
+# webview_zygote child.
+neverallow { domain -zygote } webview_zygote:process dyntransition;
 
 # Disallow write access to properties.
 neverallow webview_zygote property_socket:sock_file write;

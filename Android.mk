@@ -2,30 +2,6 @@ LOCAL_PATH:= $(call my-dir)
 
 include $(LOCAL_PATH)/definitions.mk
 
-# PLATFORM_SEPOLICY_VERSION is a number of the form "NN.m" with "NN" mapping to
-# PLATFORM_SDK_VERSION and "m" as a minor number which allows for SELinux
-# changes independent of PLATFORM_SDK_VERSION.  This value will be set to
-# 10000.0 to represent tip-of-tree development that is inherently unstable and
-# thus designed not to work with any shipping vendor policy.  This is similar in
-# spirit to how DEFAULT_APP_TARGET_SDK is set.
-# The minor version ('m' component) must be updated every time a platform release
-# is made which breaks compatibility with the previous platform sepolicy version,
-# not just on every increase in PLATFORM_SDK_VERSION.  The minor version should
-# be reset to 0 on every bump of the PLATFORM_SDK_VERSION.
-sepolicy_major_vers := 27
-sepolicy_minor_vers := 0
-
-ifneq ($(sepolicy_major_vers), $(PLATFORM_SDK_VERSION))
-$(error sepolicy_major_version does not match PLATFORM_SDK_VERSION, please update.)
-endif
-ifneq (REL,$(PLATFORM_VERSION_CODENAME))
-    sepolicy_major_vers := 10000
-    sepolicy_minor_vers := 0
-endif
-PLATFORM_SEPOLICY_VERSION := $(join $(addsuffix .,$(sepolicy_major_vers)), $(sepolicy_minor_vers))
-sepolicy_major_vers :=
-sepolicy_minor_vers :=
-
 include $(CLEAR_VARS)
 # SELinux policy version.
 # Must be <= /sys/fs/selinux/policyvers reported by the Android kernel.
@@ -215,7 +191,7 @@ ifeq ($(PRODUCT_SEPOLICY_SPLIT),true)
 # Use split SELinux policy
 LOCAL_REQUIRED_MODULES += \
     $(platform_mapping_file) \
-    26.0.cil \
+    $(addsuffix .cil,$(PLATFORM_SEPOLICY_COMPAT_VERSIONS)) \
     plat_pub_versioned.cil \
     vendor_sepolicy.cil \
     plat_sepolicy.cil \
@@ -257,10 +233,12 @@ LOCAL_REQUIRED_MODULES += \
 endif
 
 ifneq ($(with_asan),true)
+ifneq ($(SELINUX_IGNORE_NEVERALLOWS),true)
 LOCAL_REQUIRED_MODULES += \
     sepolicy_tests \
     treble_sepolicy_tests \
 
+endif
 endif
 
 include $(BUILD_PHONY_PACKAGE)
@@ -464,6 +442,16 @@ $(LOCAL_BUILT_MODULE): $(current_mapping.cil) $(ACP)
 built_mapping_cil := $(LOCAL_BUILT_MODULE)
 current_mapping.cil :=
 
+#################################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := 27.0.cil
+LOCAL_SRC_FILES := private/compat/27.0/27.0.cil
+LOCAL_MODULE_CLASS := ETC
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_OUT)/etc/selinux/mapping
+
+include $(BUILD_PREBUILT)
 #################################
 include $(CLEAR_VARS)
 

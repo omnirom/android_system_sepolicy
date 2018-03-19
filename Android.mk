@@ -236,7 +236,8 @@ ifneq ($(with_asan),true)
 ifneq ($(SELINUX_IGNORE_NEVERALLOWS),true)
 LOCAL_REQUIRED_MODULES += \
     sepolicy_tests \
-    treble_sepolicy_tests \
+    treble_sepolicy_tests_26.0 \
+    treble_sepolicy_tests_27.0 \
 
 endif
 endif
@@ -258,6 +259,7 @@ include $(BUILD_SYSTEM)/base_rules.mk
 sepolicy_policy.conf := $(intermediates)/policy.conf
 $(sepolicy_policy.conf): PRIVATE_MLS_SENS := $(MLS_SENS)
 $(sepolicy_policy.conf): PRIVATE_MLS_CATS := $(MLS_CATS)
+$(sepolicy_policy.conf): PRIVATE_TARGET_BUILD_VARIANT := user
 $(sepolicy_policy.conf): PRIVATE_TGT_ARCH := $(my_target_arch)
 $(sepolicy_policy.conf): PRIVATE_TGT_WITH_ASAN := $(with_asan)
 $(sepolicy_policy.conf): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
@@ -290,6 +292,7 @@ built_sepolicy_neverallows := $(LOCAL_BUILT_MODULE)
 reqd_policy_mask.conf := $(intermediates)/reqd_policy_mask.conf
 $(reqd_policy_mask.conf): PRIVATE_MLS_SENS := $(MLS_SENS)
 $(reqd_policy_mask.conf): PRIVATE_MLS_CATS := $(MLS_CATS)
+$(reqd_policy_mask.conf): PRIVATE_TARGET_BUILD_VARIANT := $(TARGET_BUILD_VARIANT)
 $(reqd_policy_mask.conf): PRIVATE_TGT_ARCH := $(my_target_arch)
 $(reqd_policy_mask.conf): PRIVATE_TGT_WITH_ASAN := $(with_asan)
 $(reqd_policy_mask.conf): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
@@ -317,6 +320,7 @@ reqd_policy_mask.conf :=
 plat_pub_policy.conf := $(intermediates)/plat_pub_policy.conf
 $(plat_pub_policy.conf): PRIVATE_MLS_SENS := $(MLS_SENS)
 $(plat_pub_policy.conf): PRIVATE_MLS_CATS := $(MLS_CATS)
+$(plat_pub_policy.conf): PRIVATE_TARGET_BUILD_VARIANT := $(TARGET_BUILD_VARIANT)
 $(plat_pub_policy.conf): PRIVATE_TGT_ARCH := $(my_target_arch)
 $(plat_pub_policy.conf): PRIVATE_TGT_WITH_ASAN := $(with_asan)
 $(plat_pub_policy.conf): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
@@ -366,6 +370,7 @@ include $(BUILD_SYSTEM)/base_rules.mk
 plat_policy.conf := $(intermediates)/plat_policy.conf
 $(plat_policy.conf): PRIVATE_MLS_SENS := $(MLS_SENS)
 $(plat_policy.conf): PRIVATE_MLS_CATS := $(MLS_CATS)
+$(plat_policy.conf): PRIVATE_TARGET_BUILD_VARIANT := $(TARGET_BUILD_VARIANT)
 $(plat_policy.conf): PRIVATE_TGT_ARCH := $(my_target_arch)
 $(plat_policy.conf): PRIVATE_TGT_WITH_ASAN := $(with_asan)
 $(plat_policy.conf): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
@@ -517,6 +522,7 @@ include $(BUILD_SYSTEM)/base_rules.mk
 vendor_policy.conf := $(intermediates)/vendor_policy.conf
 $(vendor_policy.conf): PRIVATE_MLS_SENS := $(MLS_SENS)
 $(vendor_policy.conf): PRIVATE_MLS_CATS := $(MLS_CATS)
+$(vendor_policy.conf): PRIVATE_TARGET_BUILD_VARIANT := $(TARGET_BUILD_VARIANT)
 $(vendor_policy.conf): PRIVATE_TGT_ARCH := $(my_target_arch)
 $(vendor_policy.conf): PRIVATE_TGT_WITH_ASAN := $(with_asan)
 $(vendor_policy.conf): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
@@ -641,6 +647,7 @@ include $(BUILD_SYSTEM)/base_rules.mk
 sepolicy.recovery.conf := $(intermediates)/sepolicy.recovery.conf
 $(sepolicy.recovery.conf): PRIVATE_MLS_SENS := $(MLS_SENS)
 $(sepolicy.recovery.conf): PRIVATE_MLS_CATS := $(MLS_CATS)
+$(sepolicy.recovery.conf): PRIVATE_TARGET_BUILD_VARIANT := $(TARGET_BUILD_VARIANT)
 $(sepolicy.recovery.conf): PRIVATE_TGT_ARCH := $(my_target_arch)
 $(sepolicy.recovery.conf): PRIVATE_TGT_WITH_ASAN := $(with_asan)
 $(sepolicy.recovery.conf): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
@@ -686,6 +693,7 @@ include $(BUILD_SYSTEM)/base_rules.mk
 
 $(LOCAL_BUILT_MODULE): PRIVATE_MLS_SENS := $(MLS_SENS)
 $(LOCAL_BUILT_MODULE): PRIVATE_MLS_CATS := $(MLS_CATS)
+$(LOCAL_BUILT_MODULE): PRIVATE_TARGET_BUILD_VARIANT := user
 $(LOCAL_BUILT_MODULE): PRIVATE_TGT_ARCH := $(my_target_arch)
 $(LOCAL_BUILT_MODULE): PRIVATE_WITH_ASAN := false
 $(LOCAL_BUILT_MODULE): PRIVATE_SEPOLICY_SPLIT := cts
@@ -1289,73 +1297,8 @@ $(sepolicy_tests): $(HOST_OUT_EXECUTABLES)/sepolicy_tests $(all_fc_files) $(buil
 
 ##################################
 ifeq ($(PRODUCT_SEPOLICY_SPLIT),true)
-include $(CLEAR_VARS)
-# For Treble builds run tests verifying that processes are properly labeled and
-# permissions granted do not violate the treble model.  Also ensure that treble
-# compatibility guarantees are upheld between SELinux version bumps.
-LOCAL_MODULE := treble_sepolicy_tests
-LOCAL_MODULE_CLASS := ETC
-LOCAL_MODULE_TAGS := tests
 
-include $(BUILD_SYSTEM)/base_rules.mk
-
-# 26.0_plat - the platform policy shipped as part of the 26.0 release.  This is
-# built to enable us to determine the diff between the current policy and the
-# 26.0 policy, which will be used in tests to make sure that compatibility has
-# been maintained by our mapping files.
-26.0_PLAT_PUBLIC_POLICY := $(LOCAL_PATH)/prebuilts/api/26.0/public
-26.0_PLAT_PRIVATE_POLICY := $(LOCAL_PATH)/prebuilts/api/26.0/private
-26.0_plat_policy.conf := $(intermediates)/26.0_plat_policy.conf
-$(26.0_plat_policy.conf): PRIVATE_MLS_SENS := $(MLS_SENS)
-$(26.0_plat_policy.conf): PRIVATE_MLS_CATS := $(MLS_CATS)
-$(26.0_plat_policy.conf): PRIVATE_TGT_ARCH := $(my_target_arch)
-$(26.0_plat_policy.conf): PRIVATE_TGT_WITH_ASAN := $(with_asan)
-$(26.0_plat_policy.conf): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
-$(26.0_plat_policy.conf): PRIVATE_SEPOLICY_SPLIT := true
-$(26.0_plat_policy.conf): $(call build_policy, $(sepolicy_build_files), \
-$(26.0_PLAT_PUBLIC_POLICY) $(26.0_PLAT_PRIVATE_POLICY))
-	$(transform-policy-to-conf)
-	$(hide) sed '/dontaudit/d' $@ > $@.dontaudit
-
-built_26.0_plat_sepolicy := $(intermediates)/built_26.0_plat_sepolicy
-$(built_26.0_plat_sepolicy): PRIVATE_ADDITIONAL_CIL_FILES := \
-  $(call build_policy, technical_debt.cil , $(26.0_PLAT_PRIVATE_POLICY))
-$(built_26.0_plat_sepolicy): PRIVATE_NEVERALLOW_ARG := $(NEVERALLOW_ARG)
-$(built_26.0_plat_sepolicy): $(26.0_plat_policy.conf) $(HOST_OUT_EXECUTABLES)/checkpolicy \
-  $(HOST_OUT_EXECUTABLES)/secilc \
-  $(call build_policy, technical_debt.cil, $(26.0_PLAT_PRIVATE_POLICY)) \
-  $(built_sepolicy_neverallows)
-	@mkdir -p $(dir $@)
-	$(hide) $(CHECKPOLICY_ASAN_OPTIONS) $(HOST_OUT_EXECUTABLES)/checkpolicy -M -C -c \
-		$(POLICYVERS) -o $@ $<
-	$(hide) cat $(PRIVATE_ADDITIONAL_CIL_FILES) >> $@
-	$(hide) $(HOST_OUT_EXECUTABLES)/secilc -m -M true -G -c $(POLICYVERS) $(PRIVATE_NEVERALLOW_ARG) $@ -o $@ -f /dev/null
-
-26.0_plat_policy.conf :=
-
-
-# 26.0_compat - the current plat_sepolicy.cil built with the compatibility file
-# targeting the 26.0 SELinux release.  This ensures that our policy will build
-# when used on a device that has non-platform policy targetting the 26.0 release.
-26.0_compat := $(intermediates)/26.0_compat
-26.0_mapping.cil := $(LOCAL_PATH)/private/compat/26.0/26.0.cil
-26.0_mapping.ignore.cil := $(LOCAL_PATH)/private/compat/26.0/26.0.ignore.cil
-26.0_nonplat := $(LOCAL_PATH)/prebuilts/api/26.0/nonplat_sepolicy.cil
-$(26.0_compat): PRIVATE_CIL_FILES := \
-$(built_plat_cil) $(26.0_mapping.cil) $(26.0_nonplat)
-$(26.0_compat): $(HOST_OUT_EXECUTABLES)/secilc \
-$(built_plat_cil) $(26.0_mapping.cil) $(26.0_nonplat)
-	$(hide) $(HOST_OUT_EXECUTABLES)/secilc -m -M true -G -N -c $(POLICYVERS) \
-		$(PRIVATE_CIL_FILES) -o $@ -f /dev/null
-
-# 26.0_mapping.combined.cil - a combination of the mapping file used when
-# combining the current platform policy with nonplatform policy based on the
-# 26.0 policy release and also a special ignored file that exists purely for
-# these tests.
-26.0_mapping.combined.cil := $(intermediates)/26.0_mapping.combined.cil
-$(26.0_mapping.combined.cil): $(26.0_mapping.cil) $(26.0_mapping.ignore.cil)
-	mkdir -p $(dir $@)
-	cat $^ > $@
+intermediates := $(call intermediates-dir-for,ETC,built_plat_sepolicy,,,,)
 
 # plat_sepolicy - the current platform policy only, built into a policy binary.
 # TODO - this currently excludes partner extensions, but support should be added
@@ -1365,6 +1308,7 @@ BASE_PLAT_PRIVATE_POLICY := $(filter-out $(BOARD_PLAT_PRIVATE_SEPOLICY_DIR), $(P
 base_plat_policy.conf := $(intermediates)/base_plat_policy.conf
 $(base_plat_policy.conf): PRIVATE_MLS_SENS := $(MLS_SENS)
 $(base_plat_policy.conf): PRIVATE_MLS_CATS := $(MLS_CATS)
+$(base_plat_policy.conf): PRIVATE_TARGET_BUILD_VARIANT := $(TARGET_BUILD_VARIANT)
 $(base_plat_policy.conf): PRIVATE_TGT_ARCH := $(my_target_arch)
 $(base_plat_policy.conf): PRIVATE_TGT_WITH_ASAN := $(with_asan)
 $(base_plat_policy.conf): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
@@ -1392,39 +1336,17 @@ $(built_sepolicy_neverallows)
 all_fc_files := $(built_plat_fc) $(built_vendor_fc)
 all_fc_args := $(foreach file, $(all_fc_files), -f $(file))
 
-treble_sepolicy_tests := $(intermediates)/treble_sepolicy_tests
-$(treble_sepolicy_tests): ALL_FC_ARGS := $(all_fc_args)
-$(treble_sepolicy_tests): PRIVATE_SEPOLICY := $(built_sepolicy)
-$(treble_sepolicy_tests): PRIVATE_SEPOLICY_OLD := $(built_26.0_plat_sepolicy)
-$(treble_sepolicy_tests): PRIVATE_COMBINED_MAPPING := $(26.0_mapping.combined.cil)
-$(treble_sepolicy_tests): PRIVATE_PLAT_SEPOLICY := $(built_plat_sepolicy)
-ifeq ($(PRODUCT_FULL_TREBLE_OVERRIDE),true)
-$(treble_sepolicy_tests): PRIVATE_FAKE_TREBLE := --fake-treble
-else
-$(treble_sepolicy_tests): PRIVATE_FAKE_TREBLE :=
-endif
-$(treble_sepolicy_tests): $(HOST_OUT_EXECUTABLES)/treble_sepolicy_tests \
-  $(all_fc_files) $(built_sepolicy) $(built_plat_sepolicy) \
-  $(built_26.0_plat_sepolicy) $(26.0_compat) $(26.0_mapping.combined.cil)
-	@mkdir -p $(dir $@)
-	$(hide) $(HOST_OUT_EXECUTABLES)/treble_sepolicy_tests -l \
-		$(HOST_OUT)/lib64/libsepolwrap.$(SHAREDLIB_EXT) $(ALL_FC_ARGS) \
-		-b $(PRIVATE_PLAT_SEPOLICY) -m $(PRIVATE_COMBINED_MAPPING) \
-		-o $(PRIVATE_SEPOLICY_OLD) -p $(PRIVATE_SEPOLICY) \
-		$(PRIVATE_FAKE_TREBLE)
-	$(hide) touch $@
+# Tests for Treble compatibility of current platform policy and vendor policy of
+# given release version.
+version_under_treble_tests := 26.0
+include $(LOCAL_PATH)/treble_sepolicy_tests_for_release.mk
 
-26.0_PLAT_PUBLIC_POLICY :=
-26.0_PLAT_PRIVATE_POLICY :=
-26.0_compat :=
-26.0_mapping.cil :=
-26.0_mapping.combined.cil :=
-26.0_mapping.ignore.cil :=
-26.0_nonplat :=
+version_under_treble_tests := 27.0
+include $(LOCAL_PATH)/treble_sepolicy_tests_for_release.mk
+
 BASE_PLAT_PUBLIC_POLICY :=
 BASE_PLAT_PRIVATE_POLICY :=
 base_plat_policy.conf :=
-built_26.0_plat_sepolicy :=
 plat_sepolicy :=
 
 endif # ($(PRODUCT_SEPOLICY_SPLIT),true)

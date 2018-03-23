@@ -131,6 +131,7 @@ get_prop(domain, exported_default_prop)
 get_prop(domain, exported_dumpstate_prop)
 get_prop(domain, exported_fingerprint_prop)
 get_prop(domain, exported_radio_prop)
+get_prop(domain, exported_secure_prop)
 get_prop(domain, exported_system_prop)
 get_prop(domain, exported_vold_prop)
 get_prop(domain, exported2_default_prop)
@@ -180,8 +181,9 @@ allow domain vendor_configs_file:dir r_dir_perms;
 allow domain vendor_configs_file:file { read open getattr };
 
 full_treble_only(`
-    # Allow all domains to be able to follow /system/vendor symlink
-    allow domain vendor_file:lnk_file { getattr open read };
+    # Allow all domains to be able to follow /system/vendor and/or
+    # /vendor/odm symlinks.
+    allow domain vendor_file_type:lnk_file { getattr open read };
 
     # This is required to be able to search & read /vendor/lib64
     # in order to lookup vendor libraries. The execute permission
@@ -523,7 +525,8 @@ compatible_property_only(`
     neverallow { domain -init } default_prop:property_service set;
     neverallow { domain -init } mmc_prop:property_service set;
     neverallow { domain -init -vendor_init } exported_default_prop:property_service set;
-    neverallow { domain -init -vendor_init } exported2_default_prop:property_service set;
+    neverallow { domain -init } exported_secure_prop:property_service set;
+    neverallow { domain -init } exported2_default_prop:property_service set;
     neverallow { domain -init -vendor_init } exported3_default_prop:property_service set;
     neverallow { domain -init -vendor_init } vendor_default_prop:property_service set;
 ')
@@ -914,7 +917,7 @@ full_treble_only(`
         userdebug_or_eng(`-perfprofd')
         -postinstall_dexopt
         -system_server
-    } vendor_app_file:{ file lnk_file } r_file_perms;
+    } vendor_app_file:file r_file_perms;
 ')
 
 full_treble_only(`
@@ -941,7 +944,7 @@ full_treble_only(`
         -system_server
         -webview_zygote
         -zygote
-    } vendor_overlay_file:{ file lnk_file } r_file_perms;
+    } vendor_overlay_file:file r_file_perms;
 ')
 
 full_treble_only(`
@@ -1318,3 +1321,14 @@ neverallow {
   -zygote
 } self:capability dac_override;
 neverallow domain self:capability dac_read_search;
+
+# If an already existing file is opened with O_CREATE, the kernel might generate
+# a false report of a create denial. Silence these denials and make sure that
+# inappropriate permissions are not granted.
+neverallow domain {
+  proc_type
+  sysfs_type
+}:dir { add_name create link remove_name rename reparent rmdir write };
+
+dontaudit domain proc_type:dir write;
+dontaudit domain sysfs_type:dir write;

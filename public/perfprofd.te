@@ -82,10 +82,12 @@ userdebug_or_eng(`
 
   # simpleperf examines debugfs on startup to collect tracepoint event types
   r_dir_file(perfprofd, debugfs_tracing)
-  allow perfprofd debugfs_tracing_debug:file r_file_perms;
+  r_dir_file(perfprofd, debugfs_tracing_debug)
 
   # simpleperf is going to execute "sleep"
   allow perfprofd toolbox_exec:file rx_file_perms;
+  # simpleperf is going to execute "mv" on a temp file
+  allow perfprofd shell_exec:file rx_file_perms;
 
   # needed for simpleperf on some kernels
   allow perfprofd self:global_capability_class_set ipc_lock;
@@ -113,9 +115,5 @@ userdebug_or_eng(`
 
   # Allow perfprofd to submit to dropbox.
   allow perfprofd dropbox_service:service_manager find;
-  allow perfprofd system_server:binder call;
-
-  # Only servicemanager, su and systemserver can communicate.
-  neverallow domain perfprofd:binder call;
-  neverallow perfprofd { domain -servicemanager -su -system_server }:binder call;
+  binder_call(perfprofd, system_server)
 ')

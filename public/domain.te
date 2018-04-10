@@ -1132,6 +1132,9 @@ neverallow {
   -appdomain # finer-grained rules for appdomain are listed below
   -system_server #populate com.android.providers.settings/databases/settings.db.
   -installd # creation of app sandbox
+  -traced_probes # resolve inodes for i/o tracing.
+                 # only needs open and read, the rest is neverallow in
+                 # traced_probes.te.
 } system_app_data_file:dir_file_class_set { create unlink open };
 neverallow {
   isolated_app
@@ -1323,7 +1326,7 @@ neverallow {
   -vold_prepare_subdirs
   -zygote
 } self:capability dac_override;
-neverallow domain self:capability dac_read_search;
+neverallow { domain -traced_probes } self:capability dac_read_search;
 
 # These are only needed in permissive mode - in enforcing mode the
 # directory write check fails and so these are never attempted.

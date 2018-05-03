@@ -1365,23 +1365,32 @@ neverallow {
 } self:capability dac_override;
 neverallow { domain -traced_probes } self:capability dac_read_search;
 
-# If an already existing file is opened with O_CREAT, the kernel might generate
-# a false report of a create denial. Silence these denials and make sure that
-# inappropriate permissions are not granted.
+# Latest versions of linux kernel do a check for dac_read_search before
+# verifying dac_override capability. So adding a dont audit rule for
+# dac_read_search for domains that already have dac_override exceptions
+# will address denials of dac_read_search from these domains.
+# kernel commit: https://github.com/torvalds/linux/commit/2a4c22426955d4fc04069811997b7390c0fb858e
 
-# These filesystems don't allow files or directories to be created, so the permission
-# to do so should never be granted.
-neverallow domain {
-  proc_type
-  sysfs_type
-}:dir { add_name create link remove_name rename reparent rmdir write };
-
-# cgroupfs directories can be created, but not files within them.
-neverallow domain cgroup:file create;
-
-dontaudit domain proc_type:dir write;
-dontaudit domain sysfs_type:dir write;
-dontaudit domain cgroup:file create;
+dontaudit {
+  dnsmasq
+  dumpstate
+  init
+  installd
+  install_recovery
+  lmkd
+  netd
+  perfprofd
+  postinstall_dexopt
+  recovery
+  sdcardd
+  tee
+  ueventd
+  uncrypt
+  vendor_init
+  vold
+  vold_prepare_subdirs
+  zygote
+} self:capability dac_read_search;
 
 # These are only needed in permissive mode - in enforcing mode the
 # directory write check fails and so these are never attempted.

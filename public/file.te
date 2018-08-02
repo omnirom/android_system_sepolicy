@@ -12,7 +12,7 @@ type proc_min_free_order_shift, fs_type, proc_type;
 # proc, sysfs, or other nodes that permit configuration of kernel usermodehelpers.
 type usermodehelper, fs_type, proc_type;
 type sysfs_usermodehelper, fs_type, sysfs_type;
-type qtaguid_proc, fs_type, mlstrustedobject, proc_type;
+type proc_qtaguid_ctrl, fs_type, mlstrustedobject, proc_type;
 type proc_qtaguid_stat, fs_type, mlstrustedobject, proc_type;
 type proc_bluetooth_writable, fs_type, proc_type;
 type proc_abi, fs_type, proc_type;
@@ -35,7 +35,8 @@ type proc_meminfo, fs_type, proc_type;
 type proc_misc, fs_type, proc_type;
 type proc_modules, fs_type, proc_type;
 type proc_mounts, fs_type, proc_type;
-type proc_net, fs_type, proc_type;
+type proc_net, fs_type, proc_type, proc_net_type;
+type proc_net_vpn, fs_type, proc_type, proc_net_type;
 type proc_page_cluster, fs_type, proc_type;
 type proc_pagetypeinfo, fs_type, proc_type;
 type proc_panic, fs_type, proc_type;
@@ -44,6 +45,7 @@ type proc_pid_max, fs_type, proc_type;
 type proc_pipe_conf, fs_type, proc_type;
 type proc_random, fs_type, proc_type;
 type proc_sched, fs_type, proc_type;
+type proc_slabinfo, fs_type, proc_type;
 type proc_stat, fs_type, proc_type;
 type proc_swaps, fs_type, proc_type;
 type proc_sysrq, fs_type, proc_type;
@@ -149,6 +151,9 @@ type vndk_sp_file, vendor_file_type, file_type;
 type vendor_framework_file, vendor_file_type, file_type;
 # Default type for everything in /vendor/overlay
 type vendor_overlay_file, vendor_file_type, file_type;
+# Type for all vendor public libraries. These libs should only be exposed to
+# apps. ABI stability of these libs is vendor's responsibility.
+type vendor_public_lib_file, vendor_file_type, file_type;
 
 # /metadata partition itself
 type metadata_file, file_type;
@@ -204,6 +209,8 @@ type shell_data_file, file_type, data_file_type, core_data_file_type, mlstrusted
 type property_data_file, file_type, data_file_type, core_data_file_type;
 # /data/bootchart
 type bootchart_data_file, file_type, data_file_type, core_data_file_type;
+# /data/system/dropbox
+type dropbox_data_file, file_type, data_file_type, core_data_file_type;
 # /data/system/heapdump
 type heapdump_data_file, file_type, data_file_type, core_data_file_type, mlstrustedobject;
 # /data/nativetest
@@ -229,6 +236,9 @@ type storage_stub_file, file_type;
 
 # Mount location for read-write vendor partitions.
 type mnt_vendor_file, file_type;
+
+# Mount location for read-write product partitions.
+type mnt_product_file, file_type;
 
 # /postinstall: Mount point used by update_engine to run postinstall.
 type postinstall_mnt_dir, file_type;

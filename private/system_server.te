@@ -105,7 +105,7 @@ allow system_server appdomain:process { getsched setsched };
 allow system_server audioserver:process { getsched setsched };
 allow system_server hal_audio:process { getsched setsched };
 allow system_server hal_bluetooth:process { getsched setsched };
-allow system_server mediacodec:process { getsched setsched };
+allow system_server hal_omx_server:process { getsched setsched };
 allow system_server cameraserver:process { getsched setsched };
 allow system_server hal_camera:process { getsched setsched };
 allow system_server mediaserver:process { getsched setsched };
@@ -114,19 +114,15 @@ allow system_server bootanim:process { getsched setsched };
 # Allow system_server to write to /proc/<pid>/timerslack_ns
 allow system_server appdomain:file w_file_perms;
 allow system_server audioserver:file w_file_perms;
-allow system_server mediacodec:file w_file_perms;
 allow system_server cameraserver:file w_file_perms;
 allow system_server hal_audio_server:file w_file_perms;
+allow system_server hal_omx_server:file w_file_perms;
 
 # Read /proc/pid data for all domains. This is used by ProcessCpuTracker
 # within system_server to keep track of memory and CPU usage for
 # all processes on the device. In addition, /proc/pid files access is needed
 # for dumping stack traces of native processes.
 r_dir_file(system_server, domain)
-
-# Read/Write to /proc/net/xt_qtaguid/ctrl and and /dev/xt_qtaguid.
-allow system_server qtaguid_proc:file rw_file_perms;
-allow system_server qtaguid_device:chr_file rw_file_perms;
 
 # Write /proc/uid_cputime/remove_uid_range.
 allow system_server proc_uid_cputime_removeuid:file { w_file_perms getattr };
@@ -137,13 +133,14 @@ allow system_server proc_uid_procstat_set:file { w_file_perms getattr };
 # Write to /proc/sysrq-trigger.
 allow system_server proc_sysrq:file rw_file_perms;
 
-# Read /sys/kernel/debug/wakeup_sources.
-allow system_server debugfs:file r_file_perms;
-allow system_server debugfs_wakeup_sources:file r_file_perms;
-
 # Delete /data/misc/stats-data/ and /data/misc/stats-service/ directories.
 allow system_server stats_data_file:dir { open read remove_name search write };
 allow system_server stats_data_file:file unlink;
+
+# Read /sys/kernel/debug/wakeup_sources.
+allow system_server debugfs:file r_file_perms;
+auditallow system_server debugfs:file r_file_perms;
+allow system_server debugfs_wakeup_sources:file r_file_perms;
 
 # The DhcpClient and WifiWatchdog use packet_sockets
 allow system_server self:packet_socket create_socket_perms_no_ioctl;
@@ -184,6 +181,9 @@ binder_call(system_server, storaged)
 binder_call(system_server, vold)
 binder_call(system_server, wificond)
 binder_call(system_server, wpantund)
+userdebug_or_eng(`
+  binder_call(system_server, perfprofd)
+')
 binder_service(system_server)
 
 # Use HALs
@@ -201,9 +201,7 @@ hal_client_domain(system_server, hal_light)
 hal_client_domain(system_server, hal_memtrack)
 hal_client_domain(system_server, hal_neuralnetworks)
 hal_client_domain(system_server, hal_oemlock)
-allow system_server hal_codec2_hwservice:hwservice_manager find;
-allow system_server hal_omx_hwservice:hwservice_manager find;
-allow system_server hidl_token_hwservice:hwservice_manager find;
+hal_client_domain(system_server, hal_omx)
 hal_client_domain(system_server, hal_power)
 hal_client_domain(system_server, hal_sensors)
 hal_client_domain(system_server, hal_tetheroffload)
@@ -219,8 +217,6 @@ hal_client_domain(system_server, hal_wifi)
 hal_client_domain(system_server, hal_wifi_hostapd)
 hal_client_domain(system_server, hal_wifi_offload)
 hal_client_domain(system_server, hal_wifi_supplicant)
-
-binder_call(system_server, mediacodec)
 
 # Talk with graphics composer fences
 allow system_server hal_graphics_composer:fd use;
@@ -261,9 +257,9 @@ allow system_server {
   hal_bluetooth_server
   hal_camera_server
   hal_graphics_composer_server
+  hal_omx_server
   hal_sensors_server
   hal_vr_server
-  mediacodec # TODO(b/36375899): hal_omx_server
 }:process { signal };
 
 # Use sockets received over binder from various services.
@@ -379,6 +375,10 @@ unix_socket_connect(system_server, tombstoned_java_trace, tombstoned)
 allow system_server tombstoned:fd use;
 allow system_server dumpstate:fifo_file append;
 allow system_server incidentd:fifo_file append;
+# Write to a pipe created from `adb shell` (for debuggerd -j `pidof system_server`)
+userdebug_or_eng(`
+  allow system_server su:fifo_file append;
+')
 
 # Read /data/misc/incidents - only read. The fd will be sent over binder,
 # with no DAC access to it, for dropbox to read.
@@ -391,13 +391,17 @@ allow system_server perfetto:fd use;
 
 # Allow dropbox to read /data/misc/perfprofd. Only the fd is sent over binder.
 userdebug_or_eng(`
-  allow system_server perfprofd_data_file:file read;
+  allow system_server perfprofd_data_file:file { getattr read };
   allow system_server perfprofd:fd use;
 ')
 
 # Manage /data/backup.
 allow system_server backup_data_file:dir create_dir_perms;
 allow system_server backup_data_file:file create_file_perms;
+
+# Write to /data/system/dropbox
+allow system_server dropbox_data_file:dir create_dir_perms;
+allow system_server dropbox_data_file:file create_file_perms;
 
 # Write to /data/system/heapdump
 allow system_server heapdump_data_file:dir rw_dir_perms;
@@ -524,8 +528,8 @@ set_prop(system_server, cppreopt_prop)
 
 # BootReceiver to read ro.boot.bootreason
 get_prop(system_server, bootloader_boot_reason_prop)
-# PowerManager to read persist.sys.boot.reason
-get_prop(system_server, last_boot_reason_prop)
+# PowerManager to read sys.boot.reason
+get_prop(system_server, system_boot_reason_prop)
 
 # Collect metrics on boot time created by init
 get_prop(system_server, boottime_prop)
@@ -535,6 +539,10 @@ get_prop(system_server, serialno_prop)
 
 # Read/write the property which keeps track of whether this is the first start of system_server
 set_prop(system_server, firstboot_prop)
+
+# Audio service in system server can read exported audio properties,
+# such as camera shutter enforcement
+get_prop(system_server, exported_audio_prop)
 
 # Create a socket for connections from debuggerd.
 allow system_server system_ndebug_socket:sock_file create_file_perms;
@@ -623,6 +631,9 @@ allow system_server storaged_service:service_manager find;
 allow system_server surfaceflinger_service:service_manager find;
 allow system_server vold_service:service_manager find;
 allow system_server wificond_service:service_manager find;
+userdebug_or_eng(`
+  allow system_server perfprofd_service:service_manager find;
+')
 
 add_service(system_server, batteryproperties_service)
 
@@ -728,7 +739,7 @@ r_dir_file(system_server, cgroup)
 allow system_server ion_device:chr_file r_file_perms;
 
 r_dir_file(system_server, proc_asound)
-r_dir_file(system_server, proc_net)
+r_dir_file(system_server, proc_net_type)
 r_dir_file(system_server, proc_qtaguid_stat)
 allow system_server {
   proc_loadavg
@@ -793,6 +804,9 @@ userdebug_or_eng(`
 # UsbDeviceManager uses /dev/usb-ffs
 allow system_server functionfs:dir search;
 allow system_server functionfs:file rw_file_perms;
+
+# system_server contains time / time zone detection logic so reads the associated properties.
+get_prop(system_server, time_prop)
 
 ###
 ### Neverallow rules

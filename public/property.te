@@ -5,6 +5,7 @@ type bluetooth_prop, property_type;
 type bootloader_boot_reason_prop, property_type;
 type config_prop, property_type, core_property_type;
 type cppreopt_prop, property_type, core_property_type;
+type ctl_adbd_prop, property_type;
 type ctl_bootanim_prop, property_type;
 type ctl_bugreport_prop, property_type;
 type ctl_console_prop, property_type;
@@ -59,6 +60,7 @@ type system_boot_reason_prop, property_type;
 type system_prop, property_type, core_property_type;
 type system_radio_prop, property_type, core_property_type;
 type test_boot_reason_prop, property_type;
+type time_prop, property_type;
 type traced_enabled_prop, property_type;
 type vold_prop, property_type, core_property_type;
 type wifi_log_prop, property_type, log_property_type;
@@ -66,6 +68,7 @@ type wifi_prop, property_type;
 type vendor_security_patch_level_prop, property_type;
 
 # Properties for whitelisting
+type exported_audio_prop, property_type;
 type exported_bluetooth_prop, property_type;
 type exported_config_prop, property_type;
 type exported_dalvik_prop, property_type;
@@ -325,6 +328,7 @@ compatible_property_only(`
     -boottime_prop
     -config_prop
     -cppreopt_prop
+    -ctl_adbd_prop
     -ctl_bootanim_prop
     -ctl_bugreport_prop
     -ctl_console_prop
@@ -402,6 +406,7 @@ compatible_property_only(`
     -system_prop
     -system_radio_prop
     -test_boot_reason_prop
+    -time_prop
     -traced_enabled_prop
     -vendor_default_prop
     -vendor_security_patch_level_prop

@@ -178,46 +178,32 @@ else
 SHAREDLIB_EXT=so
 endif
 
+#################################
+
 include $(CLEAR_VARS)
+
 LOCAL_MODULE := selinux_policy
 LOCAL_MODULE_TAGS := optional
-# Include SELinux policy. We do this here because different modules
-# need to be included based on the value of PRODUCT_SEPOLICY_SPLIT. This
-# type of conditional inclusion cannot be done in top-level files such
-# as build/target/product/embedded.mk.
-# This conditional inclusion closely mimics the conditional logic
-# inside init/init.cpp for loading SELinux policy from files.
-ifeq ($(PRODUCT_SEPOLICY_SPLIT),true)
+LOCAL_REQUIRED_MODULES += \
+    selinux_policy_nonsystem \
+    selinux_policy_system \
 
-# Use split SELinux policy
+include $(BUILD_PHONY_PACKAGE)
+
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := selinux_policy_system
+# These build targets are not used on non-Treble devices. However, we build these to avoid
+# divergence between Treble and non-Treble devices.
 LOCAL_REQUIRED_MODULES += \
     $(platform_mapping_file) \
     $(addsuffix .cil,$(PLATFORM_SEPOLICY_COMPAT_VERSIONS)) \
-    plat_pub_versioned.cil \
-    vendor_sepolicy.cil \
     plat_sepolicy.cil \
     plat_and_mapping_sepolicy.cil.sha256 \
     secilc \
-    plat_sepolicy_vers.txt \
-
-# Include precompiled policy, unless told otherwise
-ifneq ($(PRODUCT_PRECOMPILED_SEPOLICY),false)
-LOCAL_REQUIRED_MODULES += precompiled_sepolicy precompiled_sepolicy.plat_and_mapping.sha256
-endif
-else
-# The following files are only allowed for non-Treble devices.
-LOCAL_REQUIRED_MODULES += \
-    sepolicy \
-    vendor_service_contexts
-endif
 
 LOCAL_REQUIRED_MODULES += \
     build_sepolicy \
-    vendor_file_contexts \
-    vendor_mac_permissions.xml \
-    vendor_property_contexts \
-    vendor_seapp_contexts \
-    vendor_hwservice_contexts \
     plat_file_contexts \
     plat_mac_permissions.xml \
     plat_property_contexts \
@@ -225,7 +211,16 @@ LOCAL_REQUIRED_MODULES += \
     plat_service_contexts \
     plat_hwservice_contexts \
     searchpolicy \
-    vndservice_contexts \
+
+# This conditional inclusion closely mimics the conditional logic
+# inside init/init.cpp for loading SELinux policy from files.
+ifneq ($(PRODUCT_SEPOLICY_SPLIT),true)
+# The following files are only allowed for non-Treble devices.
+LOCAL_REQUIRED_MODULES += \
+    sepolicy \
+    vendor_service_contexts \
+
+endif # ($(PRODUCT_SEPOLICY_SPLIT),true)
 
 ifneq ($(TARGET_BUILD_VARIANT), user)
 LOCAL_REQUIRED_MODULES += \
@@ -243,6 +238,48 @@ LOCAL_REQUIRED_MODULES += \
 endif
 endif
 
+ifneq ($(PLATFORM_SEPOLICY_VERSION),$(TOT_SEPOLICY_VERSION))
+LOCAL_REQUIRED_MODULES += \
+    sepolicy_freeze_test \
+
+endif # ($(PLATFORM_SEPOLICY_VERSION),$(TOT_SEPOLICY_VERSION))
+
+include $(BUILD_PHONY_PACKAGE)
+
+#################################
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := selinux_policy_nonsystem
+# Include precompiled policy, unless told otherwise.
+ifneq ($(PRODUCT_PRECOMPILED_SEPOLICY),false)
+LOCAL_REQUIRED_MODULES += \
+    precompiled_sepolicy \
+    precompiled_sepolicy.plat_and_mapping.sha256 \
+    vendor_file_contexts \
+    vendor_mac_permissions.xml \
+    vendor_property_contexts \
+    vendor_seapp_contexts \
+    vendor_hwservice_contexts \
+
+endif # ($(PRODUCT_PRECOMPILED_SEPOLICY),false)
+
+
+# These build targets are not used on non-Treble devices. However, we build these to avoid
+# divergence between Treble and non-Treble devices.
+LOCAL_REQUIRED_MODULES += \
+    plat_pub_versioned.cil \
+    vendor_sepolicy.cil \
+    plat_sepolicy_vers.txt \
+
+LOCAL_REQUIRED_MODULES += \
+    vendor_file_contexts \
+    vendor_mac_permissions.xml \
+    vendor_property_contexts \
+    vendor_seapp_contexts \
+    vendor_hwservice_contexts \
+    vndservice_contexts \
+
 ifdef BOARD_ODM_SEPOLICY_DIRS
 LOCAL_REQUIRED_MODULES += \
     odm_sepolicy.cil \
@@ -252,13 +289,6 @@ LOCAL_REQUIRED_MODULES += \
     odm_hwservice_contexts \
     odm_mac_permissions.xml
 endif
-
-ifneq ($(PLATFORM_SEPOLICY_VERSION),$(TOT_SEPOLICY_VERSION))
-LOCAL_REQUIRED_MODULES += \
-    sepolicy_freeze_test \
-
-endif # ($(PLATFORM_SEPOLICY_VERSION),$(TOT_SEPOLICY_VERSION))
-
 include $(BUILD_PHONY_PACKAGE)
 
 #################################
@@ -450,7 +480,8 @@ $(current_mapping.cil) : $(plat_pub_policy.cil) $(HOST_OUT_EXECUTABLES)/version_
 	$(hide) $(HOST_OUT_EXECUTABLES)/version_policy -b $< -m -n $(PRIVATE_VERS) -o $@
 
 else # ifeq ($(BOARD_SEPOLICY_VERS), $(PLATFORM_SEPOLICY_VERSION))
-prebuilt_mapping_files := $(wildcard $(addsuffix /mapping/$(BOARD_SEPOLICY_VERS).cil, $(PLAT_PRIVATE_POLICY)))
+prebuilt_mapping_files := $(wildcard \
+  $(addsuffix /compat/$(BOARD_SEPOLICY_VERS)/$(BOARD_SEPOLICY_VERS).cil, $(PLAT_PRIVATE_POLICY)))
 $(current_mapping.cil) : $(prebuilt_mapping_files)
 	@mkdir -p $(dir $@)
 	cat $^ > $@
@@ -464,26 +495,6 @@ $(LOCAL_BUILT_MODULE): $(current_mapping.cil) $(ACP)
 built_mapping_cil := $(LOCAL_BUILT_MODULE)
 current_mapping.cil :=
 
-#################################
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := 27.0.cil
-LOCAL_SRC_FILES := private/compat/27.0/27.0.cil
-LOCAL_MODULE_CLASS := ETC
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE_PATH := $(TARGET_OUT)/etc/selinux/mapping
-
-include $(BUILD_PREBUILT)
-#################################
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := 26.0.cil
-LOCAL_SRC_FILES := private/compat/26.0/26.0.cil
-LOCAL_MODULE_CLASS := ETC
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE_PATH := $(TARGET_OUT)/etc/selinux/mapping
-
-include $(BUILD_PREBUILT)
 #################################
 include $(CLEAR_VARS)
 
@@ -783,6 +794,7 @@ $(LOCAL_BUILT_MODULE): PRIVATE_TGT_ARCH := $(my_target_arch)
 $(LOCAL_BUILT_MODULE): PRIVATE_WITH_ASAN := false
 $(LOCAL_BUILT_MODULE): PRIVATE_SEPOLICY_SPLIT := cts
 $(LOCAL_BUILT_MODULE): PRIVATE_COMPATIBLE_PROPERTY := cts
+$(LOCAL_BUILT_MODULE): PRIVATE_EXCLUDE_BUILD_TEST := true
 $(LOCAL_BUILT_MODULE): $(call build_policy, $(sepolicy_build_files), \
 $(PLAT_PUBLIC_POLICY) $(PLAT_PRIVATE_POLICY))
 	$(transform-policy-to-conf)
@@ -1635,8 +1647,8 @@ $(LOCAL_BUILT_MODULE): PRIVATE_BASE_PLAT_PUBLIC_PREBUILT := $(base_plat_public_p
 $(LOCAL_BUILT_MODULE): PRIVATE_BASE_PLAT_PRIVATE_PREBUILT := $(base_plat_private_prebuilt)
 $(LOCAL_BUILT_MODULE): $(all_frozen_files)
 ifneq ($(PLATFORM_SEPOLICY_VERSION),$(TOT_SEPOLICY_VERSION))
-	@diff -rq $(PRIVATE_BASE_PLAT_PUBLIC_PREBUILT) $(PRIVATE_BASE_PLAT_PUBLIC)
-	@diff -rq $(PRIVATE_BASE_PLAT_PRIVATE_PREBUILT) $(PRIVATE_BASE_PLAT_PRIVATE)
+	@diff -rq -x bug_map $(PRIVATE_BASE_PLAT_PUBLIC_PREBUILT) $(PRIVATE_BASE_PLAT_PUBLIC)
+	@diff -rq -x bug_map $(PRIVATE_BASE_PLAT_PRIVATE_PREBUILT) $(PRIVATE_BASE_PLAT_PRIVATE)
 endif # ($(PLATFORM_SEPOLICY_VERSION),$(TOT_SEPOLICY_VERSION))
 	$(hide) touch $@
 

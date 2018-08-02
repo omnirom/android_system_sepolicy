@@ -53,6 +53,9 @@ allow priv_app ota_package_file:file create_file_perms;
 allow priv_app media_rw_data_file:dir create_dir_perms;
 allow priv_app media_rw_data_file:file create_file_perms;
 
+# Read access to FDs from the DropboxManagerService.
+allow priv_app dropbox_data_file:file { getattr read };
+
 # Used by Finsky / Android "Verify Apps" functionality when
 # running "adb install foo.apk".
 allow priv_app shell_data_file:file r_file_perms;
@@ -84,6 +87,28 @@ allow priv_app fuse_device:chr_file { read write };
 allow priv_app {
   proc_vmstat
 }:file r_file_perms;
+
+# /proc/net access.
+# TODO(b/9496886) Audit access for removal.
+r_dir_file(priv_app, proc_net_type)
+userdebug_or_eng(`
+  auditallow priv_app proc_net_type:{ dir file lnk_file } { getattr open read };
+')
+# TODO(b/68774956) qtaguid access has been moved to netd. Access is deprecated. Audit for
+# removal.
+allow priv_app proc_qtaguid_ctrl:file rw_file_perms;
+userdebug_or_eng(`
+  auditallow priv_app proc_qtaguid_ctrl:file rw_file_perms;
+')
+r_dir_file(priv_app, proc_qtaguid_stat)
+userdebug_or_eng(`
+  auditallow priv_app proc_qtaguid_stat:dir r_dir_perms;
+  auditallow priv_app proc_qtaguid_stat:file r_file_perms;
+')
+allow priv_app qtaguid_device:chr_file r_file_perms;
+userdebug_or_eng(`
+  auditallow priv_app qtaguid_device:chr_file r_file_perms;
+')
 
 allow priv_app sysfs_type:dir search;
 # Read access to /sys/class/net/wlan*/address
@@ -148,6 +173,7 @@ dontaudit priv_app proc_modules:file read;
 dontaudit priv_app proc_stat:file read;
 dontaudit priv_app proc_version:file read;
 dontaudit priv_app sysfs:dir read;
+dontaudit priv_app sysfs:file read;
 dontaudit priv_app sysfs_android_usb:file read;
 dontaudit priv_app wifi_prop:file read;
 dontaudit priv_app { wifi_prop exported_wifi_prop }:file read;
@@ -156,6 +182,12 @@ dontaudit priv_app { wifi_prop exported_wifi_prop }:file read;
 # modify them other than to connect
 allow priv_app system_server:udp_socket {
         connect getattr read recvfrom sendto write getopt setopt };
+
+# Attempts to write to system_data_file is generally a sign
+# that apps are attempting to access encrypted storage before
+# the ACTION_USER_UNLOCKED intent is delivered. Suppress this
+# denial to prevent apps from spamming the logs.
+dontaudit priv_app system_data_file:dir write;
 
 ###
 ### neverallow rules

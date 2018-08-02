@@ -8,8 +8,12 @@ allow vold cache_file:file { getattr read };
 allow vold cache_file:lnk_file r_file_perms;
 
 # Read access to pseudo filesystems.
-r_dir_file(vold, proc_net)
-r_dir_file(vold, sysfs_type)
+r_dir_file(vold, proc_net_type)
+userdebug_or_eng(`
+  auditallow vold proc_net_type:{ dir file lnk_file } { getattr open read };
+')
+
+r_dir_file(vold, { sysfs_type -sysfs_batteryinfo })
 # XXX Label sysfs files with a specific type?
 allow vold sysfs:file w_file_perms; # writing to /sys/*/uevent during coldboot.
 allow vold sysfs_dm:file w_file_perms;
@@ -77,7 +81,10 @@ allow vold tmpfs:dir create_dir_perms;
 allow vold tmpfs:dir mounton;
 allow vold self:global_capability_class_set { net_admin dac_override mknod sys_admin chown fowner fsetid };
 allow vold self:netlink_kobject_uevent_socket create_socket_perms_no_ioctl;
+# TODO(b/80418809): remove direct access to private app data
+userdebug_or_eng(`auditallow vold app_data_file:dir search;')
 allow vold app_data_file:dir search;
+userdebug_or_eng(`auditallow vold app_data_file:file rw_file_perms;')
 allow vold app_data_file:file rw_file_perms;
 allow vold loop_control_device:chr_file rw_file_perms;
 allow vold loop_device:blk_file { create setattr unlink rw_file_perms };

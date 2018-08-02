@@ -70,6 +70,7 @@ ro.bt.                  u:object_r:bluetooth_prop:s0
 ro.boot.bootreason      u:object_r:bootloader_boot_reason_prop:s0
 persist.sys.boot.reason u:object_r:last_boot_reason_prop:s0
 sys.boot.reason         u:object_r:system_boot_reason_prop:s0
+sys.boot.reason.last    u:object_r:last_boot_reason_prop:s0
 pm.                     u:object_r:pm_prop:s0
 test.sys.boot.reason    u:object_r:test_boot_reason_prop:s0
 
@@ -114,6 +115,11 @@ ctl.interface_start$    u:object_r:ctl_interface_start_prop:s0
 ctl.interface_stop$     u:object_r:ctl_interface_stop_prop:s0
 ctl.interface_restart$  u:object_r:ctl_interface_restart_prop:s0
 
+ # Restrict access to starting/stopping adbd
+ctl.start$adbd             u:object_r:ctl_adbd_prop:s0
+ctl.stop$adbd              u:object_r:ctl_adbd_prop:s0
+ctl.restart$adbd           u:object_r:ctl_adbd_prop:s0
+
 # NFC properties
 nfc.                    u:object_r:nfc_prop:s0
 
@@ -145,3 +151,6 @@ odm.                    u:object_r:vendor_default_prop:s0
 persist.odm.            u:object_r:vendor_default_prop:s0
 persist.vendor.         u:object_r:vendor_default_prop:s0
 vendor.                 u:object_r:vendor_default_prop:s0
+
+# Properties that relate to time / time zone detection behavior.
+persist.time.           u:object_r:time_prop:s0

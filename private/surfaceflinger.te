@@ -13,7 +13,9 @@ read_runtime_log_tags(surfaceflinger)
 # Perform HwBinder IPC.
 hal_client_domain(surfaceflinger, hal_graphics_allocator)
 hal_client_domain(surfaceflinger, hal_graphics_composer)
+hal_client_domain(surfaceflinger, hal_omx)
 hal_client_domain(surfaceflinger, hal_configstore)
+hal_client_domain(surfaceflinger, hal_power)
 allow surfaceflinger hidl_token_hwservice:hwservice_manager find;
 
 # Perform Binder IPC.
@@ -81,6 +83,8 @@ add_service(surfaceflinger, gpu_service)
 # provider as well
 #add_service(surfaceflinger, surfaceflinger_service)
 allow surfaceflinger surfaceflinger_service:service_manager { add find };
+
+add_service(surfaceflinger, vrflinger_vsync_service)
 
 allow surfaceflinger mediaserver_service:service_manager find;
 allow surfaceflinger permission_service:service_manager find;

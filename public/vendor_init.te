@@ -4,9 +4,6 @@ type vendor_init, domain, mlstrustedsubject;
 # Communication to the main init process
 allow vendor_init init:unix_stream_socket { read write };
 
-# Vendor init shouldn't communicate with any vendor process, nor most system processes.
-neverallow_establish_socket_comms(vendor_init, { domain -init -logd -su -vendor_init });
-
 # Logging to kmsg
 allow vendor_init kmsg_device:chr_file { open write };
 
@@ -45,6 +42,7 @@ allow vendor_init {
   -core_data_file_type
   -exec_type
   -system_file
+  -mnt_product_file
   -unlabeled
   -vendor_file_type
   -vold_metadata_file
@@ -85,6 +83,7 @@ allow vendor_init {
   file_type
   -core_data_file_type
   -exec_type
+  -mnt_product_file
   -system_file
   -vendor_file_type
   -vold_metadata_file
@@ -129,8 +128,8 @@ allow vendor_init {
 allow vendor_init dev_type:blk_file getattr;
 
 # Write to /proc/sys/net/ping_group_range and other /proc/sys/net files.
-r_dir_file(vendor_init, proc_net)
-allow vendor_init proc_net:file w_file_perms;
+r_dir_file(vendor_init, proc_net_type)
+allow vendor_init proc_net_type:file w_file_perms;
 allow vendor_init self:global_capability_class_set net_admin;
 
 # Write to /proc/sys/vm/page-cluster
@@ -155,6 +154,12 @@ allow vendor_init self:global_capability_class_set sys_admin;
 # Raw writes to misc block device
 allow vendor_init misc_block_device:blk_file w_file_perms;
 
+# Everything is labeled as rootfs in recovery mode. Vendor init has to execute
+# the dynamic linker and shared libraries.
+recovery_only(`
+  allow vendor_init rootfs:file { r_file_perms execute };
+')
+
 not_compatible_property(`
     set_prop(vendor_init, {
       property_type
@@ -170,6 +175,7 @@ not_compatible_property(`
 
 set_prop(vendor_init, bluetooth_a2dp_offload_prop)
 set_prop(vendor_init, debug_prop)
+set_prop(vendor_init, exported_audio_prop)
 set_prop(vendor_init, exported_bluetooth_prop)
 set_prop(vendor_init, exported_config_prop)
 set_prop(vendor_init, exported_dalvik_prop)
@@ -195,3 +201,29 @@ set_prop(vendor_init, wifi_log_prop)
 
 get_prop(vendor_init, exported2_radio_prop)
 get_prop(vendor_init, exported3_system_prop)
+
+###
+### neverallow rules
+###
+
+# Vendor init shouldn't communicate with any vendor process, nor most system processes.
+neverallow_establish_socket_comms(vendor_init, { domain -init -logd -su -vendor_init });
+
+# The vendor_init domain is only entered via an exec based transition from the
+# init domain, never via setcon().
+neverallow domain vendor_init:process dyntransition;
+neverallow { domain -init } vendor_init:process transition;
+neverallow vendor_init { file_type fs_type -init_exec }:file entrypoint;
+
+# Never read/follow symlinks created by shell or untrusted apps.
+neverallow vendor_init app_data_file:lnk_file read;
+neverallow vendor_init shell_data_file:lnk_file read;
+# Init should not be creating subdirectories in /data/local/tmp
+neverallow vendor_init shell_data_file:dir { write add_name remove_name };
+
+# init should never execute a program without changing to another domain.
+neverallow vendor_init { file_type fs_type }:file execute_no_trans;
+
+# Init never adds or uses services via service_manager.
+neverallow vendor_init service_manager_type:service_manager { add find };
+neverallow vendor_init servicemanager:service_manager list;

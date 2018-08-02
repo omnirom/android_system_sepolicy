@@ -32,11 +32,14 @@ type update_engine_service,     service_manager_type;
 type virtual_touchpad_service,  service_manager_type;
 type vold_service,              service_manager_type;
 type vr_hwc_service,            service_manager_type;
+type vrflinger_vsync_service,   service_manager_type;
 
 # system_server_services broken down
 type accessibility_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type account_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type activity_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
+type activity_task_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
+type adb_service, system_server_service, service_manager_type;
 type alarm_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type appops_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type appwidget_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
@@ -54,7 +57,6 @@ type clipboard_service, app_api_service, ephemeral_app_api_service, system_serve
 type contexthub_service, app_api_service,  system_server_service, service_manager_type;
 type crossprofileapps_service, app_api_service, system_server_service, service_manager_type;
 type IProxyService_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
-type commontime_management_service, system_server_service, service_manager_type;
 type companion_device_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type connectivity_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type connmetrics_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
@@ -139,7 +141,9 @@ type task_service, system_server_service, service_manager_type;
 type textclassification_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type textservices_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type telecom_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
+type timedetector_service, system_server_service, service_manager_type;
 type timezone_service, system_server_service, service_manager_type;
+type timezonedetector_service, system_server_service, service_manager_type;
 type trust_service, app_api_service, system_server_service, service_manager_type;
 type tv_input_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type uimode_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;

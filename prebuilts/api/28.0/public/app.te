@@ -178,6 +178,7 @@ userdebug_or_eng(`
 allow {
     untrusted_app_25
     untrusted_app_27
+    ephemeral_app
     priv_app
     system_app
     platform_app
@@ -189,6 +190,7 @@ r_dir_file({ appdomain -ephemeral_app -isolated_app }, proc_net)
 r_dir_file({
     untrusted_app_25
     untrusted_app_27
+    ephemeral_app
     priv_app
     system_app
     platform_app
@@ -199,6 +201,7 @@ r_dir_file({
 allow {
     untrusted_app_25
     untrusted_app_27
+    ephemeral_app
     priv_app
     system_app
     platform_app

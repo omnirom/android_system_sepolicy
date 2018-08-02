@@ -118,7 +118,7 @@ hwbinder_use(shell)
 allow shell hwservicemanager:hwservice_manager list;
 
 # allow shell to look through /proc/ for lsmod, ps, top, netstat.
-r_dir_file(shell, proc_net)
+r_dir_file(shell, proc_net_type)
 
 allow shell {
   proc_asound
@@ -127,6 +127,8 @@ allow shell {
   proc_meminfo
   proc_modules
   proc_pid_max
+  proc_qtaguid_stat
+  proc_slabinfo
   proc_stat
   proc_timer
   proc_uptime
@@ -197,6 +199,12 @@ allow shell sepolicy_file:file r_file_perms;
 
 # Allow shell to start up vendor shell
 allow shell vendor_shell_exec:file rx_file_perms;
+
+# Everything is labeled as rootfs in recovery mode. Allow shell to
+# execute them.
+recovery_only(`
+  allow shell rootfs:file rx_file_perms;
+')
 
 ###
 ### Neverallow rules

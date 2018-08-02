@@ -23,7 +23,7 @@ allow domain self:process {
 };
 allow domain self:fd use;
 allow domain proc:dir r_dir_perms;
-allow domain proc_net:dir search;
+allow domain proc_net_type:dir search;
 r_dir_file(domain, self)
 allow domain self:{ fifo_file file } rw_file_perms;
 allow domain self:unix_dgram_socket { create_socket_perms sendto };
@@ -181,7 +181,7 @@ allow domain vndk_sp_file:file { execute read open getattr map };
 
 # All domains get access to /vendor/etc
 allow domain vendor_configs_file:dir r_dir_perms;
-allow domain vendor_configs_file:file { read open getattr };
+allow domain vendor_configs_file:file { read open getattr map };
 
 full_treble_only(`
     # Allow all domains to be able to follow /system/vendor and/or
@@ -262,7 +262,7 @@ allow domain fs_type:dir getattr;
 # defaults for all processes. Note that granting this whitelist to domain does
 # not grant the ioctl permission on these socket types. That must be granted
 # separately.
-allowxperm domain domain:{ rawip_socket tcp_socket udp_socket }
+allowxperm domain domain:{ icmp_socket rawip_socket tcp_socket udp_socket }
   ioctl { unpriv_sock_ioctls unpriv_tty_ioctls };
 # default whitelist for unix sockets.
 allowxperm domain domain:{ unix_dgram_socket unix_stream_socket }
@@ -955,6 +955,7 @@ full_treble_only(`
         userdebug_or_eng(`-perfprofd')
         -postinstall_dexopt
         -system_server
+        -mediaserver
     } vendor_app_file:file r_file_perms;
 ')
 
@@ -1025,6 +1026,7 @@ full_treble_only(`
       -same_process_hal_file
       -vndk_sp_file
       -vendor_app_file
+      -vendor_public_lib_file
     }:file execute;
 ')
 
@@ -1075,7 +1077,7 @@ neverallow {
   -system_server
 
   # Processes that can't exec crash_dump
-  -mediacodec
+  -hal_omx_server
   -mediaextractor
 } tombstoned_crash_socket:unix_stream_socket connectto;
 
@@ -1179,14 +1181,6 @@ neverallow {
   ephemeral_app
   priv_app
 } system_app_data_file:dir_file_class_set { create unlink open };
-
-
-# Services should respect app sandboxes
-neverallow {
-  domain
-  -appdomain
-  -installd # creation of sandbox
-} app_data_file:dir_file_class_set { create unlink };
 
 #
 # Only these domains should transition to shell domain. This domain is
@@ -1425,3 +1419,34 @@ neverallow {
   -init
   -ueventd
 } mnt_vendor_file:dir *;
+
+# Only apps are allowed access to vendor public libraries.
+full_treble_only(`
+  neverallow {
+    coredomain
+    -appdomain
+  } vendor_public_lib_file:file { execute execute_no_trans };
+')
+
+# Vendor domian must not have access to /mnt/product.
+neverallow {
+  domain
+  -coredomain
+} mnt_product_file:dir *;
+
+# Platform must not have access to sysfs_batteryinfo, but should do it via health HAL and healthd
+full_treble_only(`
+  neverallow {
+    coredomain
+    -healthd
+    -shell
+    # Generate uevents for health info
+    -ueventd
+    # Recovery uses health HAL passthrough implementation.
+    -recovery
+    # Charger uses health HAL passthrough implementation.
+    -charger
+    # TODO(b/110891300): remove this exception
+    -incidentd
+  } sysfs_batteryinfo:file { open read };
+')

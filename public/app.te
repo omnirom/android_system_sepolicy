@@ -116,6 +116,10 @@ r_dir_file(appdomain, vendor_overlay_file)
 # for vendor provided libraries.
 r_dir_file(appdomain, vendor_framework_file)
 
+# Allow apps read / execute access to vendor public libraries.
+allow appdomain vendor_public_lib_file:dir r_dir_perms;
+allow appdomain vendor_public_lib_file:file { execute read open getattr map };
+
 # Execute dex2oat when apps call dexclassloader
 allow appdomain dex2oat_exec:file rx_file_perms;
 
@@ -174,36 +178,33 @@ userdebug_or_eng(`
   allow appdomain heapdump_data_file:file append;
 ')
 
-# Write to /proc/net/xt_qtaguid/ctrl file.
-allow {
-    untrusted_app_25
-    untrusted_app_27
-    priv_app
-    system_app
-    platform_app
-    shell
-} qtaguid_proc:file rw_file_perms;
-r_dir_file({ appdomain -ephemeral_app -isolated_app }, proc_net)
-# read /proc/net/xt_qtguid/*stat* to per-app network data usage.
-# Exclude isolated app which may not use network sockets.
+# /proc/net access.
+# TODO(b/9496886) Audit access for removal.
+# proc_net access for the negated domains below is granted (or not) in their
+# individual .te files.
 r_dir_file({
-    untrusted_app_25
-    untrusted_app_27
-    priv_app
-    system_app
-    platform_app
-    shell
-}, proc_qtaguid_stat)
-# Everybody can read the xt_qtaguid resource tracking misc dev.
-# So allow all apps to read from /dev/xt_qtaguid.
-allow {
-    untrusted_app_25
-    untrusted_app_27
-    priv_app
-    system_app
-    platform_app
-    shell
-} qtaguid_device:chr_file r_file_perms;
+  appdomain
+  -ephemeral_app
+  -isolated_app
+  -platform_app
+  -priv_app
+  -shell
+  -system_app
+  -untrusted_app_all
+}, proc_net_type)
+# audit access for all these non-core app domains.
+userdebug_or_eng(`
+  auditallow {
+    appdomain
+    -ephemeral_app
+    -isolated_app
+    -platform_app
+    -priv_app
+    -shell
+    -system_app
+    -untrusted_app_all
+  } proc_net_type:{ dir file lnk_file } { getattr open read };
+')
 
 # Grant GPU access to all processes started by Zygote.
 # They need that to render the standard UI.
@@ -217,13 +218,6 @@ binder_call(appdomain, binderservicedomain)
 binder_call(appdomain, appdomain)
 # Perform binder IPC to ephemeral apps.
 binder_call(appdomain, ephemeral_app)
-
-# TODO(b/36375899): Replace this with hal_client_domain once mediacodec is properly attributized
-# as OMX HAL
-hwbinder_use({ appdomain  -isolated_app })
-allow { appdomain -isolated_app } hal_codec2_hwservice:hwservice_manager find;
-allow { appdomain -isolated_app } hal_omx_hwservice:hwservice_manager find;
-allow { appdomain -isolated_app } hidl_token_hwservice:hwservice_manager find;
 
 # Talk with graphics composer fences
 allow appdomain hal_graphics_composer:fd use;
@@ -304,15 +298,7 @@ allow appdomain console_device:chr_file { read write };
 allowxperm { appdomain -bluetooth } self:{ rawip_socket tcp_socket udp_socket }
   ioctl { unpriv_sock_ioctls unpriv_tty_ioctls };
 
-allow { appdomain -isolated_app } ion_device:chr_file rw_file_perms;
-# TODO is write really necessary ?
-auditallow { appdomain userdebug_or_eng(`-su') } ion_device:chr_file { write append };
-
-# TODO(b/36375899) replace with hal_client_domain for mediacodec (hal_omx)
-get_prop({ appdomain -isolated_app }, hwservicemanager_prop);
-
-# Allow app access to mediacodec (IOMX HAL)
-binder_call({ appdomain -isolated_app }, mediacodec)
+allow { appdomain -isolated_app } ion_device:chr_file r_file_perms;
 
 # Allow AAudio apps to use shared memory file descriptors from the HAL
 allow { appdomain -isolated_app } hal_audio:fd use;

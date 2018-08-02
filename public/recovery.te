@@ -30,6 +30,7 @@ recovery_only(`
 
   # Mount filesystems.
   allow recovery rootfs:dir mounton;
+  allow recovery tmpfs:dir mounton;
   allow recovery fs_type:filesystem ~relabelto;
   allow recovery unlabeled:filesystem ~relabelto;
   allow recovery contextmount_type:filesystem relabelto;
@@ -108,7 +109,7 @@ recovery_only(`
   set_prop(recovery, powerctl_prop)
 
   # Start/stop adbd via ctl.start adbd
-  set_prop(recovery, ctl_default_prop)
+  set_prop(recovery, ctl_adbd_prop)
 
   # Read serial number of the device from system properties
   get_prop(recovery, serialno_prop)

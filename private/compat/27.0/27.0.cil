@@ -1,8 +1,12 @@
 ;; types removed from current policy
-(type webview_zygote_socket)
+(type commontime_management_service)
+(type qtaguid_proc)
+(type mediacodec)
+(type mediacodec_exec)
 (type reboot_data_file)
-(type vold_socket)
 (type rild)
+(type webview_zygote_socket)
+(type vold_socket)
 
 (expandtypeattribute (accessibility_service_27_0) true)
 (expandtypeattribute (account_service_27_0) true)
@@ -452,7 +456,7 @@
 (expandtypeattribute (preopt2cachename_exec_27_0) true)
 (expandtypeattribute (print_service_27_0) true)
 (expandtypeattribute (priv_app_27_0) true)
-(expandtypeattribute (proc_27_0) true)
+(typeattributeset proc_27_0 (proc proc_slabinfo))
 (expandtypeattribute (proc_bluetooth_writable_27_0) true)
 (expandtypeattribute (proc_cpuinfo_27_0) true)
 (expandtypeattribute (proc_drop_caches_27_0) true)
@@ -822,7 +826,7 @@
 (typeattributeset ctl_bootanim_prop_27_0 (ctl_bootanim_prop))
 (typeattributeset ctl_bugreport_prop_27_0 (ctl_bugreport_prop))
 (typeattributeset ctl_console_prop_27_0 (ctl_console_prop))
-(typeattributeset ctl_default_prop_27_0 (ctl_default_prop ctl_restart_prop ctl_start_prop ctl_stop_prop))
+(typeattributeset ctl_default_prop_27_0 (ctl_default_prop ctl_restart_prop ctl_start_prop ctl_stop_prop ctl_adbd_prop))
 (typeattributeset ctl_dumpstate_prop_27_0 (ctl_dumpstate_prop))
 (typeattributeset ctl_fuse_prop_27_0 (ctl_fuse_prop))
 (typeattributeset ctl_mdnsd_prop_27_0 (ctl_mdnsd_prop))
@@ -1212,6 +1216,7 @@
 (typeattributeset proc_modules_27_0 (proc_modules))
 (typeattributeset proc_net_27_0
   ( proc_net
+    proc_net_vpn
     proc_qtaguid_stat))
 (typeattributeset proc_overcommit_memory_27_0 (proc_overcommit_memory))
 (typeattributeset proc_perf_27_0 (proc_perf))
@@ -1237,7 +1242,9 @@
 (typeattributeset property_socket_27_0 (property_socket))
 (typeattributeset pstorefs_27_0 (pstorefs))
 (typeattributeset ptmx_device_27_0 (ptmx_device))
-(typeattributeset qtaguid_device_27_0 (qtaguid_device))
+(typeattributeset qtaguid_device_27_0
+  ( qtaguid_proc
+    proc_qtaguid_ctrl))
 (typeattributeset qtaguid_proc_27_0 (qtaguid_proc))
 (typeattributeset racoon_27_0 (racoon))
 (typeattributeset racoon_exec_27_0 (racoon_exec))
@@ -1275,7 +1282,9 @@
 (typeattributeset runas_exec_27_0 (runas_exec))
 (typeattributeset runtime_event_log_tags_file_27_0 (runtime_event_log_tags_file))
 (typeattributeset safemode_prop_27_0 (safemode_prop))
-(typeattributeset same_process_hal_file_27_0 (same_process_hal_file))
+(typeattributeset same_process_hal_file_27_0
+  ( same_process_hal_file
+    vendor_public_lib_file))
 (typeattributeset samplingprofiler_service_27_0 (samplingprofiler_service))
 (typeattributeset scheduling_policy_service_27_0 (scheduling_policy_service))
 (typeattributeset sdcardd_27_0 (sdcardd))
@@ -1356,6 +1365,7 @@
 (typeattributeset system_block_device_27_0 (system_block_device))
 (typeattributeset system_data_file_27_0
   ( system_data_file
+    dropbox_data_file
     vendor_data_file))
 (typeattributeset system_file_27_0 (system_file))
 (typeattributeset systemkeys_data_file_27_0 (systemkeys_data_file))

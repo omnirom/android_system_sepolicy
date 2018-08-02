@@ -3,6 +3,7 @@ persist.radio.airplane_mode_on u:object_r:exported2_radio_prop:s0 exact int
 
 # vendor-init-settable
 af.fast_track_multiplier u:object_r:exported3_default_prop:s0 exact int
+audio.camerasound.force u:object_r:exported_audio_prop:s0 exact bool
 audio.deep_buffer.media u:object_r:exported3_default_prop:s0 exact bool
 audio.offload.video u:object_r:exported3_default_prop:s0 exact bool
 camera.disable_zsl_mode u:object_r:exported3_default_prop:s0 exact bool
@@ -58,7 +59,6 @@ dalvik.vm.method-trace-file-siz u:object_r:exported_dalvik_prop:s0 exact int
 dalvik.vm.method-trace-stream u:object_r:exported_dalvik_prop:s0 exact bool
 dalvik.vm.profilesystemserver u:object_r:exported_dalvik_prop:s0 exact bool
 dalvik.vm.profilebootimage u:object_r:exported_dalvik_prop:s0 exact bool
-dalvik.vm.stack-trace-dir u:object_r:exported_dalvik_prop:s0 exact string
 dalvik.vm.usejit u:object_r:exported_dalvik_prop:s0 exact bool
 dalvik.vm.usejitprofiles u:object_r:exported_dalvik_prop:s0 exact bool
 dalvik.vm.zygote.max-boot-retry u:object_r:exported_dalvik_prop:s0 exact int
@@ -108,13 +108,12 @@ ro.hdmi.wake_on_hotplug u:object_r:exported3_default_prop:s0 exact bool
 ro.oem_unlock_supported u:object_r:exported3_default_prop:s0 exact int
 ro.opengles.version u:object_r:exported3_default_prop:s0 exact int
 ro.radio.noril u:object_r:exported3_default_prop:s0 exact string
-ro.retaildemo.video_path u:object_r:exported3_default_prop:s0 exact string
 ro.sf.disable_triple_buffer u:object_r:exported3_default_prop:s0 exact bool
 ro.sf.lcd_density u:object_r:exported3_default_prop:s0 exact int
 ro.storage_manager.enabled u:object_r:exported3_default_prop:s0 exact bool
 ro.telephony.call_ring.multiple u:object_r:exported3_default_prop:s0 exact bool
 ro.telephony.default_cdma_sub u:object_r:exported3_default_prop:s0 exact int
-ro.telephony.default_network u:object_r:exported3_default_prop:s0 exact int
+ro.telephony.default_network u:object_r:exported3_default_prop:s0 exact string
 ro.url.legal u:object_r:exported3_default_prop:s0 exact string
 ro.url.legal.android_privacy u:object_r:exported3_default_prop:s0 exact string
 ro.vendor.build.security_patch u:object_r:vendor_security_patch_level_prop:s0 exact string

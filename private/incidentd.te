@@ -19,6 +19,9 @@ allow incidentd incident_helper:process sigkill;
 allow incidentd system_file:file execute_no_trans;
 allow incidentd toolbox_exec:file rx_file_perms;
 
+# section id 1002, allow reading kernel version /proc/version
+allow incidentd proc_version:file r_file_perms;
+
 # section id 2001, allow reading /proc/pagetypeinfo
 allow incidentd proc_pagetypeinfo:file r_file_perms;
 
@@ -84,9 +87,9 @@ allow incidentd {
   hal_bluetooth_server
   hal_camera_server
   hal_graphics_composer_server
+  hal_omx_server
   hal_sensors_server
   hal_vr_server
-  mediacodec # TODO(b/36375899): hal_omx_server
 }:process signal;
 
 # Allow incidentd to make binder calls to any binder service

@@ -75,9 +75,9 @@ allow dumpstate {
   hal_camera_server
   hal_drm_server
   hal_graphics_composer_server
+  hal_omx_server
   hal_sensors_server
   hal_vr_server
-  mediacodec # TODO(b/36375899): hal_omx_server
 }:process signal;
 
 # Connect to tombstoned to intercept dumps.
@@ -93,8 +93,8 @@ allow dumpstate {
 }:file r_file_perms;
 
 # Other random bits of data we want to collect
-allow dumpstate qtaguid_proc:file r_file_perms;
 allow dumpstate debugfs:file r_file_perms;
+auditallow dumpstate debugfs:file r_file_perms;
 
 # df for
 allow dumpstate {
@@ -163,10 +163,12 @@ allow dumpstate {
   proc_cmdline
   proc_meminfo
   proc_modules
-  proc_net
+  proc_net_type
   proc_pipe_conf
   proc_pagetypeinfo
+  proc_qtaguid_ctrl
   proc_qtaguid_stat
+  proc_slabinfo
   proc_version
   proc_vmallocinfo
   proc_vmstat

@@ -34,16 +34,16 @@ allow netd devpts:chr_file rw_file_perms;
 # Acquire advisory lock on /system/etc/xtables.lock
 allow netd system_file:file lock;
 
-# Allow netd to write to qtaguid ctrl file. This is the same privilege level that normal apps have
-# TODO: Add proper rules to prevent other process to access qtaguid_proc file after migration
-#       complete
-allow netd qtaguid_proc:file rw_file_perms;
+# Allow netd to write to qtaguid ctrl file.
+# TODO: Add proper rules to prevent other process to access qtaguid_proc file
+# after migration complete
+allow netd proc_qtaguid_ctrl:file rw_file_perms;
 # Allow netd to read /dev/qtaguid. This is the same privilege level that normal apps have.
 allow netd qtaguid_device:chr_file r_file_perms;
 
-r_dir_file(netd, proc_net)
+r_dir_file(netd, proc_net_type)
 # For /proc/sys/net/ipv[46]/route/flush.
-allow netd proc_net:file rw_file_perms;
+allow netd proc_net_type:file rw_file_perms;
 
 # Enables PppController and interface enumeration (among others)
 allow netd sysfs:dir r_dir_perms;
@@ -94,6 +94,7 @@ allow netd netd_listener_service:service_manager find;
 
 # Allow netd to operate on sockets that are passed to it.
 allow netd netdomain:{
+  icmp_socket
   tcp_socket
   udp_socket
   rawip_socket
@@ -146,3 +147,12 @@ neverallow { domain -netd -init -dumpstate } netd_stable_secret_prop:file r_file
 # We want to ensure that no other process ever tries tampering with persist.netd.stable_secret,
 # the RFC 7217 secret key managed by netd. Doing so could compromise user privacy.
 neverallow { domain -netd -init } netd_stable_secret_prop:property_service set;
+
+# If an already existing file is opened with O_CREATE, the kernel might generate
+# a false report of a create denial. Silence these denials and make sure that
+# inappropriate permissions are not granted.
+neverallow netd proc_net:dir no_w_dir_perms;
+dontaudit netd proc_net:dir write;
+
+neverallow netd sysfs_net:dir no_w_dir_perms;
+dontaudit netd sysfs_net:dir write;

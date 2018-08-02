@@ -3,7 +3,9 @@
 ;;   previous ones.  Add here to pass checkapi tests.
 (typeattribute new_objects)
 (typeattributeset new_objects
-  ( atrace
+  ( activity_task_service
+    adb_service
+    atrace
     binder_calls_stats_service
     blank_screen
     blank_screen_exec
@@ -27,6 +29,7 @@
     exported3_default_prop
     exported3_radio_prop
     exported3_system_prop
+    exported_audio_prop
     exported_bluetooth_prop
     exported_config_prop
     exported_dalvik_prop
@@ -57,11 +60,15 @@
     incident_helper
     incident_helper_exec
     last_boot_reason_prop
+    llkd
+    llkd_exec
+    llkd_tmpfs
     lowpan_device
     lowpan_prop
     lowpan_service
     mediaextractor_update_service
     metadata_file
+    mnt_product_file
     mnt_vendor_file
     network_watchlist_data_file
     network_watchlist_service
@@ -90,6 +97,9 @@
     system_boot_reason_prop
     system_update_service
     test_boot_reason_prop
+    time_prop
+    timedetector_service
+    timezonedetector_service
     tombstone_wifi_data_file
     trace_data_file
     traced
@@ -116,6 +126,7 @@
     vold_prepare_subdirs
     vold_prepare_subdirs_exec
     vold_service
+    vrflinger_vsync_service
     wait_for_keymaster
     wait_for_keymaster_exec
     wait_for_keymaster_tmpfs

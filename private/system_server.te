@@ -514,6 +514,7 @@ set_prop(system_server, exported_overlay_prop)
 set_prop(system_server, pm_prop)
 set_prop(system_server, exported_pm_prop)
 userdebug_or_eng(`set_prop(system_server, wifi_log_prop)')
+set_prop(system_server, shell_prop)
 
 # ctl interface
 set_prop(system_server, ctl_default_prop)

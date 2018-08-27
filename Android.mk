@@ -232,8 +232,7 @@ ifneq ($(with_asan),true)
 ifneq ($(SELINUX_IGNORE_NEVERALLOWS),true)
 LOCAL_REQUIRED_MODULES += \
     sepolicy_tests \
-    treble_sepolicy_tests_26.0 \
-    treble_sepolicy_tests_27.0 \
+    $(addprefix treble_sepolicy_tests_,$(PLATFORM_SEPOLICY_COMPAT_VERSIONS)) \
 
 endif
 endif
@@ -830,14 +829,17 @@ include $(BUILD_SYSTEM)/base_rules.mk
 local_fc_files := $(call build_policy, file_contexts, $(PLAT_PRIVATE_POLICY))
 
 ifneq ($(filter address,$(SANITIZE_TARGET)),)
-  local_fc_files := $(local_fc_files) $(wildcard $(addsuffix /file_contexts_asan, $(PLAT_PRIVATE_POLICY)))
+  local_fc_files += $(wildcard $(addsuffix /file_contexts_asan, $(PLAT_PRIVATE_POLICY)))
+endif
+ifneq (,$(filter userdebug eng,$(TARGET_BUILD_VARIANT)))
+  local_fc_files += $(wildcard $(addsuffix /file_contexts_overlayfs, $(PLAT_PRIVATE_POLICY)))
 endif
 local_fcfiles_with_nl := $(call add_nl, $(local_fc_files), $(built_nl))
 
 file_contexts.local.tmp := $(intermediates)/file_contexts.local.tmp
 $(file_contexts.local.tmp): $(local_fcfiles_with_nl)
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $^ > $@
+	$(hide) m4 --fatal-warnings -s $^ > $@
 
 device_fc_files := $(call build_vendor_policy, file_contexts)
 
@@ -851,7 +853,7 @@ file_contexts.device.tmp := $(intermediates)/file_contexts.device.tmp
 $(file_contexts.device.tmp): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
 $(file_contexts.device.tmp): $(device_fcfiles_with_nl)
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $(PRIVATE_ADDITIONAL_M4DEFS) $^ > $@
+	$(hide) m4 --fatal-warnings -s $(PRIVATE_ADDITIONAL_M4DEFS) $^ > $@
 
 file_contexts.device.sorted.tmp := $(intermediates)/file_contexts.device.sorted.tmp
 $(file_contexts.device.sorted.tmp): PRIVATE_SEPOLICY := $(built_sepolicy)
@@ -864,7 +866,7 @@ $(file_contexts.device.sorted.tmp): $(file_contexts.device.tmp) $(built_sepolicy
 file_contexts.concat.tmp := $(intermediates)/file_contexts.concat.tmp
 $(file_contexts.concat.tmp): $(file_contexts.local.tmp) $(file_contexts.device.sorted.tmp)
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $^ > $@
+	$(hide) m4 --fatal-warnings -s $^ > $@
 
 $(LOCAL_BUILT_MODULE): PRIVATE_SEPOLICY := $(built_sepolicy)
 $(LOCAL_BUILT_MODULE): $(file_contexts.concat.tmp) $(built_sepolicy) $(HOST_OUT_EXECUTABLES)/sefcontext_compile $(HOST_OUT_EXECUTABLES)/checkfc
@@ -918,6 +920,9 @@ local_fc_files := $(call build_policy, file_contexts, $(PLAT_PRIVATE_POLICY))
 ifneq ($(filter address,$(SANITIZE_TARGET)),)
   local_fc_files += $(wildcard $(addsuffix /file_contexts_asan, $(PLAT_PRIVATE_POLICY)))
 endif
+ifneq (,$(filter userdebug eng,$(TARGET_BUILD_VARIANT)))
+  local_fc_files += $(wildcard $(addsuffix /file_contexts_overlayfs, $(PLAT_PRIVATE_POLICY)))
+endif
 local_fcfiles_with_nl := $(call add_nl, $(local_fc_files), $(built_nl))
 
 $(LOCAL_BUILT_MODULE): PRIVATE_FC_FILES := $(local_fcfiles_with_nl)
@@ -926,7 +931,7 @@ $(LOCAL_BUILT_MODULE): PRIVATE_FC_SORT := $(HOST_OUT_EXECUTABLES)/fc_sort
 $(LOCAL_BUILT_MODULE): $(HOST_OUT_EXECUTABLES)/checkfc $(HOST_OUT_EXECUTABLES)/fc_sort \
 $(local_fcfiles_with_nl) $(built_sepolicy)
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $(PRIVATE_FC_FILES) > $@.tmp
+	$(hide) m4 --fatal-warnings -s $(PRIVATE_FC_FILES) > $@.tmp
 	$(hide) $< $(PRIVATE_SEPOLICY) $@.tmp
 	$(hide) $(PRIVATE_FC_SORT) $@.tmp $@
 
@@ -957,7 +962,7 @@ $(LOCAL_BUILT_MODULE): PRIVATE_FC_SORT := $(HOST_OUT_EXECUTABLES)/fc_sort
 $(LOCAL_BUILT_MODULE): $(HOST_OUT_EXECUTABLES)/checkfc $(HOST_OUT_EXECUTABLES)/fc_sort \
 $(vendor_fcfiles_with_nl) $(built_sepolicy)
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_FC_FILES) > $@.tmp
+	$(hide) m4 --fatal-warnings -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_FC_FILES) > $@.tmp
 	$(hide) $< $(PRIVATE_SEPOLICY) $@.tmp
 	$(hide) $(PRIVATE_FC_SORT) $@.tmp $@
 
@@ -984,7 +989,7 @@ $(LOCAL_BUILT_MODULE): PRIVATE_FC_SORT := $(HOST_OUT_EXECUTABLES)/fc_sort
 $(LOCAL_BUILT_MODULE): $(HOST_OUT_EXECUTABLES)/checkfc $(HOST_OUT_EXECUTABLES)/fc_sort \
 $(odm_fcfiles_with_nl) $(built_sepolicy)
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_FC_FILES) > $@.tmp
+	$(hide) m4 --fatal-warnings -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_FC_FILES) > $@.tmp
 	$(hide) $< $(PRIVATE_SEPOLICY) $@.tmp
 	$(hide) $(PRIVATE_FC_SORT) $@.tmp $@
 
@@ -1145,7 +1150,7 @@ $(plat_property_contexts.tmp): PRIVATE_PC_FILES := $(plat_pcfiles)
 $(plat_property_contexts.tmp): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
 $(plat_property_contexts.tmp): $(plat_pcfiles)
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_PC_FILES) > $@
+	$(hide) m4 --fatal-warnings -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_PC_FILES) > $@
 $(LOCAL_BUILT_MODULE): PRIVATE_SEPOLICY := $(built_sepolicy)
 $(LOCAL_BUILT_MODULE): $(plat_property_contexts.tmp) $(built_sepolicy) $(HOST_OUT_EXECUTABLES)/property_info_checker
 	@mkdir -p $(dir $@)
@@ -1177,7 +1182,7 @@ $(vendor_property_contexts.tmp): PRIVATE_PC_FILES := $(vendor_pcfiles)
 $(vendor_property_contexts.tmp): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
 $(vendor_property_contexts.tmp): $(vendor_pcfiles)
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_PC_FILES) > $@
+	$(hide) m4 --fatal-warnings -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_PC_FILES) > $@
 
 $(LOCAL_BUILT_MODULE): PRIVATE_SEPOLICY := $(built_sepolicy)
 $(LOCAL_BUILT_MODULE): PRIVATE_BUILT_PLAT_PC := $(built_plat_pc)
@@ -1206,7 +1211,7 @@ $(odm_property_contexts.tmp): PRIVATE_PC_FILES := $(odm_pcfiles)
 $(odm_property_contexts.tmp): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
 $(odm_property_contexts.tmp): $(odm_pcfiles)
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_PC_FILES) > $@
+	$(hide) m4 --fatal-warnings -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_PC_FILES) > $@
 
 
 $(LOCAL_BUILT_MODULE): PRIVATE_SEPOLICY := $(built_sepolicy)
@@ -1282,7 +1287,7 @@ $(plat_service_contexts.tmp): PRIVATE_SVC_FILES := $(plat_svcfiles)
 $(plat_service_contexts.tmp): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
 $(plat_service_contexts.tmp): $(plat_svcfiles)
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_SVC_FILES) > $@
+	$(hide) m4 --fatal-warnings -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_SVC_FILES) > $@
 
 $(LOCAL_BUILT_MODULE): PRIVATE_SEPOLICY := $(built_sepolicy)
 $(LOCAL_BUILT_MODULE): $(plat_service_contexts.tmp) $(built_sepolicy) $(HOST_OUT_EXECUTABLES)/checkfc $(ACP)
@@ -1314,7 +1319,7 @@ $(vendor_service_contexts.tmp): PRIVATE_SVC_FILES := $(vendor_svcfiles)
 $(vendor_service_contexts.tmp): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
 $(vendor_service_contexts.tmp): $(vendor_svcfiles)
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_SVC_FILES) > $@
+	$(hide) m4 --fatal-warnings -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_SVC_FILES) > $@
 
 $(LOCAL_BUILT_MODULE): PRIVATE_SEPOLICY := $(built_sepolicy)
 $(LOCAL_BUILT_MODULE): $(vendor_service_contexts.tmp) $(built_sepolicy) $(HOST_OUT_EXECUTABLES)/checkfc $(ACP)
@@ -1349,7 +1354,7 @@ $(plat_hwservice_contexts.tmp): PRIVATE_SVC_FILES := $(plat_hwsvcfiles)
 $(plat_hwservice_contexts.tmp): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
 $(plat_hwservice_contexts.tmp): $(plat_hwsvcfiles)
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_SVC_FILES) > $@
+	$(hide) m4 --fatal-warnings -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_SVC_FILES) > $@
 
 $(LOCAL_BUILT_MODULE): PRIVATE_SEPOLICY := $(built_sepolicy)
 $(LOCAL_BUILT_MODULE): $(plat_hwservice_contexts.tmp) $(built_sepolicy) $(HOST_OUT_EXECUTABLES)/checkfc $(ACP)
@@ -1381,7 +1386,7 @@ $(vendor_hwservice_contexts.tmp): PRIVATE_SVC_FILES := $(vendor_hwsvcfiles)
 $(vendor_hwservice_contexts.tmp): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
 $(vendor_hwservice_contexts.tmp): $(vendor_hwsvcfiles)
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_SVC_FILES) > $@
+	$(hide) m4 --fatal-warnings -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_SVC_FILES) > $@
 
 $(LOCAL_BUILT_MODULE): PRIVATE_SEPOLICY := $(built_sepolicy)
 $(LOCAL_BUILT_MODULE): $(vendor_hwservice_contexts.tmp) $(built_sepolicy) $(HOST_OUT_EXECUTABLES)/checkfc $(ACP)
@@ -1409,7 +1414,7 @@ $(odm_hwservice_contexts.tmp): PRIVATE_SVC_FILES := $(odm_hwsvcfiles)
 $(odm_hwservice_contexts.tmp): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
 $(odm_hwservice_contexts.tmp): $(odm_hwsvcfiles)
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_SVC_FILES) > $@
+	$(hide) m4 --fatal-warnings -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_SVC_FILES) > $@
 
 $(LOCAL_BUILT_MODULE): PRIVATE_SEPOLICY := $(built_sepolicy)
 $(LOCAL_BUILT_MODULE): $(odm_hwservice_contexts.tmp) $(built_sepolicy) $(HOST_OUT_EXECUTABLES)/checkfc $(ACP)
@@ -1441,7 +1446,7 @@ $(vndservice_contexts.tmp): PRIVATE_SVC_FILES := $(vnd_svcfiles)
 $(vndservice_contexts.tmp): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
 $(vndservice_contexts.tmp): $(vnd_svcfiles)
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_SVC_FILES) > $@
+	$(hide) m4 --fatal-warnings -s $(PRIVATE_ADDITIONAL_M4DEFS) $(PRIVATE_SVC_FILES) > $@
 
 $(LOCAL_BUILT_MODULE): PRIVATE_SEPOLICY := $(built_sepolicy)
 $(LOCAL_BUILT_MODULE): $(vndservice_contexts.tmp) $(built_sepolicy) $(HOST_OUT_EXECUTABLES)/checkfc $(ACP)
@@ -1466,7 +1471,7 @@ plat_mac_perms_keys.tmp := $(intermediates)/plat_keys.tmp
 $(plat_mac_perms_keys.tmp): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
 $(plat_mac_perms_keys.tmp): $(call build_policy, keys.conf, $(PLAT_PRIVATE_POLICY))
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $(PRIVATE_ADDITIONAL_M4DEFS) $^ > $@
+	$(hide) m4 --fatal-warnings -s $(PRIVATE_ADDITIONAL_M4DEFS) $^ > $@
 
 all_plat_mac_perms_files := $(call build_policy, mac_permissions.xml, $(PLAT_PRIVATE_POLICY))
 
@@ -1500,7 +1505,7 @@ vendor_mac_perms_keys.tmp := $(intermediates)/vendor_keys.tmp
 $(vendor_mac_perms_keys.tmp): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
 $(vendor_mac_perms_keys.tmp): $(call build_policy, keys.conf, $(PLAT_VENDOR_POLICY) $(BOARD_VENDOR_SEPOLICY_DIRS) $(REQD_MASK_POLICY))
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $(PRIVATE_ADDITIONAL_M4DEFS) $^ > $@
+	$(hide) m4 --fatal-warnings -s $(PRIVATE_ADDITIONAL_M4DEFS) $^ > $@
 
 all_vendor_mac_perms_files := $(call build_policy, mac_permissions.xml, $(PLAT_VENDOR_POLICY) $(BOARD_VENDOR_SEPOLICY_DIRS) $(REQD_MASK_POLICY))
 
@@ -1528,7 +1533,7 @@ odm_mac_perms_keys.tmp := $(intermediates)/odm_keys.tmp
 $(odm_mac_perms_keys.tmp): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
 $(odm_mac_perms_keys.tmp): $(call build_policy, keys.conf, $(BOARD_ODM_SEPOLICY_DIRS) $(REQD_MASK_POLICY))
 	@mkdir -p $(dir $@)
-	$(hide) m4 -s $(PRIVATE_ADDITIONAL_M4DEFS) $^ > $@
+	$(hide) m4 --fatal-warnings -s $(PRIVATE_ADDITIONAL_M4DEFS) $^ > $@
 
 all_odm_mac_perms_files := $(call build_policy, mac_permissions.xml, $(BOARD_ODM_SEPOLICY_DIRS) $(REQD_MASK_POLICY))
 
@@ -1614,6 +1619,9 @@ version_under_treble_tests := 26.0
 include $(LOCAL_PATH)/treble_sepolicy_tests_for_release.mk
 
 version_under_treble_tests := 27.0
+include $(LOCAL_PATH)/treble_sepolicy_tests_for_release.mk
+
+version_under_treble_tests := 28.0
 include $(LOCAL_PATH)/treble_sepolicy_tests_for_release.mk
 
 BASE_PLAT_PUBLIC_POLICY :=

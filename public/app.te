@@ -66,8 +66,8 @@ allow appdomain appdomain:fifo_file rw_file_perms;
 allow appdomain surfaceflinger:unix_stream_socket { read write setopt getattr getopt shutdown };
 
 # App sandbox file accesses.
-allow { appdomain -isolated_app } app_data_file:dir create_dir_perms;
-allow { appdomain -isolated_app } app_data_file:notdevfile_class_set create_file_perms;
+allow { appdomain -isolated_app } { app_data_file privapp_data_file }:dir create_dir_perms;
+allow { appdomain -isolated_app } { app_data_file privapp_data_file }:notdevfile_class_set create_file_perms;
 
 # Traverse into expanded storage
 allow appdomain mnt_expand_file:dir r_dir_perms;
@@ -85,10 +85,10 @@ allow appdomain oemfs:dir r_dir_perms;
 allow appdomain oemfs:file rx_file_perms;
 
 # Execute the shell or other system executables.
-allow { appdomain -ephemeral_app -untrusted_v2_app } shell_exec:file rx_file_perms;
-allow { appdomain -ephemeral_app -untrusted_v2_app } toolbox_exec:file rx_file_perms;
-allow { appdomain -untrusted_v2_app } system_file:file x_file_perms;
-not_full_treble(`allow { appdomain -ephemeral_app -untrusted_v2_app } vendor_file:file x_file_perms;')
+allow { appdomain -ephemeral_app } shell_exec:file rx_file_perms;
+allow { appdomain -ephemeral_app } toolbox_exec:file rx_file_perms;
+allow appdomain system_file:file x_file_perms;
+not_full_treble(`allow { appdomain -ephemeral_app } vendor_file:file x_file_perms;')
 
 # Renderscript needs the ability to read directories on /system
 allow appdomain system_file:dir r_dir_perms;
@@ -106,8 +106,8 @@ full_treble_only(`
 
 # Allow apps access to /vendor/app except for privileged
 # apps which cannot be in /vendor.
-r_dir_file({ appdomain -ephemeral_app -untrusted_v2_app }, vendor_app_file)
-allow { appdomain -ephemeral_app -untrusted_v2_app } vendor_app_file:file execute;
+r_dir_file({ appdomain -ephemeral_app }, vendor_app_file)
+allow { appdomain -ephemeral_app } vendor_app_file:file execute;
 
 # Allow apps access to /vendor/overlay
 r_dir_file(appdomain, vendor_overlay_file)
@@ -124,16 +124,16 @@ allow appdomain vendor_public_lib_file:file { execute read open getattr map };
 allow appdomain dex2oat_exec:file rx_file_perms;
 
 # Read/write wallpaper file (opened by system).
-allow appdomain wallpaper_file:file { getattr read write };
+allow appdomain wallpaper_file:file { getattr read write map };
 
 # Read/write cached ringtones (opened by system).
-allow appdomain ringtone_file:file { getattr read write };
+allow appdomain ringtone_file:file { getattr read write map };
 
 # Read ShortcutManager icon files (opened by system).
-allow appdomain shortcut_manager_icons:file { getattr read };
+allow appdomain shortcut_manager_icons:file { getattr read map };
 
 # Read icon file (opened by system).
-allow appdomain icon_file:file { getattr read };
+allow appdomain icon_file:file { getattr read map };
 
 # Old stack dumping scheme : append to a global trace file (/data/anr/traces.txt).
 #
@@ -201,6 +201,7 @@ userdebug_or_eng(`
     -platform_app
     -priv_app
     -shell
+    -su
     -system_app
     -untrusted_app_all
   } proc_net_type:{ dir file lnk_file } { getattr open read };
@@ -230,12 +231,12 @@ allow appdomain appdomain:unix_stream_socket { getopt getattr read write shutdow
 
 # Backup ability for every app. BMS opens and passes the fd
 # to any app that has backup ability. Hence, no open permissions here.
-allow appdomain backup_data_file:file { read write getattr };
-allow appdomain cache_backup_file:file { read write getattr };
+allow appdomain backup_data_file:file { read write getattr map };
+allow appdomain cache_backup_file:file { read write getattr map };
 allow appdomain cache_backup_file:dir getattr;
 # Backup ability using 'adb backup'
 allow appdomain system_data_file:lnk_file r_file_perms;
-allow appdomain system_data_file:file { getattr read };
+allow appdomain system_data_file:file { getattr read map };
 
 # Allow read/stat of /data/media files passed by Binder or local socket IPC.
 allow { appdomain -isolated_app } media_rw_data_file:file { read getattr };
@@ -284,7 +285,7 @@ allow appdomain resourcecache_data_file:dir r_dir_perms;
 
 # logd access
 read_logd(appdomain)
-control_logd({ appdomain -ephemeral_app untrusted_v2_app })
+control_logd({ appdomain -ephemeral_app })
 # application inherit logd write socket (urge is to deprecate this long term)
 allow appdomain zygote:unix_dgram_socket write;
 
@@ -403,6 +404,14 @@ neverallow appdomain zygote_socket:sock_file write;
 
 # ptrace access to non-app domains.
 neverallow appdomain { domain -appdomain }:process ptrace;
+
+# The Android security model guarantees the confidentiality and integrity
+# of application data and execution state. Ptrace bypasses those
+# confidentiality guarantees. Disallow ptrace access from system components
+# to apps. Crash_dump is excluded, as it needs ptrace access to
+# produce stack traces.
+
+neverallow { domain -appdomain -crash_dump } appdomain:process ptrace;
 
 # Read or write access to /proc/pid entries for any non-app domain.
 # A different form of hidepid=2 like protections

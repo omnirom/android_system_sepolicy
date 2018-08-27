@@ -142,7 +142,7 @@ type vendor_file, vendor_file_type, file_type;
 type vendor_app_file, vendor_file_type, file_type;
 # Default type for everything under /vendor/etc/
 type vendor_configs_file, vendor_file_type, file_type;
-# Default type for all *same process* HALs.
+# Default type for all *same process* HALs and their lib/bin dependencies.
 # e.g. libEGL_xxx.so, android.hardware.graphics.mapper@2.0-impl.so
 type same_process_hal_file, vendor_file_type, file_type;
 # Default type for vndk-sp libs. /vendor/lib/vndk-sp
@@ -283,11 +283,15 @@ type method_trace_data_file, file_type, data_file_type, core_data_file_type, mls
 
 # /data/data subdirectories - app sandboxes
 type app_data_file, file_type, data_file_type, core_data_file_type;
+# /data/data subdirectories - priv-app sandboxes
+type privapp_data_file, file_type, data_file_type, core_data_file_type;
 # /data/data subdirectory for system UID apps.
 type system_app_data_file, file_type, data_file_type, core_data_file_type, mlstrustedobject;
 # Compatibility with type name used in Android 4.3 and 4.4.
 # Default type for anything under /cache
 type cache_file, file_type, data_file_type, core_data_file_type, mlstrustedobject;
+# Type for /cache/overlay
+type overlayfs_file, file_type, data_file_type, core_data_file_type;
 # Type for /cache/backup_stage/* (fd interchange with apps)
 type cache_backup_file, file_type, data_file_type, core_data_file_type, mlstrustedobject;
 # type for anything under /cache/backup (local transport storage)
@@ -338,6 +342,7 @@ type mtpd_socket, file_type, coredomain_socket;
 type netd_socket, file_type, coredomain_socket;
 type property_socket, file_type, coredomain_socket, mlstrustedobject;
 type racoon_socket, file_type, coredomain_socket;
+type recovery_socket, file_type, coredomain_socket;
 type rild_socket, file_type;
 type rild_debug_socket, file_type;
 type system_wpa_socket, file_type, data_file_type, core_data_file_type, coredomain_socket;

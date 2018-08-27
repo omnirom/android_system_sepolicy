@@ -68,7 +68,7 @@ allow vold media_rw_data_file:file create_file_perms;
 allow vold { mnt_media_rw_stub_file storage_stub_file }:dir { mounton create rmdir getattr setattr };
 
 # Manage per-user primary symlinks
-allow vold mnt_user_file:dir create_dir_perms;
+allow vold mnt_user_file:dir { create_dir_perms mounton };
 allow vold mnt_user_file:lnk_file create_file_perms;
 
 # Allow to create and mount expanded storage
@@ -82,10 +82,10 @@ allow vold tmpfs:dir mounton;
 allow vold self:global_capability_class_set { net_admin dac_override mknod sys_admin chown fowner fsetid };
 allow vold self:netlink_kobject_uevent_socket create_socket_perms_no_ioctl;
 # TODO(b/80418809): remove direct access to private app data
-userdebug_or_eng(`auditallow vold app_data_file:dir search;')
-allow vold app_data_file:dir search;
-userdebug_or_eng(`auditallow vold app_data_file:file rw_file_perms;')
-allow vold app_data_file:file rw_file_perms;
+userdebug_or_eng(`auditallow vold { app_data_file privapp_data_file }:dir search;')
+allow vold { app_data_file privapp_data_file }:dir search;
+userdebug_or_eng(`auditallow vold { app_data_file privapp_data_file }:file rw_file_perms;')
+allow vold { app_data_file privapp_data_file }:file rw_file_perms;
 allow vold loop_control_device:chr_file rw_file_perms;
 allow vold loop_device:blk_file { create setattr unlink rw_file_perms };
 allow vold vold_device:blk_file { create setattr unlink rw_file_perms };
@@ -166,6 +166,9 @@ binder_call(vold, healthd)
 # talk to keymaster
 hal_client_domain(vold, hal_keymaster)
 
+# talk to health filesystem HAL
+hal_client_domain(vold, hal_health_filesystem)
+
 # Access userdata block device.
 allow vold userdata_block_device:blk_file rw_file_perms;
 
@@ -212,6 +215,9 @@ allow vold user_profile_data_file:dir create_dir_perms;
 
 # Raw writes to misc block device
 allow vold misc_block_device:blk_file w_file_perms;
+
+# vold might need to search or mount /mnt/vendor/*
+allow vold mnt_vendor_file:dir search;
 
 neverallow {
     domain
@@ -262,7 +268,9 @@ neverallow { domain -vold -init } restorecon_prop:property_service set;
 neverallow { domain -system_server -vdc -vold } vold_service:service_manager find;
 neverallow vold {
   domain
+  -hal_health_filesystem_server
   -hal_keymaster_server
+  -hal_system_suspend_server
   -healthd
   -hwservicemanager
   -servicemanager

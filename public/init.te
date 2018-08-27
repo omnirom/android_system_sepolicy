@@ -29,8 +29,8 @@ allow init device:file relabelfrom;
 allow init runtime_event_log_tags_file:file { open write setattr relabelto create };
 # /dev/socket
 allow init { device socket_device }:dir relabelto;
-# /dev/random, /dev/urandom
-allow init random_device:chr_file relabelto;
+# Relabel /dev nodes created in first stage init, /dev/null, /dev/ptmx, /dev/random, /dev/urandom
+allow init { null_device ptmx_device random_device } : chr_file relabelto;
 # /dev/device-mapper, /dev/block(/.*)?
 allow init tmpfs:{ chr_file blk_file } relabelfrom;
 allow init tmpfs:blk_file getattr;
@@ -145,6 +145,7 @@ allow init {
   -exec_type
   -misc_logd_file
   -nativetest_data_file
+  -privapp_data_file
   -system_app_data_file
   -system_file
   -vendor_file_type
@@ -157,6 +158,7 @@ allow init {
   -keystore_data_file
   -misc_logd_file
   -nativetest_data_file
+  -privapp_data_file
   -shell_data_file
   -system_app_data_file
   -system_file
@@ -171,13 +173,14 @@ allow init {
   -keystore_data_file
   -misc_logd_file
   -nativetest_data_file
+  -privapp_data_file
   -runtime_event_log_tags_file
   -shell_data_file
   -system_app_data_file
   -system_file
   -vendor_file_type
   -vold_data_file
-}:file { create getattr open read write setattr relabelfrom unlink };
+}:file { create getattr open read write setattr relabelfrom unlink map };
 
 allow init {
   file_type
@@ -186,6 +189,7 @@ allow init {
   -keystore_data_file
   -misc_logd_file
   -nativetest_data_file
+  -privapp_data_file
   -shell_data_file
   -system_app_data_file
   -system_file
@@ -200,6 +204,7 @@ allow init {
   -keystore_data_file
   -misc_logd_file
   -nativetest_data_file
+  -privapp_data_file
   -shell_data_file
   -system_app_data_file
   -system_file
@@ -211,7 +216,7 @@ allow init cache_file:lnk_file r_file_perms;
 
 allow init { file_type -system_file -vendor_file_type -exec_type }:dir_file_class_set relabelto;
 # does init really need to relabel app data?
-userdebug_or_eng(`auditallow init app_data_file:dir_file_class_set relabelto;')
+userdebug_or_eng(`auditallow init { app_data_file privapp_data_file }:dir_file_class_set relabelto;')
 allow init { sysfs debugfs debugfs_tracing debugfs_tracing_debug }:{ dir file lnk_file } { getattr relabelfrom };
 allow init { sysfs_type debugfs_type }:{ dir file lnk_file } { relabelto getattr };
 allow init dev_type:dir create_dir_perms;
@@ -282,6 +287,11 @@ allow init self:global_capability2_class_set syslog;
 
 # init access to /proc.
 r_dir_file(init, proc_net_type)
+
+# Overlayfs workdir write access check during mount to permit remount,rw
+userdebug_or_eng(`
+  allow init overlayfs_file:dir { relabelfrom write };
+')
 
 allow init {
   proc_cmdline
@@ -510,7 +520,7 @@ neverallow init { file_type fs_type -init_exec }:file entrypoint;
 
 # Never read/follow symlinks created by shell or untrusted apps.
 neverallow init shell_data_file:lnk_file read;
-neverallow init app_data_file:lnk_file read;
+neverallow init { app_data_file privapp_data_file }:lnk_file read;
 
 # init should never execute a program without changing to another domain.
 neverallow init { file_type fs_type }:file execute_no_trans;

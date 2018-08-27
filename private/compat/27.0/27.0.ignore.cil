@@ -15,6 +15,7 @@
     bpfloader
     bpfloader_exec
     cgroup_bpf
+    color_display_service
     crossprofileapps_service
     ctl_interface_restart_prop
     ctl_interface_start_prop
@@ -45,6 +46,7 @@
     exported_system_radio_prop
     exported_vold_prop
     exported_wifi_prop
+    fastbootd
     fingerprint_vendor_data_file
     fs_bpf
     hal_audiocontrol_hwservice
@@ -52,8 +54,12 @@
     hal_codec2_hwservice
     hal_confirmationui_hwservice
     hal_evs_hwservice
+    hal_health_filesystem_hwservice
     hal_lowpan_hwservice
     hal_secure_element_hwservice
+    hal_system_suspend_default
+    hal_system_suspend_default_exec
+    hal_system_suspend_default_tmpfs
     hal_usb_gadget_hwservice
     hal_vehicle_hwservice
     hal_wifi_hostapd_hwservice
@@ -72,12 +78,14 @@
     mnt_vendor_file
     network_watchlist_data_file
     network_watchlist_service
+    overlayfs_file
     perfetto
     perfetto_exec
     perfetto_tmpfs
     perfetto_traces_data_file
     perfprofd_service
     property_info
+    recovery_socket
     secure_element
     secure_element_device
     secure_element_service
@@ -94,7 +102,10 @@
     statsdw
     statsdw_socket
     storaged_data_file
+    super_block_device
     system_boot_reason_prop
+    system_lmk_prop
+    system_suspend_hwservice
     system_update_service
     test_boot_reason_prop
     time_prop
@@ -115,6 +126,7 @@
     traceur_app_tmpfs
     untrusted_app_all_devpts
     update_engine_log_data_file
+    uri_grants_service
     usbd
     usbd_exec
     usbd_tmpfs
@@ -130,6 +142,7 @@
     wait_for_keymaster
     wait_for_keymaster_exec
     wait_for_keymaster_tmpfs
+    watchdogd_tmpfs
     wm_trace_data_file
     wpantund
     wpantund_exec

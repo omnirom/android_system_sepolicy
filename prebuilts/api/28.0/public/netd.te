@@ -98,6 +98,7 @@ allow netd netdomain:{
   udp_socket
   rawip_socket
   tun_socket
+  icmp_socket
 } { read write getattr setattr getopt setopt };
 allow netd netdomain:fd use;
 

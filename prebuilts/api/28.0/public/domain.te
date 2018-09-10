@@ -1345,7 +1345,7 @@ full_treble_only(`
 # Instead of granting them it is usually better to add the domain to
 # a Unix group or change the permissions of a file.
 neverallow {
-  domain
+  -domain
   -dnsmasq
   -dumpstate
   -init
@@ -1366,17 +1366,6 @@ neverallow {
   -zygote
 } self:capability dac_override;
 neverallow { domain -traced_probes } self:capability dac_read_search;
-
-# If an already existing file is opened with O_CREAT, the kernel might generate
-# a false report of a create denial. Silence these denials and make sure that
-# inappropriate permissions are not granted.
-
-# These filesystems don't allow files or directories to be created, so the permission
-# to do so should never be granted.
-neverallow domain {
-  proc_type
-  sysfs_type
-}:dir { add_name create link remove_name rename reparent rmdir write };
 
 # cgroupfs directories can be created, but not files within them.
 neverallow domain cgroup:file create;

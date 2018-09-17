@@ -7,3 +7,5 @@ net_domain(rild)
 # public, but conceptually should go with this
 type rild_exec, exec_type, vendor_file_type, file_type;
 init_daemon_domain(rild)
+
+allow { rild system_app } { rild system_app }:binder { call transfer };

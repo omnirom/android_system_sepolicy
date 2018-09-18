@@ -366,9 +366,7 @@ neverallow {
 # b/78174219 b/64114943
 neverallow {
   domain
-  -init
   -shell # stat of /dev, getattr only
-  -vendor_init
   -ueventd
 } keychord_device:chr_file *;
 
@@ -396,12 +394,11 @@ neverallow { domain -init } usermodehelper:file { append write };
 neverallow { domain -init -ueventd } sysfs_usermodehelper:file { append write };
 neverallow { domain -init -vendor_init } proc_security:file { append open read write };
 
-# No domain should be allowed to ptrace init.
-neverallow * init:process ptrace;
-
-# Init can't do anything with binder calls. If this neverallow rule is being
-# triggered, it's probably due to a service with no SELinux domain.
-neverallow * init:binder *;
+# Nobody is allowed to make binder calls into init.
+# Only servicemanager may transfer binder references to init
+# vendor_init shouldn't use binder at all.
+neverallow * init:binder ~{ transfer };
+neverallow { domain -servicemanager } init:binder { transfer };
 neverallow * vendor_init:binder *;
 
 # Don't allow raw read/write/open access to block_device
@@ -425,12 +422,14 @@ neverallow { domain -kernel -init -recovery -vold -zygote -update_engine -otapre
 #
 # Assert that, to the extent possible, we're not loading executable content from
 # outside the rootfs or /system partition except for a few whitelisted domains.
+# Executable files loaded from /data is a persistence vector
+# we want to avoid. See
+# https://bugs.chromium.org/p/project-zero/issues/detail?id=955 for example.
 #
 neverallow {
     domain
     -appdomain
     with_asan(`-asan_extract')
-    -dumpstate
     -shell
     userdebug_or_eng(`-su')
     -webview_zygote
@@ -590,6 +589,7 @@ neverallow {
   -vold
   -e2fs
   -fsck
+  -fastbootd
 } metadata_block_device:blk_file { append link rename write open read ioctl lock };
 
 # No domain other than recovery, update_engine and fastbootd can write to system partition(s).
@@ -1385,6 +1385,7 @@ neverallow {
   -init
   -installd
   -install_recovery
+  userdebug_or_eng(`-llkd')
   -lmkd
   -netd
   -perfprofd

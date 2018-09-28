@@ -1,0 +1,28 @@
+;; new_objects - a collection of types that have been introduced that have no
+;;   analogue in older policy.  Thus, we do not need to map these types to
+;;   previous ones.  Add here to pass checkapi tests.
+(typeattribute new_objects)
+(typeattributeset new_objects
+  ( activity_task_service
+    adb_service
+    fastbootd
+    color_display_service
+    hal_health_filesystem_hwservice
+    hal_system_suspend_default
+    hal_system_suspend_default_exec
+    hal_system_suspend_default_tmpfs
+    llkd
+    llkd_exec
+    llkd_tmpfs
+    mnt_product_file
+    overlayfs_file
+    recovery_socket
+    super_block_device
+    system_lmk_prop
+    system_suspend_hwservice
+    time_prop
+    timedetector_service
+    timezonedetector_service
+    uri_grants_service
+    vrflinger_vsync_service
+    watchdogd_tmpfs))

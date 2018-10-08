@@ -24,7 +24,6 @@ allow priv_app { app_data_file privapp_data_file }:file execute;
 allow priv_app app_api_service:service_manager find;
 allow priv_app audioserver_service:service_manager find;
 allow priv_app cameraserver_service:service_manager find;
-allow priv_app color_display_service:service_manager find;
 allow priv_app drmserver_service:service_manager find;
 allow priv_app mediacodec_service:service_manager find;
 allow priv_app mediadrmserver_service:service_manager find;
@@ -91,21 +90,6 @@ allow priv_app {
 r_dir_file(priv_app, proc_net_type)
 userdebug_or_eng(`
   auditallow priv_app proc_net_type:{ dir file lnk_file } { getattr open read };
-')
-# TODO(b/68774956) qtaguid access has been moved to netd. Access is deprecated. Audit for
-# removal.
-allow priv_app proc_qtaguid_ctrl:file rw_file_perms;
-userdebug_or_eng(`
-  auditallow priv_app proc_qtaguid_ctrl:file rw_file_perms;
-')
-r_dir_file(priv_app, proc_qtaguid_stat)
-userdebug_or_eng(`
-  auditallow priv_app proc_qtaguid_stat:dir r_dir_perms;
-  auditallow priv_app proc_qtaguid_stat:file r_file_perms;
-')
-allow priv_app qtaguid_device:chr_file r_file_perms;
-userdebug_or_eng(`
-  auditallow priv_app qtaguid_device:chr_file r_file_perms;
 ')
 
 allow priv_app sysfs_type:dir search;

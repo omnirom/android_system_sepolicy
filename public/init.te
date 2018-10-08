@@ -2,7 +2,7 @@
 type init, domain, mlstrustedsubject;
 
 # The init domain is entered by execing init.
-type init_exec, exec_type, file_type;
+type init_exec, system_file_type, exec_type, file_type;
 
 # /dev/__null__ node created by init.
 allow init tmpfs:chr_file { create setattr unlink rw_file_perms };
@@ -80,6 +80,9 @@ allow init fs_bpf:dir mounton;
 # Mount on /dev/usb-ffs/adb.
 allow init device:dir mounton;
 
+# Mount tmpfs on /apex
+allow init apex_mnt_dir:dir mounton;
+
 # Create and remove symlinks in /.
 allow init rootfs:lnk_file { create unlink };
 
@@ -105,7 +108,7 @@ allow init metadata_file:dir mounton;
 allow init tmpfs:dir relabelfrom;
 
 # Create directories under /dev/cpuctl after chowning it to system.
-allow init self:global_capability_class_set dac_override;
+allow init self:global_capability_class_set { dac_override dac_read_search };
 
 # Set system clock.
 allow init self:global_capability_class_set sys_time;
@@ -147,7 +150,7 @@ allow init {
   -nativetest_data_file
   -privapp_data_file
   -system_app_data_file
-  -system_file
+  -system_file_type
   -vendor_file_type
 }:dir { create search getattr open read setattr ioctl };
 
@@ -161,7 +164,7 @@ allow init {
   -privapp_data_file
   -shell_data_file
   -system_app_data_file
-  -system_file
+  -system_file_type
   -vendor_file_type
   -vold_data_file
 }:dir { write add_name remove_name rmdir relabelfrom };
@@ -177,7 +180,7 @@ allow init {
   -runtime_event_log_tags_file
   -shell_data_file
   -system_app_data_file
-  -system_file
+  -system_file_type
   -vendor_file_type
   -vold_data_file
 }:file { create getattr open read write setattr relabelfrom unlink map };
@@ -192,7 +195,7 @@ allow init {
   -privapp_data_file
   -shell_data_file
   -system_app_data_file
-  -system_file
+  -system_file_type
   -vendor_file_type
   -vold_data_file
 }:{ sock_file fifo_file } { create getattr open read setattr relabelfrom unlink };
@@ -207,14 +210,14 @@ allow init {
   -privapp_data_file
   -shell_data_file
   -system_app_data_file
-  -system_file
+  -system_file_type
   -vendor_file_type
   -vold_data_file
 }:lnk_file { create getattr setattr relabelfrom unlink };
 
 allow init cache_file:lnk_file r_file_perms;
 
-allow init { file_type -system_file -vendor_file_type -exec_type }:dir_file_class_set relabelto;
+allow init { file_type -system_file_type -vendor_file_type -exec_type }:dir_file_class_set relabelto;
 # does init really need to relabel app data?
 userdebug_or_eng(`auditallow init { app_data_file privapp_data_file }:dir_file_class_set relabelto;')
 allow init { sysfs debugfs debugfs_tracing debugfs_tracing_debug }:{ dir file lnk_file } { getattr relabelfrom };
@@ -514,6 +517,11 @@ allow init vold_metadata_file:file getattr;
 
 # Allow init to use binder
 binder_use(init);
+allow init apex_service:service_manager find;
+# Allow servicemanager to pass it
+allow servicemanager init:binder transfer;
+# Allow calls from init to apexd
+allow init apexd:binder call;
 
 ###
 ### neverallow rules
@@ -532,8 +540,11 @@ neverallow init { app_data_file privapp_data_file }:lnk_file read;
 # init should never execute a program without changing to another domain.
 neverallow init { file_type fs_type }:file execute_no_trans;
 
-# Init never adds or uses services via service_manager.
-neverallow init service_manager_type:service_manager { add find };
+# init can only find the APEX service
+neverallow init { service_manager_type -apex_service }:service_manager { find };
+# init can never add binder services
+neverallow init service_manager_type:service_manager { add };
+# init can never list binder services
 neverallow init servicemanager:service_manager list;
 
 # Init should not be creating subdirectories in /data/local/tmp

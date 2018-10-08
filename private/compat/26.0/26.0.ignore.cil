@@ -1,15 +1,24 @@
 ;; new_objects - a collection of types that have been introduced that have no
 ;;   analogue in older policy.  Thus, we do not need to map these types to
 ;;   previous ones.  Add here to pass checkapi tests.
+(type new_objects)
 (typeattribute new_objects)
 (typeattributeset new_objects
-  ( activity_task_service
+  ( new_objects
+    activity_task_service
     adb_service
     adbd_exec
     app_binding_service
+    apex_data_file
+    apex_mnt_dir
+    apex_key_file
+    apex_service
+    apexd
+    apexd_exec
+    apexd_tmpfs
     atrace
     binder_calls_stats_service
-    biometric_prompt_service
+    biometric_service
     bootloader_boot_reason_prop
     blank_screen
     blank_screen_exec
@@ -18,6 +27,8 @@
     bpfloader
     bpfloader_exec
     broadcastradio_service
+    ;; TODO(b/116344577): remove after the issue is resolved
+    buffer_hub_service
     cgroup_bpf
     color_display_service
     crossprofileapps_service
@@ -55,6 +66,8 @@
     fastbootd
     fingerprint_vendor_data_file
     fs_bpf
+    fwk_stats_hwservice
+    hal_atrace_hwservice
     hal_audiocontrol_hwservice
     hal_authsecret_hwservice
     hal_broadcastradio_hwservice
@@ -62,7 +75,7 @@
     hal_codec2_hwservice
     hal_confirmationui_hwservice
     hal_evs_hwservice
-    hal_health_filesystem_hwservice
+    hal_health_storage_hwservice
     hal_lowpan_hwservice
     hal_neuralnetworks_hwservice
     hal_secure_element_hwservice
@@ -178,8 +191,9 @@
 ;; private_objects - a collection of types that were labeled differently in
 ;;     older policy, but that should not remain accessible to vendor policy.
 ;;     Thus, these types are also not mapped, but recorded for checkapi tests
+(type priv_objects)
 (typeattribute priv_objects)
 (typeattributeset priv_objects
-     ( adbd_tmpfs
-       untrusted_app_27_tmpfs
-     ))
+  ( priv_objects
+    adbd_tmpfs
+    untrusted_app_27_tmpfs))

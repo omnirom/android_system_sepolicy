@@ -152,14 +152,30 @@ allow domain vold:key search;
 # logd access
 write_logd(domain)
 
-# System file accesses.
-allow domain system_file:dir { search getattr };
-allow domain system_file:file { execute read open getattr map };
+# Directory/link file access for path resolution.
+allow domain {
+    system_file
+    system_lib_file
+    system_seccomp_policy_file
+    system_security_cacerts_file
+}:dir r_dir_perms;
 allow domain system_file:lnk_file { getattr read };
+
+# Global access to /system/etc/security/cacerts/*, /system/etc/seccomp_policy/*, /system/lib[64]/*,
+# linker and its config.
+allow domain system_seccomp_policy_file:file r_file_perms;
+# cacerts are accessible from public Java API.
+allow domain system_security_cacerts_file:file r_file_perms;
+allow domain system_linker_exec:file { execute read open getattr map };
+allow domain system_linker_config_file:file r_file_perms;
+allow domain system_lib_file:file { execute read open getattr map };
+
+allow { appdomain coredomain } system_file:file { execute read open getattr map };
 
 # Make sure system/vendor split doesn not affect non-treble
 # devices
 not_full_treble(`
+    allow domain system_file:file { execute read open getattr map };
     allow domain vendor_file_type:dir { search getattr };
     allow domain vendor_file_type:file { execute read open getattr map };
     allow domain vendor_file_type:lnk_file { getattr read };
@@ -202,10 +218,11 @@ full_treble_only(`
 # read and stat any sysfs symlinks
 allow domain sysfs:lnk_file { getattr read };
 
-# libc references /data/misc/zoneinfo for timezone related information
+# libc references /data/misc/zoneinfo and /system/usr/share/zoneinfo for
+# timezone related information.
 # This directory is considered to be a VNDK-stable
-allow domain zoneinfo_data_file:file r_file_perms;
-allow domain zoneinfo_data_file:dir r_dir_perms;
+allow domain { system_zoneinfo_file zoneinfo_data_file }:file r_file_perms;
+allow domain { system_zoneinfo_file zoneinfo_data_file }:dir r_dir_perms;
 
 # Lots of processes access current CPU information
 r_dir_file(domain, sysfs_devices_system_cpu)
@@ -417,7 +434,7 @@ neverallow domain device:chr_file { open read write };
 # Limit what domains can mount filesystems or change their mount flags.
 # sdcard_type / vfat is exempt as a larger set of domains need
 # this capability, including device-specific domains.
-neverallow { domain -kernel -init -recovery -vold -zygote -update_engine -otapreopt_chroot } { fs_type -sdcard_type }:filesystem { mount remount relabelfrom relabelto };
+neverallow { domain -kernel -init -recovery -vold -zygote -update_engine -otapreopt_chroot -apexd } { fs_type -sdcard_type }:filesystem { mount remount relabelfrom relabelto };
 
 #
 # Assert that, to the extent possible, we're not loading executable content from
@@ -437,7 +454,9 @@ neverallow {
     userdebug_or_eng(`-mediaextractor')
 } {
     file_type
-    -system_file
+    -system_file_type
+    -system_lib_file
+    -system_linker_exec
     -vendor_file_type
     -exec_type
     -postinstall_file
@@ -484,16 +503,16 @@ neverallow {
     domain
     with_asan(`-asan_extract')
 } {
-    system_file
+    system_file_type
     vendor_file_type
     exec_type
 }:dir_file_class_set { create write setattr relabelfrom append unlink link rename };
 
-neverallow { domain -kernel with_asan(`-asan_extract') } { system_file vendor_file_type exec_type }:dir_file_class_set relabelto;
+neverallow { domain -kernel with_asan(`-asan_extract') } { system_file_type vendor_file_type exec_type }:dir_file_class_set relabelto;
 
 # Don't allow mounting on top of /system files or directories
 neverallow * exec_type:dir_file_class_set mounton;
-neverallow { domain -init } { system_file vendor_file_type }:dir_file_class_set mounton;
+neverallow { domain -init } { system_file_type vendor_file_type }:dir_file_class_set mounton;
 
 # Nothing should be writing to files in the rootfs.
 neverallow * rootfs:file { create write setattr relabelto append unlink link rename };
@@ -859,8 +878,9 @@ full_treble_only(`
   } {
     core_data_file_type
     # libc includes functions like mktime and localtime which attempt to access
-    # files in /data/misc/zoneinfo/tzdata file. These functions are considered
-    # vndk-stable and thus must be allowed for all processes.
+    # files in /data/misc/zoneinfo/tzdata and /system/usr/share/zoneinfo/tzdata.
+    # These functions are considered vndk-stable and thus must be allowed for
+    # all processes.
     -zoneinfo_data_file
   }:file_class_set ~{ append getattr ioctl read write map };
   neverallow {
@@ -1019,6 +1039,7 @@ full_treble_only(`
         -vendor_init
     } {
         exec_type
+        -system_linker_exec
         -vendor_file_type
         -crash_dump_exec
         -netutils_wrapper_exec
@@ -1078,6 +1099,18 @@ full_treble_only(`
 #    -vendor_public_lib_file
 #    -vndk_sp_file
 #  }:file *;
+#')
+
+# TODO(b/111243627): Uncomment once all violations are cleaned up.
+#full_treble_only(`
+#  # Do not allow vendor components access to /system files except for the
+#  # ones whitelisted here.
+#  neverallow {
+#    domain
+#    -appdomain
+#    -coredomain
+#    -vendor_executes_system_violators
+#  } system_file_type:file *;
 #')
 
 # Only authorized processes should be writing to files in /data/dalvik-cache
@@ -1248,7 +1281,6 @@ neverallow {
   domain
   -appdomain
   -installd
-  -uncrypt  # TODO: see if we can remove
 } { app_data_file privapp_data_file }:lnk_file read;
 
 neverallow {
@@ -1378,29 +1410,36 @@ full_treble_only(`
 # Minimize dac_override and dac_read_search.
 # Instead of granting them it is usually better to add the domain to
 # a Unix group or change the permissions of a file.
-neverallow {
-  domain
-  -dnsmasq
-  -dumpstate
-  -init
-  -installd
-  -install_recovery
-  userdebug_or_eng(`-llkd')
-  -lmkd
-  -netd
-  -perfprofd
-  -postinstall_dexopt
-  -recovery
-  -sdcardd
-  -tee
-  -ueventd
-  -uncrypt
-  -vendor_init
-  -vold
-  -vold_prepare_subdirs
-  -zygote
-} self:global_capability_class_set dac_override;
-neverallow { domain -traced_probes } self:global_capability_class_set dac_read_search;
+define(`dac_override_allowed', `{
+  dnsmasq
+  dumpstate
+  init
+  installd
+  install_recovery
+  userdebug_or_eng(`llkd')
+  lmkd
+  netd
+  perfprofd
+  postinstall_dexopt
+  recovery
+  sdcardd
+  tee
+  ueventd
+  uncrypt
+  vendor_init
+  vold
+  vold_prepare_subdirs
+  zygote
+}')
+neverallow ~dac_override_allowed self:global_capability_class_set dac_override;
+# Since the kernel checks dac_read_search before dac_override, domains that
+# have dac_override should also have dac_read_search to eliminate spurious
+# denials.  Some domains have dac_read_search without having dac_override, so
+# this list should be a superset of the one above.
+neverallow ~{
+  dac_override_allowed
+  traced_probes
+} self:global_capability_class_set dac_read_search;
 
 # Latest versions of linux kernel do a check for dac_read_search before
 # verifying dac_override capability. So adding a dont audit rule for
@@ -1462,6 +1501,7 @@ neverallow {
   -init
   -ueventd
   -vold
+  -system_writes_mnt_vendor_violators
 } mnt_vendor_file:dir *;
 
 # Only apps are allowed access to vendor public libraries.

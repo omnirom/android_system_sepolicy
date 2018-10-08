@@ -1,12 +1,12 @@
 # DNS, DHCP services
 type dnsmasq, domain;
-type dnsmasq_exec, exec_type, file_type;
+type dnsmasq_exec, system_file_type, exec_type, file_type;
 
 net_domain(dnsmasq)
 allowxperm dnsmasq self:udp_socket ioctl priv_sock_ioctls;
 
 # TODO:  Run with dhcp group to avoid need for dac_override.
-allow dnsmasq self:global_capability_class_set dac_override;
+allow dnsmasq self:global_capability_class_set { dac_override dac_read_search };
 
 allow dnsmasq self:global_capability_class_set { net_admin net_raw net_bind_service setgid setuid };
 

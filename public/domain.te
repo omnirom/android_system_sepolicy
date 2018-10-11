@@ -816,6 +816,8 @@ full_treble_only(`
     -data_between_core_and_vendor_violators
     -init
     -vold_prepare_subdirs
+    -cameraserver
+    -system_server
   } {
     data_file_type
     -core_data_file_type
@@ -828,6 +830,7 @@ full_treble_only(`
     -data_between_core_and_vendor_violators
     -init
     -vold_prepare_subdirs
+    -cameraserver
     } {
       data_file_type
       -core_data_file_type
@@ -923,6 +926,8 @@ full_treble_only(`
     coredomain
     -data_between_core_and_vendor_violators # TODO(b/34980020) Remove once all violators have been cleaned up
     -init
+    -cameraserver
+    -system_server
     } {
       vendor_data_file # default label for files on /data/vendor{,_ce,_de}.
     }:file_class_set ~{ append getattr ioctl read write };

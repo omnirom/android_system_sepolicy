@@ -495,21 +495,6 @@ neverallow { domain -init } property_type:file { no_w_file_perms no_x_file_perms
 neverallow { domain -init } properties_device:file { no_w_file_perms no_x_file_perms };
 neverallow { domain -init } properties_serial:file { no_w_file_perms no_x_file_perms };
 
-# Nobody should be doing writes to /system & /vendor
-# These partitions are intended to be read-only and must never be
-# modified. Doing so would violate important Android security guarantees
-# and invalidate dm-verity signatures.
-neverallow {
-    domain
-    with_asan(`-asan_extract')
-} {
-    system_file_type
-    vendor_file_type
-    exec_type
-}:dir_file_class_set { create write setattr relabelfrom append unlink link rename };
-
-neverallow { domain -kernel with_asan(`-asan_extract') } { system_file_type vendor_file_type exec_type }:dir_file_class_set relabelto;
-
 # Don't allow mounting on top of /system files or directories
 neverallow * exec_type:dir_file_class_set mounton;
 neverallow { domain -init } { system_file_type vendor_file_type }:dir_file_class_set mounton;

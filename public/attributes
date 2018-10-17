@@ -33,6 +33,10 @@ expandattribute data_file_type false;
 # All types in /data, not in /data/vendor
 attribute core_data_file_type;
 expandattribute core_data_file_type false;
+
+# All types in /system
+attribute system_file_type;
+
 # All types in /vendor
 attribute vendor_file_type;
 
@@ -184,6 +188,11 @@ expandattribute system_executes_vendor_violators false;
 attribute system_writes_vendor_properties_violators;
 expandattribute system_writes_vendor_properties_violators false;
 
+# All system domains which violate the requirement of not writing to
+# /mnt/vendor/*. Must not be used on devices launched with P or later.
+attribute system_writes_mnt_vendor_violators;
+expandattribute system_writes_mnt_vendor_violators false;
+
 # hwservices that are accessible from untrusted applications
 # WARNING: Use of this attribute should be avoided unless
 # absolutely necessary.  It is a temporary allowance to aid the
@@ -233,6 +242,7 @@ attribute hal_automotive_socket_exemption;
 
 # HALs
 hal_attribute(allocator);
+hal_attribute(atrace);
 hal_attribute(audio);
 hal_attribute(audiocontrol);
 hal_attribute(authsecret);
@@ -253,7 +263,7 @@ hal_attribute(gnss);
 hal_attribute(graphics_allocator);
 hal_attribute(graphics_composer);
 hal_attribute(health);
-hal_attribute(health_filesystem);
+hal_attribute(health_storage);
 hal_attribute(ir);
 hal_attribute(keymaster);
 hal_attribute(light);

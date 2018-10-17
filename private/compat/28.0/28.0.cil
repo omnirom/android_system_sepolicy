@@ -6,13 +6,9 @@
 (type thermalcallback_hwservice)
 (type untrusted_v2_app)
 
-;; TODO: remove once P sepolicy is pushed to AOSP.
-(type vold_socket)
-(typeattribute vold_socket_28_0)
-(expandtypeattribute (vold_socket_28_0) true)
-(typeattributeset vold_socket_28_0 (vold_socket))
-
-;; TODO b/111680480: remove once we have consistent P sepolicy on all devices.
+;; Public 28.0 SEPolicy is divergent on different devices w.r.t
+;; exported_audio_prop type. We need this typeattribute declaration so that the
+;; mapping file compiles with vendor policies without exported_audio_prop type.
 (typeattribute exported_audio_prop_28_0)
 
 (expandtypeattribute (accessibility_service_28_0) true)
@@ -1399,7 +1395,7 @@
 (typeattributeset proc_mounts_28_0 (proc_mounts))
 (typeattributeset proc_net_28_0
   ( proc_net
-    proc_net_vpn))
+    proc_net_tcp_udp))
 (typeattributeset proc_overcommit_memory_28_0 (proc_overcommit_memory))
 (typeattributeset proc_page_cluster_28_0 (proc_page_cluster))
 (typeattributeset proc_pagetypeinfo_28_0 (proc_pagetypeinfo))
@@ -1567,7 +1563,15 @@
 (typeattributeset system_data_file_28_0
   ( dropbox_data_file
     system_data_file))
-(typeattributeset system_file_28_0 (system_file))
+(typeattributeset system_file_28_0
+  ( system_file
+    system_lib_file
+    system_linker_config_file
+    system_linker_exec
+    system_seccomp_policy_file
+    system_security_cacerts_file
+    system_zoneinfo_file
+))
 (typeattributeset systemkeys_data_file_28_0 (systemkeys_data_file))
 (typeattributeset system_ndebug_socket_28_0 (system_ndebug_socket))
 (typeattributeset system_net_netd_hwservice_28_0 (system_net_netd_hwservice))

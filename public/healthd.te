@@ -1,6 +1,6 @@
 # healthd - battery/charger monitoring service daemon
 type healthd, domain;
-type healthd_exec, exec_type, file_type;
+type healthd_exec, system_file_type, exec_type, file_type;
 
 # Write to /dev/kmsg
 allow healthd kmsg_device:chr_file rw_file_perms;
@@ -11,10 +11,6 @@ allow healthd sysfs_type:dir search;
 allow healthd sysfs:dir r_dir_perms;
 r_dir_file(healthd, rootfs)
 r_dir_file(healthd, cgroup)
-
-# Read access to system files for passthrough HALs in
-# /{system,vendor,odm}/lib[64]/hw/
-r_dir_file(healthd, system_file)
 
 allow healthd self:global_capability_class_set { sys_tty_config };
 allow healthd self:global_capability_class_set sys_boot;

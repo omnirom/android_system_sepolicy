@@ -10,6 +10,7 @@ camera.disable_zsl_mode u:object_r:exported3_default_prop:s0 exact bool
 camera.fifo.disable u:object_r:exported3_default_prop:s0 exact int
 dalvik.vm.appimageformat u:object_r:exported_dalvik_prop:s0 exact string
 dalvik.vm.backgroundgctype u:object_r:exported_dalvik_prop:s0 exact string
+dalvik.vm.boot-dex2oat-threads u:object_r:exported_dalvik_prop:s0 exact int
 dalvik.vm.checkjni u:object_r:exported_dalvik_prop:s0 exact bool
 dalvik.vm.dex2oat-Xms u:object_r:exported_dalvik_prop:s0 exact string
 dalvik.vm.dex2oat-Xmx u:object_r:exported_dalvik_prop:s0 exact string
@@ -97,7 +98,6 @@ ro.bt.bdaddr_path u:object_r:exported_bluetooth_prop:s0 exact string
 ro.camera.notify_nfc u:object_r:exported3_default_prop:s0 exact int
 ro.com.android.dataroaming u:object_r:exported3_default_prop:s0 exact bool
 ro.com.android.prov_mobiledata u:object_r:exported3_default_prop:s0 exact bool
-ro.com.google.clientidbase u:object_r:exported3_default_prop:s0 exact string
 ro.config.alarm_alert u:object_r:exported2_config_prop:s0 exact string
 ro.config.media_vol_steps u:object_r:exported2_config_prop:s0 exact int
 ro.config.notification_sound u:object_r:exported2_config_prop:s0 exact string

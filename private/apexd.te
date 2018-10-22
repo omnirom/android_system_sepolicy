@@ -3,7 +3,7 @@ typeattribute apexd coredomain;
 init_daemon_domain(apexd)
 
 # Read /system/etc/security/apex_debug_key
-allow apexd apex_key_file:dir search;
+allow apexd apex_key_file:dir { search getattr };
 allow apexd apex_key_file:file r_file_perms;
 
 # Allow reading and writing of APEX files in the APEX data dir
@@ -14,6 +14,7 @@ allow apexd apex_data_file:file rw_file_perms;
 allow apexd loop_control_device:chr_file rw_file_perms;
 # allow apexd to access loop devices
 allow apexd loop_device:blk_file rw_file_perms;
+allowxperm apexd loop_device:blk_file ioctl LOOP_GET_STATUS64;
 # allow apexd to access /dev/block
 allow apexd block_device:dir r_dir_perms;
 
@@ -29,6 +30,9 @@ allow apexd apex_mnt_dir:dir create_dir_perms;
 # allow apexd to mount in /apex
 allow apexd apex_mnt_dir:filesystem { mount unmount };
 allow apexd apex_mnt_dir:dir mounton;
+# allow apexd to create symlinks in /apex
+allow apexd apex_mnt_dir:lnk_file create_file_perms;
+
 # Unmount and mount filesystems
 allow apexd labeledfs:filesystem { mount unmount };
 
@@ -40,3 +44,4 @@ dontaudit apexd self:global_capability_class_set { dac_override dac_read_search 
 
 neverallow { domain -apexd -init } apex_data_file:dir no_w_dir_perms;
 neverallow { domain -apexd -init } apex_data_file:file no_rw_file_perms;
+neverallow { domain -apexd } apex_mnt_dir:lnk_file no_w_file_perms;

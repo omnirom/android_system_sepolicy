@@ -275,6 +275,7 @@
 # patchoat executable has (essentially) the same requirements as dex2oat.
 /system/bin/patchoat(d)?    u:object_r:dex2oat_exec:s0
 /system/bin/profman(d)?     u:object_r:profman_exec:s0
+/system/bin/iorapd          u:object_r:iorapd_exec:s0
 /system/bin/sgdisk      u:object_r:sgdisk_exec:s0
 /system/bin/blkid       u:object_r:blkid_exec:s0
 /system/bin/tzdatacheck u:object_r:tzdatacheck_exec:s0
@@ -453,6 +454,7 @@
 /data/misc/wifi/sockets/wpa_ctrl.*   u:object_r:system_wpa_socket:s0
 /data/misc/zoneinfo(/.*)?       u:object_r:zoneinfo_data_file:s0
 /data/misc/vold(/.*)?           u:object_r:vold_data_file:s0
+/data/misc/iorapd(/.*)?         u:object_r:iorapd_data_file:s0
 /data/misc/perfprofd(/.*)?      u:object_r:perfprofd_data_file:s0
 /data/misc/update_engine(/.*)?  u:object_r:update_engine_data_file:s0
 /data/misc/update_engine_log(/.*)?  u:object_r:update_engine_log_data_file:s0
@@ -518,6 +520,9 @@
 /data/misc_de/[0-9]+/vold(/.*)?           u:object_r:vold_data_file:s0
 /data/misc_ce/[0-9]+/vold(/.*)?           u:object_r:vold_data_file:s0
 
+# iorapd per-user data
+/data/misc_ce/[0-9]+/iorapd(/.*)?           u:object_r:iorapd_data_file:s0
+
 #############################
 # efs files
 #
@@ -537,6 +542,7 @@
 # Overlayfs support directories
 #
 /cache/overlay(/.*)?            u:object_r:overlayfs_file:s0
+/mnt/scratch(/.*)?              u:object_r:overlayfs_file:s0
 
 /data/cache(/.*)?		u:object_r:cache_file:s0
 /data/cache/recovery(/.*)?	u:object_r:cache_recovery_file:s0

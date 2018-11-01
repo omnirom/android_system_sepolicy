@@ -220,4 +220,4 @@ neverallow priv_app trace_data_file:dir *;
 neverallow priv_app trace_data_file:file { no_w_file_perms open };
 
 # Do not allow priv_app access to cgroups.
-neverallow priv_app cgroup:file *;
+auditallow priv_app cgroup:file *;

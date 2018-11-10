@@ -160,6 +160,7 @@
 /dev/socket/tombstoned_intercept u:object_r:tombstoned_intercept_socket:s0
 /dev/socket/traced_producer	u:object_r:traced_producer_socket:s0
 /dev/socket/traced_consumer	u:object_r:traced_consumer_socket:s0
+/dev/socket/heapprofd	u:object_r:heapprofd_socket:s0
 /dev/socket/uncrypt	u:object_r:uncrypt_socket:s0
 /dev/socket/wpa_eth[0-9] u:object_r:wpa_socket:s0
 /dev/socket/wpa_wlan[0-9] u:object_r:wpa_socket:s0
@@ -200,6 +201,7 @@
 /system/bin/sload_f2fs	--	u:object_r:e2fs_exec:s0
 /system/bin/make_f2fs	--	u:object_r:e2fs_exec:s0
 /system/bin/fsck_msdos	--	u:object_r:fsck_exec:s0
+/system/bin/tcpdump	--	u:object_r:tcpdump_exec:s0
 /system/bin/tune2fs	--	u:object_r:fsck_exec:s0
 /system/bin/toolbox	--	u:object_r:toolbox_exec:s0
 /system/bin/toybox	--	u:object_r:toolbox_exec:s0
@@ -231,6 +233,7 @@
 /system/bin/mediametrics	u:object_r:mediametrics_exec:s0
 /system/bin/cameraserver	u:object_r:cameraserver_exec:s0
 /system/bin/mediaextractor	u:object_r:mediaextractor_exec:s0
+/system/bin/mediaswcodec	u:object_r:mediaswcodec_exec:s0
 /system/bin/mdnsd	u:object_r:mdnsd_exec:s0
 /system/bin/installd	u:object_r:installd_exec:s0
 /system/bin/otapreopt_chroot   u:object_r:otapreopt_chroot_exec:s0
@@ -263,6 +266,7 @@
 /system/bin/perfetto        u:object_r:perfetto_exec:s0
 /system/bin/traced        u:object_r:traced_exec:s0
 /system/bin/traced_probes        u:object_r:traced_probes_exec:s0
+/system/bin/heapprofd        u:object_r:heapprofd_exec:s0
 /system/bin/uncrypt     u:object_r:uncrypt_exec:s0
 /system/bin/update_verifier u:object_r:update_verifier_exec:s0
 /system/bin/logwrapper  u:object_r:system_file:s0
@@ -349,6 +353,11 @@
 /(odm|vendor/odm)/priv-app(/.*)?              u:object_r:vendor_app_file:s0
 /(odm|vendor/odm)/overlay(/.*)?               u:object_r:vendor_overlay_file:s0
 /(odm|vendor/odm)/framework(/.*)?             u:object_r:vendor_framework_file:s0
+
+# Input configuration
+/(odm|vendor|vendor/odm)/usr/keylayout(/.*)?.kl            u:object_r:vendor_keylayout_file:s0
+/(odm|vendor|vendor/odm)/usr/keychars(/.*)?.kcm            u:object_r:vendor_keychars_file:s0
+/(odm|vendor|vendor/odm)/usr/idc(/.*)?.idc                 u:object_r:vendor_idc_file:s0
 
 /oem(/.*)?              u:object_r:oemfs:s0
 

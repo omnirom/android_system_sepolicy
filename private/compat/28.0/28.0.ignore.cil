@@ -14,21 +14,31 @@
     apex_service
     apexd
     apexd_exec
+    apexd_prop
     apexd_tmpfs
     biometric_service
-    ;; TODO(b/116344577): remove after the issue is resolved
-    buffer_hub_service
+    device_config_boot_count_prop
+    device_config_reset_performed_prop
+    face_service
     fastbootd
+    flags_health_check
+    flags_health_check_exec
+    fwk_bufferhub_hwservice
+    fwk_camera_hwservice
     fwk_stats_hwservice
     color_display_service
     hal_atrace_hwservice
     hal_health_storage_hwservice
+    hal_power_stats_hwservice
     hal_system_suspend_default
     hal_system_suspend_default_exec
     hal_system_suspend_default_tmpfs
     heapprofd
     heapprofd_exec
     heapprofd_socket
+    idmap_service
+    intelligence_service
+    iris_service
     llkd
     llkd_exec
     llkd_prop
@@ -45,9 +55,11 @@
     mnt_product_file
     overlayfs_file
     recovery_socket
+    role_service
     super_block_device
     system_lmk_prop
     system_suspend_hwservice
+    server_configurable_flags_data_file
     time_prop
     timedetector_service
     timezonedetector_service

@@ -156,6 +156,14 @@ odm.                    u:object_r:vendor_default_prop:s0
 persist.odm.            u:object_r:vendor_default_prop:s0
 persist.vendor.         u:object_r:vendor_default_prop:s0
 vendor.                 u:object_r:vendor_default_prop:s0
+# ro.boot. properties are set based on kernel commandline arguments, which are vendor owned.
+ro.boot.                u:object_r:exported2_default_prop:s0
 
 # Properties that relate to time / time zone detection behavior.
 persist.time.           u:object_r:time_prop:s0
+
+# Properties that relate to server configurable flags
+device_config.reset_performed           u:object_r:device_config_reset_performed_prop:s0
+persist.device_config.attempted_boot_count        u:object_r:device_config_boot_count_prop:s0
+
+apexd.                  u:object_r:apexd_prop:s0

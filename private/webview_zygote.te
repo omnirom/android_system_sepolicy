@@ -70,6 +70,8 @@ allow webview_zygote zygote:process sigchld;
 # Allow apps access to /vendor/overlay
 r_dir_file(webview_zygote, vendor_overlay_file)
 
+allow webview_zygote same_process_hal_file:file { execute read open getattr map };
+
 #####
 ##### Neverallow
 #####
@@ -130,6 +132,7 @@ neverallow webview_zygote domain:{
   pppox_socket llc_socket can_socket tipc_socket bluetooth_socket iucv_socket
   rxrpc_socket isdn_socket phonet_socket ieee802154_socket caif_socket
   alg_socket nfc_socket vsock_socket kcm_socket qipcrtr_socket smc_socket
+  xdp_socket
 } *;
 
 # Do not allow access to Bluetooth-related system properties.

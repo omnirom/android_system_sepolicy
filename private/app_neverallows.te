@@ -40,6 +40,17 @@ neverallow { all_untrusted_apps -mediaprovider } property_type:property_service 
 # but otherwise disallow untrusted apps from reading this property.
 neverallow { all_untrusted_apps -untrusted_app_25 } net_dns_prop:file read;
 
+# Block calling execve() on files in an apps home directory.
+# This is a W^X violation (loading executable code from a writable
+# home directory). For compatibility, allow for targetApi <= 28.
+# b/112357170
+neverallow {
+  all_untrusted_apps
+  -untrusted_app_25
+  -untrusted_app_27
+  -runas_app
+} { app_data_file privapp_data_file }:file execute_no_trans;
+
 # Do not allow untrusted apps to be assigned mlstrustedsubject.
 # This would undermine the per-user isolation model being
 # enforced via levelFrom=user in seapp_contexts and the mls
@@ -82,7 +93,7 @@ neverallow all_untrusted_apps *:{
   ax25_socket ipx_socket netrom_socket atmpvc_socket x25_socket rose_socket decnet_socket
   atmsvc_socket rds_socket irda_socket pppox_socket llc_socket can_socket tipc_socket
   bluetooth_socket iucv_socket rxrpc_socket isdn_socket phonet_socket ieee802154_socket caif_socket
-  alg_socket nfc_socket vsock_socket kcm_socket qipcrtr_socket smc_socket
+  alg_socket nfc_socket vsock_socket kcm_socket qipcrtr_socket smc_socket xdp_socket
 } *;
 
 # Do not allow untrusted apps access to /cache
@@ -112,8 +123,33 @@ neverallow { all_untrusted_apps -mediaprovider } {
 # No untrusted component should be touching /dev/fuse
 neverallow all_untrusted_apps fuse_device:chr_file *;
 
-# Do not allow untrusted apps to directly open tun_device
+# Do not allow untrusted apps to directly open the tun_device
 neverallow all_untrusted_apps tun_device:chr_file open;
+# The tun_device ioctls below are not allowed, to prove equivalence
+# to the kernel patch at
+# https://android.googlesource.com/kernel/common/+/11cee2be0c2062ba88f04eb51196506f870a3b5d%5E%21
+neverallowxperm all_untrusted_apps tun_device:chr_file ioctl {
+  SIOCGIFHWADDR
+  SIOCSIFHWADDR
+  TUNATTACHFILTER
+  TUNDETACHFILTER
+  TUNGETFEATURES
+  TUNGETFILTER
+  TUNGETSNDBUF
+  TUNGETVNETHDRSZ
+  TUNSETDEBUG
+  TUNSETGROUP
+  TUNSETIFF
+  TUNSETLINK
+  TUNSETNOCSUM
+  TUNSETOFFLOAD
+  TUNSETOWNER
+  TUNSETPERSIST
+  TUNSETQUEUE
+  TUNSETSNDBUF
+  TUNSETTXFILTER
+  TUNSETVNETHDRSZ
+};
 
 # Only allow appending to /data/anr/traces.txt (b/27853304, b/18340553)
 neverallow all_untrusted_apps anr_data_file:file ~{ open append };
@@ -217,6 +253,7 @@ neverallow all_untrusted_apps {
   hal_nfc_hwservice
   hal_oemlock_hwservice
   hal_power_hwservice
+  hal_power_stats_hwservice
   hal_secure_element_hwservice
   hal_sensors_hwservice
   hal_telephony_hwservice

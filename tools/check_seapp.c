@@ -212,6 +212,7 @@ key_map rules[] = {
                 { .name = "path",           .dir = dir_in,                              },
                 { .name = "isPrivApp",      .dir = dir_in, .fn_validate = validate_bool },
                 { .name = "minTargetSdkVersion", .dir = dir_in, .fn_validate = validate_uint },
+                { .name = "fromRunAs",       .dir = dir_in, .fn_validate = validate_bool },
                 /*Outputs*/
                 { .name = "domain",         .dir = dir_out, .fn_validate = validate_selinux_type  },
                 { .name = "type",           .dir = dir_out, .fn_validate = validate_selinux_type  },
@@ -741,7 +742,7 @@ static rule_map *rule_map_new(kvp keys[], size_t num_of_keys, int lineno,
 
 			/* Only assign key name to map name */
 			if (strcasecmp(k->key, x->name)) {
-				if (i == KVP_NUM_OF_RULES) {
+				if (j == KVP_NUM_OF_RULES - 1) {
 					log_error("No match for key: %s\n", k->key);
 					goto err;
 				}

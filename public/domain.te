@@ -111,19 +111,6 @@ compatible_property_only(`
     get_prop({coredomain appdomain shell}, exported3_default_prop)
     get_prop({coredomain appdomain shell}, exported3_radio_prop)
     get_prop({coredomain appdomain shell}, exported3_system_prop)
-    userdebug_or_eng(`
-        get_prop(su, core_property_type)
-        get_prop(su, exported_dalvik_prop)
-        get_prop(su, exported_ffs_prop)
-        get_prop(su, exported_system_radio_prop)
-        get_prop(su, exported2_config_prop)
-        get_prop(su, exported2_radio_prop)
-        get_prop(su, exported2_system_prop)
-        get_prop(su, exported2_vold_prop)
-        get_prop(su, exported3_default_prop)
-        get_prop(su, exported3_radio_prop)
-        get_prop(su, exported3_system_prop)
-    ')
     get_prop({domain -coredomain -appdomain}, vendor_default_prop)
 ')
 
@@ -188,22 +175,10 @@ allow domain vendor_hal_file:dir r_dir_perms;
 
 # Everyone can read and execute all same process HALs
 allow domain same_process_hal_file:dir r_dir_perms;
-# TODO(b/37211678): whitelist domains that actually need same process HALs.
-allow domain same_process_hal_file:file { execute read open getattr map };
-# Touching same_process_hal_file indicates usage of SP-HALs or abuse of
-# same_process_hal_file label, which is what we are interested in.
-userdebug_or_eng(`
-  auditallow {
-    coredomain
-    -zygote
-    -hal_allocator_client
-    # Graphics mapper clients.
-    -hal_graphics_allocator_client
-    # Renderscript clients include { system_server appdomain -isolated_app }.
-    -appdomain
-    -system_server
-  } same_process_hal_file:file *;
-')
+allow {
+    domain
+    -coredomain # access is explicitly granted to individual coredomains
+} same_process_hal_file:file { execute read open getattr map };
 
 # Any process can load vndk-sp libraries, which are system libraries
 # used by same process HALs
@@ -312,6 +287,10 @@ allowxperm domain devpts:chr_file ioctl unpriv_tty_ioctls;
 # named pipes, and named sockets). We start off with a safe set.
 allowxperm domain { file_type fs_type domain dev_type }:{ dir notdevfile_class_set blk_file } ioctl { FIOCLEX FIONCLEX };
 
+# If a domain has ioctl access to tun_device, it must clearly enumerate the
+# ioctls used. Safe defaults are listed below.
+allowxperm domain tun_device:chr_file ioctl { FIOCLEX FIONCLEX };
+
 # Allow a process to make a determination whether a file descriptor
 # for a plain file or pipe (fifo_file) is a tty. Note that granting
 # this whitelist to domain does not grant the ioctl permission to
@@ -349,7 +328,7 @@ with_asan(`allow domain system_data_file:dir getattr;')
 with_asan(`allow domain system_asan_options_file:file r_file_perms;')
 
 # read APEX dir and stat any symlink pointing to APEXs.
-allow domain apex_mnt_dir:dir search;
+allow domain apex_mnt_dir:dir { getattr search };
 allow domain apex_mnt_dir:lnk_file r_file_perms;
 
 ###
@@ -442,14 +421,6 @@ neverallow {
 # Ensure that all entrypoint executables are in exec_type or postinstall_file.
 neverallow * { file_type -exec_type -postinstall_file }:file entrypoint;
 
-# Ensure that nothing in userspace can access /dev/mem or /dev/kmem
-neverallow {
-  domain
-  -shell # For CTS and is restricted to getattr in shell.te
-  -ueventd # Further restricted in ueventd.te
-} kmem_device:chr_file *;
-neverallow * kmem_device:chr_file ~{ create relabelto unlink setattr getattr };
-
 #Ensure that nothing in userspace can access /dev/port
 neverallow {
   domain
@@ -486,41 +457,18 @@ neverallow domain device:chr_file { open read write };
 # Limit what domains can mount filesystems or change their mount flags.
 # sdcard_type / vfat is exempt as a larger set of domains need
 # this capability, including device-specific domains.
-neverallow { domain -kernel -init -recovery -vold -zygote -update_engine -otapreopt_chroot -apexd } { fs_type -sdcard_type }:filesystem { mount remount relabelfrom relabelto };
-
-#
-# Assert that, to the extent possible, we're not loading executable content from
-# outside the rootfs or /system partition except for a few whitelisted domains.
-# Executable files loaded from /data is a persistence vector
-# we want to avoid. See
-# https://bugs.chromium.org/p/project-zero/issues/detail?id=955 for example.
-#
 neverallow {
     domain
-    -appdomain
-    with_asan(`-asan_extract')
-    -shell
-    userdebug_or_eng(`-su')
-    -webview_zygote
+    -apexd
+    recovery_only(`userdebug_or_eng(`-fastbootd')')
+    -init
+    -kernel
+    -otapreopt_chroot
+    -recovery
+    -update_engine
+    -vold
     -zygote
-    userdebug_or_eng(`-mediaextractor')
-    userdebug_or_eng(`-mediaswcodec')
-} {
-    file_type
-    -system_file_type
-    -system_lib_file
-    -system_linker_exec
-    -vendor_file_type
-    -exec_type
-    -postinstall_file
-}:file execute;
-
-neverallow {
-    domain
-    -appdomain # for oemfs
-    -bootanim # for oemfs
-    -recovery # for /tmp/update_binary in tmpfs
-} { fs_type -rootfs }:file execute;
+} { fs_type -sdcard_type }:filesystem { mount remount relabelfrom relabelto };
 
 # Files from cache should never be executed
 neverallow domain { cache_file cache_backup_file cache_private_backup_file cache_recovery_file }:file execute;
@@ -548,6 +496,26 @@ neverallow { domain -init } property_type:file { no_w_file_perms no_x_file_perms
 neverallow { domain -init } properties_device:file { no_w_file_perms no_x_file_perms };
 neverallow { domain -init } properties_serial:file { no_w_file_perms no_x_file_perms };
 
+# Nobody should be doing writes to /system & /vendor
+# These partitions are intended to be read-only and must never be
+# modified. Doing so would violate important Android security guarantees
+# and invalidate dm-verity signatures.
+# NOTE: Previously removed by diegowilson@ with b/117832268. Fixed in 8.3 which
+# we are currently updating. Commenting this out for future reference.
+#neverallow {
+#    domain
+#    with_asan(`-asan_extract')
+#    recovery_only(`userdebug_or_eng(`-fastbootd')')
+#} {
+#    system_file_type
+#    vendor_file_type
+#    exec_type
+#}:dir_file_class_set { create write setattr relabelfrom append unlink link rename };
+
+# NOTE: Previously removed by diegowilson@ with b/117832268. Fixed in 8.3 which
+# we are currently updating. Commenting this out for future reference.
+# neverallow { domain -kernel with_asan(`-asan_extract') } { system_file_type vendor_file_type exec_type }:dir_file_class_set relabelto;
+
 # Don't allow mounting on top of /system files or directories
 neverallow * exec_type:dir_file_class_set mounton;
 neverallow { domain -init } { system_file_type vendor_file_type }:dir_file_class_set mounton;
@@ -563,7 +531,8 @@ neverallow * {fs_type -contextmount_type}:filesystem relabelto;
 # the write to /system restriction above is not bypassed via context=
 # mount to another type.
 neverallow * contextmount_type:dir_file_class_set
-    { create write setattr relabelfrom relabelto append unlink link rename };
+    { create setattr relabelfrom relabelto append link rename };
+neverallow { domain recovery_only(`userdebug_or_eng(`-fastbootd')') } contextmount_type:dir_file_class_set { write unlink };
 
 # Do not allow service_manager add for default service labels.
 # Instead domains should use a more specific type such as
@@ -1009,6 +978,7 @@ full_treble_only(`
         -init
         -installd
         userdebug_or_eng(`-perfprofd')
+        userdebug_or_eng(`-heapprofd')
         -postinstall_dexopt
         -system_server
     } vendor_app_file:dir { open read getattr search };
@@ -1023,6 +993,7 @@ full_treble_only(`
         -init
         -installd
         userdebug_or_eng(`-perfprofd')
+        userdebug_or_eng(`-heapprofd')
         -postinstall_dexopt
         -system_server
         -mediaserver
@@ -1040,6 +1011,7 @@ full_treble_only(`
         -system_server
         -webview_zygote
         -zygote
+        userdebug_or_eng(`-heapprofd')
     } vendor_overlay_file:dir { getattr open read search };
 ')
 
@@ -1053,6 +1025,7 @@ full_treble_only(`
         -system_server
         -webview_zygote
         -zygote
+        userdebug_or_eng(`-heapprofd')
     } vendor_overlay_file:file r_file_perms;
 ')
 
@@ -1077,7 +1050,6 @@ full_treble_only(`
         -vendor_init
     } {
         system_file_type
-        -system_file # TODO(b/111243627): remove once Treble violations are fixed.
         -system_lib_file
         -system_linker_exec
         -crash_dump_exec
@@ -1125,9 +1097,9 @@ full_treble_only(`
 #    -init # starts vendor executables
 #    -kernel # loads /vendor/firmware
 #    userdebug_or_eng(`-perfprofd')
+#    userdebug_or_eng(`-heapprofd')
 #    -shell
 #    -system_executes_vendor_violators
-#    -system_server # reads vendor input files
 #    -ueventd # reads /vendor/ueventd.rc
 #  } {
 #    vendor_file_type
@@ -1157,12 +1129,12 @@ full_treble_only(`
     -vendor_init
   } {
     system_file_type
-    -system_file # TODO(b/111243627): remove once Treble violations are fixed.
     -crash_dump_exec
     -file_contexts_file
     -netutils_wrapper_exec
     -property_contexts_file
     -system_lib_file
+    with_asan(`-system_asan_options_file')
     -system_linker_exec
     -system_linker_config_file
     -system_seccomp_policy_file
@@ -1420,8 +1392,8 @@ neverallow * domain:file { execute execute_no_trans entrypoint };
 # Do not allow access to the generic debugfs label. This is too broad.
 # Instead, if access to part of debugfs is desired, it should have a
 # more specific label.
-# TODO: fix system_server and dumpstate
-neverallow { domain -init -vendor_init -system_server -dumpstate } debugfs:file no_rw_file_perms;
+# TODO: fix dumpstate
+neverallow { domain -init -vendor_init -dumpstate } debugfs:file no_rw_file_perms;
 
 # Profiles contain untrusted data and profman parses that. We should only run
 # in from installd forked processes.
@@ -1463,6 +1435,7 @@ full_treble_only(`
     -init
     -kernel
     -perfprofd
+    -heapprofd
     -ueventd
   } vendor_file:file { no_w_file_perms no_x_file_perms open };
 ')

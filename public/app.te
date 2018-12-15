@@ -308,6 +308,7 @@ allow { appdomain -isolated_app } hal_camera:fd use;
 
 # RenderScript always-passthrough HAL
 allow { appdomain -isolated_app } hal_renderscript_hwservice:hwservice_manager find;
+allow appdomain same_process_hal_file:file { execute read open getattr map };
 
 # TODO: switch to meminfo service
 allow appdomain proc_meminfo:file r_file_perms;
@@ -333,7 +334,8 @@ allow appdomain runas_exec:file getattr;
 
 # Apps receive an open tun fd from the framework for
 # device traffic. Do not allow untrusted app to directly open tun_device
-allow { appdomain -isolated_app -ephemeral_app } tun_device:chr_file { read write getattr ioctl append };
+allow { appdomain -isolated_app -ephemeral_app } tun_device:chr_file { read write getattr append ioctl };
+allowxperm { appdomain -isolated_app -ephemeral_app } tun_device:chr_file ioctl TUNGETIFF;
 
 # Connect to adbd and use a socket transferred from it.
 # This is used for e.g. adb backup/restore.

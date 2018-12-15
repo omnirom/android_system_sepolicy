@@ -56,6 +56,7 @@ econtroller                               u:object_r:radio_service:s0
 euicc_card_controller                     u:object_r:radio_service:s0
 lowpan                                    u:object_r:lowpan_service:s0
 ethernet                                  u:object_r:ethernet_service:s0
+face                                      u:object_r:face_service:s0
 fingerprint                               u:object_r:fingerprint_service:s0
 font                                      u:object_r:font_service:s0
 android.hardware.fingerprint.IFingerprintDaemon u:object_r:fingerprintd_service:s0
@@ -66,6 +67,7 @@ hardware                                  u:object_r:hardware_service:s0
 hardware_properties                       u:object_r:hardware_properties_service:s0
 hdmi_control                              u:object_r:hdmi_control_service:s0
 ians                                      u:object_r:radio_service:s0
+idmap                                     u:object_r:idmap_service:s0
 incident                                  u:object_r:incident_service:s0
 inputflinger                              u:object_r:inputflinger_service:s0
 input_method                              u:object_r:input_method_service:s0
@@ -77,7 +79,9 @@ iphonesubinfo2                            u:object_r:radio_service:s0
 iphonesubinfo                             u:object_r:radio_service:s0
 ims                                       u:object_r:radio_service:s0
 imms                                      u:object_r:imms_service:s0
+intelligence                              u:object_r:intelligence_service:s0
 ipsec                                     u:object_r:ipsec_service:s0
+iris                                      u:object_r:iris_service:s0
 isms_msim                                 u:object_r:radio_service:s0
 isms2                                     u:object_r:radio_service:s0
 isms                                      u:object_r:radio_service:s0
@@ -139,6 +143,7 @@ radio.phone                               u:object_r:radio_service:s0
 radio.sms                                 u:object_r:radio_service:s0
 recovery                                  u:object_r:recovery_service:s0
 restrictions                              u:object_r:restrictions_service:s0
+role                                      u:object_r:role_service:s0
 rttmanager                                u:object_r:rttmanager_service:s0
 samplingprofiler                          u:object_r:samplingprofiler_service:s0
 scheduling_policy                         u:object_r:scheduling_policy_service:s0

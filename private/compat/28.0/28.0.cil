@@ -1,10 +1,20 @@
 ;; types removed from current policy
+(type audio_seq_device)
+(type audio_timer_device)
 (type commontime_management_service)
+(type cpuctl_device)
+(type full_device)
+(type i2c_device)
+(type kmem_device)
 (type mediacodec)
 (type mediacodec_exec)
+(type mtd_device)
 (type qtaguid_proc)
 (type thermalcallback_hwservice)
+(type thermalserviced)
+(type thermalserviced_exec)
 (type untrusted_v2_app)
+(type vcs_device)
 
 ;; Public 28.0 SEPolicy is divergent on different devices w.r.t
 ;; exported_audio_prop type. We need this typeattribute declaration so that the
@@ -729,8 +739,6 @@
 (expandtypeattribute (textservices_service_28_0) true)
 (expandtypeattribute (thermalcallback_hwservice_28_0) true)
 (expandtypeattribute (thermal_service_28_0) true)
-(expandtypeattribute (thermalserviced_28_0) true)
-(expandtypeattribute (thermalserviced_exec_28_0) true)
 (expandtypeattribute (timezone_service_28_0) true)
 (expandtypeattribute (tmpfs_28_0) true)
 (expandtypeattribute (tombstoned_28_0) true)
@@ -1368,6 +1376,9 @@
 (typeattributeset priv_app_28_0 (priv_app))
 (typeattributeset proc_28_0
   ( proc
+    proc_pressure_cpu
+    proc_pressure_io
+    proc_pressure_mem
     proc_slabinfo))
 (typeattributeset proc_abi_28_0 (proc_abi))
 (typeattributeset proc_asound_28_0 (proc_asound))
@@ -1594,8 +1605,6 @@
 (typeattributeset textservices_service_28_0 (textservices_service))
 (typeattributeset thermalcallback_hwservice_28_0 (thermalcallback_hwservice))
 (typeattributeset thermal_service_28_0 (thermal_service))
-(typeattributeset thermalserviced_28_0 (thermalserviced))
-(typeattributeset thermalserviced_exec_28_0 (thermalserviced_exec))
 (typeattributeset timezone_service_28_0 (timezone_service))
 (typeattributeset tmpfs_28_0 (tmpfs))
 (typeattributeset tombstoned_28_0 (tombstoned))

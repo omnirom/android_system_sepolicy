@@ -14,6 +14,7 @@
     apex_service
     apexd
     apexd_exec
+    apexd_prop
     apexd_tmpfs
     atrace
     binder_calls_stats_service
@@ -25,8 +26,6 @@
     bluetooth_a2dp_offload_prop
     bpfloader
     bpfloader_exec
-    ;; TODO(b/116344577): remove after the issue is resolved
-    buffer_hub_service
     cgroup_bpf
     color_display_service
     crossprofileapps_service
@@ -34,6 +33,8 @@
     ctl_interface_start_prop
     ctl_interface_stop_prop
     ctl_sigstop_prop
+    device_config_boot_count_prop
+    device_config_reset_performed_prop
     exfat
     exported2_config_prop
     exported2_default_prop
@@ -60,6 +61,8 @@
     exported_vold_prop
     exported_wifi_prop
     fastbootd
+    flags_health_check
+    flags_health_check_exec
     fingerprint_vendor_data_file
     fs_bpf
     fwk_stats_hwservice
@@ -83,6 +86,7 @@
     heapprofd_socket
     incident_helper
     incident_helper_exec
+    intelligence_service
     iorapd
     iorapd_data_file
     iorapd_exec
@@ -114,10 +118,12 @@
     perfprofd_service
     property_info
     recovery_socket
+    role_service
     secure_element
     secure_element_device
     secure_element_service
     secure_element_tmpfs
+    server_configurable_flags_data_file
     slice_service
     stats
     stats_data_file

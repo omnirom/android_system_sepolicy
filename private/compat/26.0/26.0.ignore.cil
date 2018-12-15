@@ -15,6 +15,7 @@
     apex_service
     apexd
     apexd_exec
+    apexd_prop
     apexd_tmpfs
     atrace
     binder_calls_stats_service
@@ -27,8 +28,6 @@
     bpfloader
     bpfloader_exec
     broadcastradio_service
-    ;; TODO(b/116344577): remove after the issue is resolved
-    buffer_hub_service
     cgroup_bpf
     color_display_service
     crossprofileapps_service
@@ -36,6 +35,8 @@
     ctl_interface_start_prop
     ctl_interface_stop_prop
     ctl_sigstop_prop
+    device_config_boot_count_prop
+    device_config_reset_performed_prop
     e2fs
     e2fs_exec
     exfat
@@ -65,6 +66,8 @@
     exported3_system_prop
     fastbootd
     fingerprint_vendor_data_file
+    flags_health_check
+    flags_health_check_exec
     fs_bpf
     fwk_stats_hwservice
     hal_atrace_hwservice
@@ -92,6 +95,7 @@
     heapprofd_socket
     incident_helper
     incident_helper_exec
+    intelligence_service
     iorapd
     iorapd_data_file
     iorapd_exec
@@ -127,10 +131,12 @@
     perfprofd_service
     property_info
     recovery_socket
+    role_service
     secure_element
     secure_element_device
     secure_element_tmpfs
     secure_element_service
+    server_configurable_flags_data_file
     slice_service
     stats
     stats_data_file

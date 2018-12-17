@@ -186,6 +186,8 @@ type metadata_file, file_type;
 # Vold files within /metadata
 type vold_metadata_file, file_type;
 
+# Type for /dev/cpu_variant:.*.
+type dev_cpu_variant, file_type;
 # Speedup access for trusted applications to the runtime event tags
 type runtime_event_log_tags_file, file_type;
 # Type for /system/bin/logcat.
@@ -359,6 +361,10 @@ type fingerprintd_data_file, file_type, data_file_type, core_data_file_type;
 type fingerprint_vendor_data_file, file_type, data_file_type;
 # Type for appfuse file.
 type app_fuse_file, file_type, data_file_type, core_data_file_type, mlstrustedobject;
+# Type for face template file
+type face_vendor_data_file, file_type, data_file_type;
+# Type for iris template file
+type iris_vendor_data_file, file_type, data_file_type;
 
 # Socket types
 type adbd_socket, file_type, coredomain_socket;

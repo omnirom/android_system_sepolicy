@@ -3,6 +3,7 @@ persist.radio.airplane_mode_on u:object_r:exported2_radio_prop:s0 exact int
 
 # vendor-init-settable
 af.fast_track_multiplier u:object_r:exported3_default_prop:s0 exact int
+audio.camerasound.force u:object_r:exported_audio_prop:s0 exact bool
 audio.deep_buffer.media u:object_r:exported3_default_prop:s0 exact bool
 audio.offload.video u:object_r:exported3_default_prop:s0 exact bool
 audio.offload.min.duration.secs u:object_r:exported3_default_prop:s0 exact int

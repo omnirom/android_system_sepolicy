@@ -171,10 +171,11 @@ full_treble_only(`
 
 # Following /dev nodes must not be directly accessed by coredomain, but should
 # instead be wrapped by HALs.
-neverallow coredomain {
-  iio_device
-  radio_device
-  # TODO(b/120243891): HAL permission to tee_device is included into coredomain
-  # on non-Treble devices.
-  full_treble_only(`tee_device')
-}:chr_file { open read append write ioctl };
+# TODO(b/121350843): Re-enable this block after resolving Treble violations
+# neverallow coredomain {
+#   iio_device
+#   radio_device
+#   # TODO(b/120243891): HAL permission to tee_device is included into coredomain
+#   # on non-Treble devices.
+#   full_treble_only(`tee_device')
+# }:chr_file { open read append write ioctl };

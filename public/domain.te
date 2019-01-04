@@ -500,21 +500,17 @@ neverallow { domain -init } properties_serial:file { no_w_file_perms no_x_file_p
 # These partitions are intended to be read-only and must never be
 # modified. Doing so would violate important Android security guarantees
 # and invalidate dm-verity signatures.
-# NOTE: Previously removed by diegowilson@ with b/117832268. Fixed in 8.3 which
-# we are currently updating. Commenting this out for future reference.
-#neverallow {
-#    domain
-#    with_asan(`-asan_extract')
-#    recovery_only(`userdebug_or_eng(`-fastbootd')')
-#} {
-#    system_file_type
-#    vendor_file_type
-#    exec_type
-#}:dir_file_class_set { create write setattr relabelfrom append unlink link rename };
+neverallow {
+    domain
+    with_asan(`-asan_extract')
+    recovery_only(`userdebug_or_eng(`-fastbootd')')
+} {
+    system_file_type
+    vendor_file_type
+    exec_type
+}:dir_file_class_set { create write setattr relabelfrom append unlink link rename };
 
-# NOTE: Previously removed by diegowilson@ with b/117832268. Fixed in 8.3 which
-# we are currently updating. Commenting this out for future reference.
-# neverallow { domain -kernel with_asan(`-asan_extract') } { system_file_type vendor_file_type exec_type }:dir_file_class_set relabelto;
+neverallow { domain -kernel with_asan(`-asan_extract') } { system_file_type vendor_file_type exec_type }:dir_file_class_set relabelto;
 
 # Don't allow mounting on top of /system files or directories
 neverallow * exec_type:dir_file_class_set mounton;

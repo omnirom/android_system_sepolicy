@@ -7,12 +7,6 @@ allow vold cache_file:dir r_dir_perms;
 allow vold cache_file:file { getattr read };
 allow vold cache_file:lnk_file r_file_perms;
 
-# Read access to pseudo filesystems.
-r_dir_file(vold, proc_net_type)
-userdebug_or_eng(`
-  auditallow vold proc_net_type:{ dir file lnk_file } { getattr open read };
-')
-
 r_dir_file(vold, { sysfs_type -sysfs_batteryinfo })
 # XXX Label sysfs files with a specific type?
 allow vold sysfs:file w_file_perms; # writing to /sys/*/uevent during coldboot.
@@ -131,7 +125,7 @@ allow vold fscklogs:file create_file_perms;
 #
 
 # Unmount and mount the fs.
-allow vold labeledfs:filesystem { mount unmount };
+allow vold labeledfs:filesystem { mount unmount remount };
 
 # Access /efs/userdata_footer.
 # XXX Split into a separate type?
@@ -230,6 +224,8 @@ allow vold fuse_device:chr_file rw_file_perms;
 allow vold fuse:filesystem { relabelfrom };
 allow vold app_fusefs:filesystem { relabelfrom relabelto };
 allow vold app_fusefs:filesystem { mount unmount };
+allow vold app_fuse_file:dir rw_dir_perms;
+allow vold app_fuse_file:file { read write open getattr append };
 
 # MoveTask.cpp executes cp and rm
 allow vold toolbox_exec:file rx_file_perms;
@@ -295,7 +291,7 @@ neverallow vold {
   -hal_health_storage_server
   -hal_keymaster_server
   -hal_system_suspend_server
-  -hal_bootctl
+  -hal_bootctl_server
   -healthd
   -hwservicemanager
   -iorapd_service

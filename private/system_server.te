@@ -201,6 +201,7 @@ hal_client_domain(system_server, hal_authsecret)
 hal_client_domain(system_server, hal_broadcastradio)
 hal_client_domain(system_server, hal_configstore)
 hal_client_domain(system_server, hal_contexthub)
+hal_client_domain(system_server, hal_face)
 hal_client_domain(system_server, hal_fingerprint)
 hal_client_domain(system_server, hal_gnss)
 hal_client_domain(system_server, hal_graphics_allocator)
@@ -322,7 +323,6 @@ allow system_server sysfs_usb:file w_file_perms;
 # Access devices.
 allow system_server device:dir r_dir_perms;
 allow system_server mdns_socket:sock_file rw_file_perms;
-allow system_server alarm_device:chr_file rw_file_perms;
 allow system_server gpu_device:chr_file rw_file_perms;
 allow system_server input_device:dir r_dir_perms;
 allow system_server input_device:chr_file rw_file_perms;

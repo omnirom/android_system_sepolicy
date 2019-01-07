@@ -6,6 +6,9 @@ init_daemon_domain(heapprofd)
 set_prop(heapprofd, heapprofd_prop);
 
 userdebug_or_eng(`
+  # TODO(fmayer): We will also need this on user to read /proc/<pid>/cmdline
+  # and send signals.
+  typeattribute heapprofd mlstrustedsubject;
   # Allow to send signal to processes.
   # This excludes SIGKILL, SIGSTOP and SIGCHLD,
   # which are controlled by separate permissions.
@@ -13,10 +16,10 @@ userdebug_or_eng(`
 
   # Executables and libraries.
   # These are needed to read the ELF binary data needed for unwinding.
-  allow heapprofd system_file:file r_file_perms;
-  allow heapprofd apk_data_file:file r_file_perms;
-  allow heapprofd dalvikcache_data_file:file r_file_perms;
-  allow heapprofd vendor_file_type:file r_file_perms;
+  r_dir_file(heapprofd, system_file_type)
+  r_dir_file(heapprofd, apk_data_file)
+  r_dir_file(heapprofd, dalvikcache_data_file)
+  r_dir_file(heapprofd, vendor_file_type)
 ')
 
 # Write trace data to the Perfetto traced damon. This requires connecting to its

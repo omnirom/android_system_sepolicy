@@ -8,6 +8,7 @@
     activity_task_service
     adb_service
     app_binding_service
+    app_prediction_service
     apex_data_file
     apex_mnt_dir
     apex_key_file
@@ -17,11 +18,14 @@
     apexd_prop
     apexd_tmpfs
     biometric_service
+    content_capture_service
+    content_suggestions_service
     cpu_variant_prop
     dev_cpu_variant
     device_config_boot_count_prop
-    device_config_reset_performed_prop
     device_config_flags_health_check_prop
+    device_config_reset_performed_prop
+    device_config_service
     face_service
     face_vendor_data_file
     fastbootd
@@ -32,17 +36,18 @@
     fwk_stats_hwservice
     color_display_service
     hal_atrace_hwservice
+    hal_face_hwservice
     hal_health_storage_hwservice
     hal_power_stats_hwservice
     hal_system_suspend_default
     hal_system_suspend_default_exec
     hal_system_suspend_default_tmpfs
     heapprofd
+    heapprofd_enabled_prop
     heapprofd_exec
     heapprofd_prop
     heapprofd_socket
     idmap_service
-    intelligence_service
     iris_service
     iris_vendor_data_file
     llkd
@@ -59,9 +64,19 @@
     mediaswcodec_exec
     mediaswcodec_tmpfs
     mnt_product_file
+    network_stack
+    network_stack_service
     overlayfs_file
+    permissionmgr_service
     recovery_socket
     role_service
+    rollback_service
+    rs
+    rs_exec
+    rss_hwm_reset
+    rss_hwm_reset_exec
+    runtime_service
+    sensor_privacy_service
     super_block_device
     system_lmk_prop
     system_suspend_hwservice

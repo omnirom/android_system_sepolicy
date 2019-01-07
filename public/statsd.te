@@ -60,12 +60,13 @@ allow statsd dumpstate:fifo_file { getattr write };
 allow statsd proc_uid_cputime_showstat:file { getattr open read };
 hal_client_domain(statsd, hal_health)
 hal_client_domain(statsd, hal_power)
+hal_client_domain(statsd, hal_power_stats)
 hal_client_domain(statsd, hal_thermal)
 
 # Allow 'adb shell cmd' to upload configs and download output.
 allow statsd adbd:fd use;
 allow statsd adbd:unix_stream_socket { getattr read write };
-allow statsd shell:fifo_file { getattr read };
+allow statsd shell:fifo_file { getattr read write };
 
 unix_socket_send(statsd, statsdw, statsd)
 

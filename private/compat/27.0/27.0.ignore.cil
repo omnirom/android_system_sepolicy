@@ -28,6 +28,7 @@
     bpfloader_exec
     cgroup_bpf
     color_display_service
+    content_capture_service
     crossprofileapps_service
     ctl_interface_restart_prop
     ctl_interface_start_prop
@@ -87,7 +88,6 @@
     heapprofd_socket
     incident_helper
     incident_helper_exec
-    intelligence_service
     iorapd
     iorapd_data_file
     iorapd_exec
@@ -109,6 +109,8 @@
     metadata_file
     mnt_product_file
     mnt_vendor_file
+    network_stack
+    network_stack_service
     network_watchlist_data_file
     network_watchlist_service
     overlayfs_file
@@ -120,6 +122,7 @@
     property_info
     recovery_socket
     role_service
+    runtime_service
     secure_element
     secure_element_device
     secure_element_service

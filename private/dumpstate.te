@@ -22,6 +22,9 @@ userdebug_or_eng(`
   allow dumpstate wm_trace_data_file:file r_file_perms;
 ')
 
+# Allow dumpstate to make binder calls to incidentd
+binder_call(dumpstate, incidentd)
+
 # Allow dumpstate to make binder calls to storaged service
 binder_call(dumpstate, storaged)
 
@@ -30,6 +33,9 @@ binder_call(dumpstate, statsd)
 
 # Allow dumpstate to talk to gpuservice over binder
 binder_call(dumpstate, gpuservice);
+
+# Allow dumpstate to talk to idmap over binder
+binder_call(dumpstate, idmap);
 
 # Collect metrics on boot time created by init
 get_prop(dumpstate, boottime_prop)

@@ -21,6 +21,7 @@ type hal_drm_hwservice, hwservice_manager_type;
 type hal_cas_hwservice, hwservice_manager_type;
 type hal_dumpstate_hwservice, hwservice_manager_type;
 type hal_evs_hwservice, hwservice_manager_type;
+type hal_face_hwservice, hwservice_manager_type;
 type hal_fingerprint_hwservice, hwservice_manager_type;
 type hal_gatekeeper_hwservice, hwservice_manager_type;
 type hal_gnss_hwservice, hwservice_manager_type;
@@ -67,3 +68,12 @@ type system_net_netd_hwservice, hwservice_manager_type, coredomain_hwservice;
 type system_suspend_hwservice, hwservice_manager_type, coredomain_hwservice;
 type system_wifi_keystore_hwservice, hwservice_manager_type, coredomain_hwservice;
 type thermalcallback_hwservice, hwservice_manager_type;
+
+###
+### Neverallow rules
+###
+
+# hwservicemanager handles registering or looking up named services.
+# It does not make sense to register or lookup something which is not a
+# hwservice. Trigger a compile error if this occurs.
+neverallow domain ~hwservice_manager_type:hwservice_manager { add find };

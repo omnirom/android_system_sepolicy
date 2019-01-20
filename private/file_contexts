@@ -45,6 +45,7 @@
 /vendor_file_contexts   u:object_r:file_contexts_file:s0
 /nonplat_file_contexts  u:object_r:file_contexts_file:s0
 /plat_file_contexts     u:object_r:file_contexts_file:s0
+/product_file_contexts  u:object_r:file_contexts_file:s0
 /mapping_sepolicy\.cil   u:object_r:sepolicy_file:s0
 /nonplat_sepolicy\.cil   u:object_r:sepolicy_file:s0
 /plat_sepolicy\.cil      u:object_r:sepolicy_file:s0
@@ -73,7 +74,6 @@
 /dev/adf[0-9]*		u:object_r:graphics_device:s0
 /dev/adf-interface[0-9]*\.[0-9]*	u:object_r:graphics_device:s0
 /dev/adf-overlay-engine[0-9]*\.[0-9]*	u:object_r:graphics_device:s0
-/dev/alarm		u:object_r:alarm_device:s0
 /dev/ashmem		u:object_r:ashmem_device:s0
 /dev/audio.*		u:object_r:audio_device:s0
 /dev/binder		u:object_r:binder_device:s0
@@ -179,6 +179,7 @@
 /system(/.*)?		u:object_r:system_file:s0
 /system/lib(64)?(/.*)?		u:object_r:system_lib_file:s0
 /system/bin/atrace	u:object_r:atrace_exec:s0
+/system/bin/bcc                 u:object_r:rs_exec:s0
 /system/bin/blank_screen	u:object_r:blank_screen_exec:s0
 /system/bin/e2fsdroid		u:object_r:e2fs_exec:s0
 /system/bin/mke2fs		u:object_r:e2fs_exec:s0
@@ -192,6 +193,7 @@
 /system/bin/tune2fs	--	u:object_r:fsck_exec:s0
 /system/bin/toolbox	--	u:object_r:toolbox_exec:s0
 /system/bin/toybox	--	u:object_r:toolbox_exec:s0
+/system/bin/ld\.mc              u:object_r:rs_exec:s0
 /system/bin/logcat	--	u:object_r:logcat_exec:s0
 /system/bin/logcatd	--	u:object_r:logcat_exec:s0
 /system/bin/sh		--	u:object_r:shell_exec:s0
@@ -252,6 +254,7 @@
 /system/bin/usbd   u:object_r:usbd_exec:s0
 /system/bin/inputflinger u:object_r:inputflinger_exec:s0
 /system/bin/logd        u:object_r:logd_exec:s0
+/system/bin/rss_hwm_reset	u:object_r:rss_hwm_reset_exec:s0
 /system/bin/perfetto        u:object_r:perfetto_exec:s0
 /system/bin/traced        u:object_r:traced_exec:s0
 /system/bin/traced_probes        u:object_r:traced_probes_exec:s0
@@ -371,11 +374,21 @@
 /(product|system/product)(/.*)?                                 u:object_r:system_file:s0
 /(product|system/product)/overlay(/.*)?                         u:object_r:vendor_overlay_file:s0
 
+/(product|system/product)/etc/selinux/product_file_contexts     u:object_r:file_contexts_file:s0
+
 #############################
 # Product-Services files
 #
 /(product_services|system/product_services)(/.*)?               u:object_r:system_file:s0
 /(product_services|system/product_services)/overlay(/.*)?       u:object_r:vendor_overlay_file:s0
+
+#############################
+# Vendor files from /(product|system/product)/vendor_overlay
+#
+# NOTE: For additional vendor file contexts for vendor overlay files,
+# use device specific file_contexts.
+#
+/(product|system/product)/vendor_overlay/[0-9]+/.*          u:object_r:vendor_file:s0
 
 #############################
 # Data files

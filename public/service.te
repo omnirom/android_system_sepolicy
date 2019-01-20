@@ -43,6 +43,7 @@ type activity_task_service, app_api_service, ephemeral_app_api_service, system_s
 type adb_service, system_api_service, system_server_service, service_manager_type;
 type alarm_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type app_binding_service, system_server_service, service_manager_type;
+type app_prediction_service, app_api_service, system_server_service, service_manager_type;
 type appops_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type appwidget_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type assetatlas_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
@@ -63,6 +64,8 @@ type companion_device_service, app_api_service, ephemeral_app_api_service, syste
 type connectivity_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type connmetrics_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type consumer_ir_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
+type content_capture_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
+type content_suggestions_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type content_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type country_detector_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 # Note: The coverage_service should only be enabled for userdebug / eng builds that were compiled
@@ -70,6 +73,7 @@ type country_detector_service, app_api_service, ephemeral_app_api_service, syste
 type coverage_service, system_server_service, service_manager_type;
 type cpuinfo_service, system_api_service, system_server_service, service_manager_type;
 type dbinfo_service, system_api_service, system_server_service, service_manager_type;
+type device_config_service, system_server_service, service_manager_type;
 type device_policy_service, app_api_service, system_server_service, service_manager_type;
 type deviceidle_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type device_identifiers_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
@@ -96,7 +100,6 @@ type hdmi_control_service, system_api_service, system_server_service, service_ma
 type imms_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type input_method_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type input_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
-type intelligence_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type ipsec_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type iris_service, app_api_service, system_server_service, service_manager_type;
 type jobscheduler_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
@@ -114,6 +117,7 @@ type netpolicy_service, app_api_service, ephemeral_app_api_service, system_serve
 type netstats_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type network_management_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type network_score_service, system_api_service, system_server_service, service_manager_type;
+type network_stack_service, system_server_service, service_manager_type;
 type network_time_update_service, system_server_service, service_manager_type;
 type notification_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type oem_lock_service, system_api_service, system_server_service, service_manager_type;
@@ -122,6 +126,7 @@ type overlay_service, system_api_service, system_server_service, service_manager
 type package_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type package_native_service, system_server_service, service_manager_type;
 type permission_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
+type permissionmgr_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type persistent_data_block_service, system_api_service, system_server_service, service_manager_type;
 type pinner_service, system_server_service, service_manager_type;
 type power_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
@@ -132,12 +137,15 @@ type recovery_service, system_server_service, service_manager_type;
 type registry_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type restrictions_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type role_service, app_api_service, system_server_service, service_manager_type;
+type rollback_service, app_api_service, system_server_service, service_manager_type;
+type runtime_service, system_server_service, service_manager_type;
 type rttmanager_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type samplingprofiler_service, system_server_service, service_manager_type;
 type scheduling_policy_service, system_server_service, service_manager_type;
 type search_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type sec_key_att_app_id_provider_service, app_api_service, system_server_service, service_manager_type;
 type sensorservice_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
+type sensor_privacy_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type serial_service, system_api_service, system_server_service, service_manager_type;
 type servicediscovery_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type settings_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
@@ -150,7 +158,7 @@ type task_service, system_server_service, service_manager_type;
 type textclassification_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type textservices_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type telecom_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
-type thermal_service, system_server_service, service_manager_type;
+type thermal_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type timedetector_service, system_server_service, service_manager_type;
 type timezone_service, system_server_service, service_manager_type;
 type timezonedetector_service, system_server_service, service_manager_type;
@@ -175,3 +183,12 @@ type wifiaware_service, app_api_service, system_server_service, service_manager_
 type window_service, system_api_service, system_server_service, service_manager_type;
 type inputflinger_service, system_api_service, system_server_service, service_manager_type;
 type wpantund_service, system_api_service, service_manager_type;
+
+###
+### Neverallow rules
+###
+
+# servicemanager handles registering or looking up named services.
+# It does not make sense to register or lookup something which is not a service.
+# Trigger a compile error if this occurs.
+neverallow domain ~{ service_manager_type vndservice_manager_type }:service_manager { add find };

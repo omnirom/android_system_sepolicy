@@ -8,6 +8,7 @@ android.os.UpdateEngineService            u:object_r:update_engine_service:s0
 android.security.keystore                 u:object_r:keystore_service:s0
 android.service.gatekeeper.IGateKeeperService    u:object_r:gatekeeper_service:s0
 app_binding                               u:object_r:app_binding_service:s0
+app_prediction                            u:object_r:app_prediction_service:s0
 apexservice                               u:object_r:apex_service:s0
 appops                                    u:object_r:appops_service:s0
 appwidget                                 u:object_r:appwidget_service:s0
@@ -23,7 +24,6 @@ biometric                                 u:object_r:biometric_service:s0
 bluetooth_manager                         u:object_r:bluetooth_manager_service:s0
 bluetooth                                 u:object_r:bluetooth_service:s0
 broadcastradio                            u:object_r:broadcastradio_service:s0
-bufferhubd                                u:object_r:buffer_hub_service:s0
 carrier_config                            u:object_r:radio_service:s0
 clipboard                                 u:object_r:clipboard_service:s0
 com.android.net.IProxyService             u:object_r:IProxyService_service:s0
@@ -32,12 +32,15 @@ connectivity                              u:object_r:connectivity_service:s0
 connmetrics                               u:object_r:connmetrics_service:s0
 consumer_ir                               u:object_r:consumer_ir_service:s0
 content                                   u:object_r:content_service:s0
+content_capture                           u:object_r:content_capture_service:s0
+content_suggestions                       u:object_r:content_suggestions_service:s0
 contexthub                                u:object_r:contexthub_service:s0
 country_detector                          u:object_r:country_detector_service:s0
 coverage                                  u:object_r:coverage_service:s0
 cpuinfo                                   u:object_r:cpuinfo_service:s0
 crossprofileapps                          u:object_r:crossprofileapps_service:s0
 dbinfo                                    u:object_r:dbinfo_service:s0
+device_config                             u:object_r:device_config_service:s0
 device_policy                             u:object_r:device_policy_service:s0
 device_identifiers                        u:object_r:device_identifiers_service:s0
 deviceidle                                u:object_r:deviceidle_service:s0
@@ -79,7 +82,6 @@ iphonesubinfo2                            u:object_r:radio_service:s0
 iphonesubinfo                             u:object_r:radio_service:s0
 ims                                       u:object_r:radio_service:s0
 imms                                      u:object_r:imms_service:s0
-intelligence                              u:object_r:intelligence_service:s0
 ipsec                                     u:object_r:ipsec_service:s0
 iris                                      u:object_r:iris_service:s0
 isms_msim                                 u:object_r:radio_service:s0
@@ -116,6 +118,7 @@ mount                                     u:object_r:mount_service:s0
 netd                                      u:object_r:netd_service:s0
 netpolicy                                 u:object_r:netpolicy_service:s0
 netstats                                  u:object_r:netstats_service:s0
+network_stack                             u:object_r:network_stack_service:s0
 network_management                        u:object_r:network_management_service:s0
 network_score                             u:object_r:network_score_service:s0
 network_time_update_service               u:object_r:network_time_update_service:s0
@@ -128,6 +131,7 @@ package                                   u:object_r:package_service:s0
 package_native                            u:object_r:package_native_service:s0
 perfprofd                                 u:object_r:perfprofd_service:s0
 permission                                u:object_r:permission_service:s0
+permissionmgr                             u:object_r:permissionmgr_service:s0
 persistent_data_block                     u:object_r:persistent_data_block_service:s0
 phone_msim                                u:object_r:radio_service:s0
 phone1                                    u:object_r:radio_service:s0
@@ -144,13 +148,16 @@ radio.sms                                 u:object_r:radio_service:s0
 recovery                                  u:object_r:recovery_service:s0
 restrictions                              u:object_r:restrictions_service:s0
 role                                      u:object_r:role_service:s0
+rollback                                  u:object_r:rollback_service:s0
 rttmanager                                u:object_r:rttmanager_service:s0
+runtime                                   u:object_r:runtime_service:s0
 samplingprofiler                          u:object_r:samplingprofiler_service:s0
 scheduling_policy                         u:object_r:scheduling_policy_service:s0
 search                                    u:object_r:search_service:s0
 secure_element                            u:object_r:secure_element_service:s0
 sec_key_att_app_id_provider               u:object_r:sec_key_att_app_id_provider_service:s0
 sensorservice                             u:object_r:sensorservice_service:s0
+sensor_privacy                            u:object_r:sensor_privacy_service:s0
 serial                                    u:object_r:serial_service:s0
 servicediscovery                          u:object_r:servicediscovery_service:s0
 settings                                  u:object_r:settings_service:s0

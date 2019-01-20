@@ -21,6 +21,7 @@ allowxperm apexd loop_device:blk_file ioctl {
   LOOP_SET_BLOCK_SIZE
   LOOP_SET_DIRECT_IO
   LOOP_CLR_FD
+  BLKFLSBUF
 };
 # allow apexd to access /dev/block
 allow apexd block_device:dir r_dir_perms;
@@ -40,12 +41,21 @@ allow apexd apex_mnt_dir:dir mounton;
 # allow apexd to create symlinks in /apex
 allow apexd apex_mnt_dir:lnk_file create_file_perms;
 
+# allow apexd to relabel apk_tmp_file to apex_data_file.
+# TODO(b/112669193) remove this when APEXes are staged via file descriptor
+allow apexd apk_tmp_file:file relabelfrom;
+allow apexd apex_data_file:file relabelto;
+
 # Unmount and mount filesystems
 allow apexd labeledfs:filesystem { mount unmount };
 
-# Configure read-ahead of dm-verity devices
+# Configure read-ahead of dm-verity and loop devices
+# for dm-X
 allow apexd sysfs_dm:dir r_dir_perms;
 allow apexd sysfs_dm:file rw_file_perms;
+# for loopX
+allow apexd sysfs_loop:dir r_dir_perms;
+allow apexd sysfs_loop:file rw_file_perms;
 
 # Spawning a libbinder thread results in a dac_override deny,
 # /dev/cpuset/tasks is owned by system.

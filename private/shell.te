@@ -44,6 +44,8 @@ domain_auto_trans(shell, vendor_shell_exec, vendor_shell)
 # transition into its own domain, so that it behaves consistently to
 # when exec()-d by statsd.
 domain_auto_trans(shell, perfetto_exec, perfetto)
+# Allow to send SIGINT to perfetto when daemonized.
+allow shell perfetto:process signal;
 
 # Allow shell to run adb shell cmd stats commands. Needed for CTS.
 binder_call(shell, statsd);
@@ -51,9 +53,6 @@ binder_call(shell, statsd);
 # Allow shell to read and unlink traces stored in /data/misc/perfetto-traces.
 allow shell perfetto_traces_data_file:dir rw_dir_perms;
 allow shell perfetto_traces_data_file:file r_file_perms;
-
-# Allow shell-based "dumpsys" to call into bufferhubd.
-binder_call(shell, bufferhubd);
 
 # Allow shell to run adb shell cmd gpu commands.
 binder_call(shell, gpuservice);

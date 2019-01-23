@@ -40,9 +40,11 @@ allow init kernel:fd use;
 # restorecon for early mount device symlinks
 allow init tmpfs:lnk_file { getattr read relabelfrom };
 allow init {
+  metadata_block_device
   misc_block_device
   recovery_block_device
   system_block_device
+  userdata_block_device
 }:{ blk_file lnk_file } relabelto;
 
 # setrlimit
@@ -82,6 +84,9 @@ allow init device:dir mounton;
 
 # Mount tmpfs on /apex
 allow init apex_mnt_dir:dir mounton;
+
+allow init system_lib_file:file mounton;
+allow init system_linker_exec:file mounton;
 
 # Create and remove symlinks in /.
 allow init rootfs:lnk_file { create unlink };
@@ -357,6 +362,17 @@ allow init {
   sysfs_zram
 }:file rw_file_perms;
 
+# allow init to create loop devices with /dev/loop-control
+allow init loop_control_device:chr_file rw_file_perms;
+allow init loop_device:blk_file rw_file_perms;
+allowxperm init loop_device:blk_file ioctl {
+  LOOP_SET_FD
+  LOOP_CLR_FD
+  LOOP_CTL_GET_FREE
+  LOOP_SET_BLOCK_SIZE
+  LOOP_SET_DIRECT_IO
+};
+
 # Allow init to write to vibrator/trigger
 allow init sysfs_vibrator:file w_file_perms;
 
@@ -370,6 +386,7 @@ allow init {
   sysfs_power
   sysfs_vibrator
   sysfs_wake_lock
+  sysfs_zram
 }:file setattr;
 
 # Set usermodehelpers.

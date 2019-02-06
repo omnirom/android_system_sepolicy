@@ -17,13 +17,17 @@
     apexd_exec
     apexd_prop
     apexd_tmpfs
+    app_zygote
     biometric_service
+    bpf_progs_loaded_prop
+    bugreport_service
     content_capture_service
     content_suggestions_service
     cpu_variant_prop
     dev_cpu_variant
     device_config_boot_count_prop
     device_config_flags_health_check_prop
+    device_config_netd_native_prop
     device_config_reset_performed_prop
     device_config_service
     face_service
@@ -34,10 +38,14 @@
     fwk_bufferhub_hwservice
     fwk_camera_hwservice
     fwk_stats_hwservice
+    gsi_service
+    gsid
+    gsid_exec
     color_display_service
     hal_atrace_hwservice
     hal_face_hwservice
     hal_health_storage_hwservice
+    hal_input_classifier_hwservice
     hal_power_stats_hwservice
     hal_system_suspend_default
     hal_system_suspend_default_exec
@@ -48,6 +56,7 @@
     heapprofd_prop
     heapprofd_socket
     idmap_service
+    ipmemorystore_service
     iris_service
     iris_vendor_data_file
     llkd
@@ -75,12 +84,17 @@
     rs_exec
     rss_hwm_reset
     rss_hwm_reset_exec
+    runas_app
     runtime_service
     sensor_privacy_service
+    server_configurable_flags_data_file
     super_block_device
+    system_event_log_tags_file
     system_lmk_prop
     system_suspend_hwservice
-    server_configurable_flags_data_file
+    staging_data_file
+    testharness_service
+    test_harness_prop
     time_prop
     timedetector_service
     timezonedetector_service

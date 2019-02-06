@@ -125,6 +125,8 @@ allow domain system_linker_exec:file { execute read open getattr map };
 allow domain system_linker_config_file:file r_file_perms;
 allow domain system_lib_file:file { execute read open getattr map };
 
+allow domain system_event_log_tags_file:file r_file_perms;
+
 allow { appdomain coredomain } system_file:file { execute read open getattr map };
 
 # Make sure system/vendor split doesn not affect non-treble
@@ -1033,6 +1035,7 @@ full_treble_only(`
     -file_contexts_file
     -netutils_wrapper_exec
     -property_contexts_file
+    -system_event_log_tags_file
     -system_lib_file
     with_asan(`-system_asan_options_file')
     -system_linker_exec
@@ -1071,8 +1074,9 @@ neverallow {
 neverallow { domain -zygote -system_server } zygote:unix_stream_socket connectto;
 neverallow { domain -system_server } zygote_socket:sock_file write;
 
-neverallow { domain -system_server -webview_zygote } webview_zygote:unix_stream_socket connectto;
+neverallow { domain -system_server -webview_zygote -app_zygote } webview_zygote:unix_stream_socket connectto;
 neverallow { domain -system_server } webview_zygote:sock_file write;
+neverallow { domain -system_server } app_zygote:sock_file write;
 
 neverallow {
   domain
@@ -1203,7 +1207,7 @@ neverallow {
 } shell:process { transition dyntransition };
 
 # Only domains spawned from zygote and runas may have the appdomain attribute.
-neverallow { domain -runas -webview_zygote -zygote } {
+neverallow { domain -runas -app_zygote -webview_zygote -zygote } {
   appdomain -shell userdebug_or_eng(`-su')
 }:process { transition dyntransition };
 

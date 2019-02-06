@@ -37,6 +37,7 @@ allow system_server zygote:process sigchld;
 allow system_server zygote:process sigkill;
 allow system_server crash_dump:process sigkill;
 allow system_server webview_zygote:process sigkill;
+allow system_server app_zygote:process sigkill;
 
 # Read /system/bin/app_process.
 allow system_server zygote_exec:file r_file_perms;
@@ -146,10 +147,6 @@ allow system_server debugfs_wakeup_sources:file r_file_perms;
 # The DhcpClient and WifiWatchdog use packet_sockets
 allow system_server self:packet_socket create_socket_perms_no_ioctl;
 
-# NetworkDiagnostics requires explicit bind() calls to ping sockets. These aren't actually the same
-# as raw sockets, but the kernel doesn't yet distinguish between the two.
-allow system_server node:rawip_socket node_bind;
-
 # 3rd party VPN clients require a tun_socket to be created
 allow system_server self:tun_socket create_socket_perms_no_ioctl;
 
@@ -171,6 +168,9 @@ allow system_server gpuservice:unix_stream_socket { read write setopt };
 
 # Communicate over a socket created by webview_zygote.
 allow system_server webview_zygote:unix_stream_socket { read write connectto setopt };
+
+# Communicate over a socket created by app_zygote.
+allow system_server app_zygote:unix_stream_socket { read write connectto setopt };
 
 # Perform Binder IPC.
 binder_use(system_server)
@@ -206,6 +206,7 @@ hal_client_domain(system_server, hal_fingerprint)
 hal_client_domain(system_server, hal_gnss)
 hal_client_domain(system_server, hal_graphics_allocator)
 hal_client_domain(system_server, hal_health)
+hal_client_domain(system_server, hal_input_classifier)
 hal_client_domain(system_server, hal_ir)
 hal_client_domain(system_server, hal_light)
 hal_client_domain(system_server, hal_memtrack)
@@ -467,6 +468,10 @@ allow system_server wifi_data_file:file create_file_perms;
 allow system_server zoneinfo_data_file:dir create_dir_perms;
 allow system_server zoneinfo_data_file:file create_file_perms;
 
+# Manage /data/staging.
+allow system_server staging_data_file:dir create_dir_perms;
+allow system_server staging_data_file:file create_file_perms;
+
 # Walk /data/data subdirectories.
 # Types extracted from seapp_contexts type= fields.
 allow system_server {
@@ -576,6 +581,7 @@ set_prop(system_server, cppreopt_prop)
 # STOPSHIP: Remove the ability for system_server to set property
 # device_config_flags_health_check_prop before release. (b/119627143)
 set_prop(system_server, device_config_flags_health_check_prop)
+set_prop(system_server, device_config_netd_native_prop)
 
 # BootReceiver to read ro.boot.bootreason
 get_prop(system_server, bootloader_boot_reason_prop)
@@ -598,6 +604,9 @@ get_prop(system_server, exported_audio_prop)
 # system server reads this property to keep track of whether server configurable flags have been
 # reset during current boot.
 get_prop(system_server, device_config_reset_performed_prop)
+
+# Read/write the property that enables Test Harness Mode
+set_prop(system_server, test_harness_prop)
 
 # Create a socket for connections from debuggerd.
 allow system_server system_ndebug_socket:sock_file create_file_perms;
@@ -659,7 +668,7 @@ allow system_server pstorefs:file r_file_perms;
 
 # /sys access
 allow system_server sysfs_zram:dir search;
-allow system_server sysfs_zram:file r_file_perms;
+allow system_server sysfs_zram:file rw_file_perms;
 
 add_service(system_server, system_server_service);
 allow system_server audioserver_service:service_manager find;
@@ -779,6 +788,13 @@ allow system_server adbd:unix_stream_socket { getattr getopt ioctl read write sh
 # Allow invoking tools like "timeout"
 allow system_server toolbox_exec:file rx_file_perms;
 
+# Allow system process to setup and measure fs-verity
+allowxperm system_server apk_data_file:file ioctl {
+  FS_IOC_ENABLE_VERITY FS_IOC_MEASURE_VERITY
+};
+# Allow system process to access the keyring.
+allow system_server kernel:key search;
+
 # Postinstall
 #
 # For OTA dexopt, allow calls coming from postinstall.
@@ -837,7 +853,7 @@ with_asan(`
 # the map after snapshot is recorded
 allow system_server fs_bpf:dir search;
 allow system_server fs_bpf:file read;
-allow system_server netd:bpf map_read;
+allow system_server bpfloader:bpf map_read;
 
 # ART Profiles.
 # Allow system_server to open profile snapshots for read.
@@ -918,6 +934,7 @@ neverallow {
   -flags_health_check
 } {
   device_config_flags_health_check_prop
+  device_config_netd_native_prop
 }:property_service set;
 
 # system_server should never be executing dex2oat. This is either
@@ -953,6 +970,13 @@ allow system_server system_server_startup:unix_dgram_socket write;
 # Allow system server to communicate to apexd
 allow system_server apex_service:service_manager find;
 allow system_server apexd:binder call;
+
+# Allow the system server to read files under /data/apex. The system_server
+# needs these privileges to compare file signatures while processing installs.
+#
+# Only apexd is allowed to create new entries or write to any file under /data/apex.
+allow system_server apex_data_file:dir search;
+allow system_server apex_data_file:file r_file_perms;
 
 # dexoptanalyzer is currently used only for secondary dex files which
 # system_server should never access.

@@ -16,6 +16,7 @@
     apexd_exec
     apexd_prop
     apexd_tmpfs
+    app_zygote
     atrace
     binder_calls_stats_service
     biometric_service
@@ -37,6 +38,7 @@
     device_config_boot_count_prop
     device_config_reset_performed_prop
     device_config_flags_health_check_prop
+    device_config_netd_native_prop
     exfat
     exported2_config_prop
     exported2_default_prop
@@ -93,6 +95,7 @@
     iorapd_exec
     iorapd_service
     iorapd_tmpfs
+    ipmemorystore_service
     last_boot_reason_prop
     llkd
     llkd_exec
@@ -122,6 +125,7 @@
     property_info
     recovery_socket
     role_service
+    runas_app
     runtime_service
     secure_element
     secure_element_device
@@ -141,6 +145,7 @@
     statsdw_socket
     storaged_data_file
     super_block_device
+    staging_data_file
     system_boot_reason_prop
     system_lmk_prop
     system_suspend_hwservice

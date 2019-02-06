@@ -17,6 +17,7 @@
     apexd_exec
     apexd_prop
     apexd_tmpfs
+    app_zygote
     atrace
     binder_calls_stats_service
     biometric_service
@@ -39,6 +40,7 @@
     device_config_boot_count_prop
     device_config_reset_performed_prop
     device_config_flags_health_check_prop
+    device_config_netd_native_prop
     e2fs
     e2fs_exec
     exfat
@@ -102,6 +104,7 @@
     iorapd_exec
     iorapd_service
     iorapd_tmpfs
+    ipmemorystore_service
     kmsg_debug_device
     last_boot_reason_prop
     llkd
@@ -135,6 +138,7 @@
     property_info
     recovery_socket
     role_service
+    runas_app
     runtime_service
     secure_element
     secure_element_device
@@ -142,6 +146,7 @@
     secure_element_service
     server_configurable_flags_data_file
     slice_service
+    staging_data_file
     stats
     stats_data_file
     stats_exec

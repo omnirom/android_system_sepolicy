@@ -60,6 +60,7 @@ full_treble_only(`
         -installd
         -rs # spawned by appdomain, so carryover the exception above
         -system_server
+        -app_zygote
         -webview_zygote
         -zygote
         userdebug_or_eng(`-heapprofd')
@@ -75,6 +76,7 @@ full_treble_only(`
         -installd
         -rs # spawned by appdomain, so carryover the exception above
         -system_server
+        -app_zygote
         -webview_zygote
         -zygote
         userdebug_or_eng(`-heapprofd')
@@ -175,11 +177,14 @@ full_treble_only(`
 
 # Following /dev nodes must not be directly accessed by coredomain, but should
 # instead be wrapped by HALs.
+neverallow coredomain {
+  iio_device
+  radio_device
+}:chr_file { open read append write ioctl };
+
+# TODO(b/120243891): HAL permission to tee_device is included into coredomain
+# on non-Treble devices.
 # TODO(b/121350843): Re-enable this block after resolving Treble violations
-# neverallow coredomain {
-#   iio_device
-#   radio_device
-#   # TODO(b/120243891): HAL permission to tee_device is included into coredomain
-#   # on non-Treble devices.
-#   full_treble_only(`tee_device')
-# }:chr_file { open read append write ioctl };
+# full_treble_only(`
+#   neverallow coredomain tee_device:chr_file { open read append write ioctl };
+# ')

@@ -101,6 +101,7 @@ neverallow {
   domain
   -adbd
   -appdomain
+  -app_zygote
   -dexoptanalyzer
   -installd
   userdebug_or_eng(`-perfprofd')
@@ -108,6 +109,7 @@ neverallow {
   -rs # spawned by appdomain, so carryover the exception above
   -runas
   -system_server
+  -viewcompiler
 } { privapp_data_file app_data_file }:dir *;
 
 # Only apps should be modifying app data. installd is exempted for
@@ -122,6 +124,7 @@ neverallow {
 neverallow {
   domain
   -appdomain
+  -app_zygote
   -installd
   userdebug_or_eng(`-perfprofd')
   -rs # spawned by appdomain, so carryover the exception above
@@ -137,6 +140,17 @@ neverallow {
   domain
   -installd
 } { privapp_data_file app_data_file }:dir_file_class_set { relabelfrom relabelto };
+
+# The staging directory contains APEX and APK files. It is important to ensure
+# that these files cannot be accessed by other domains to ensure that the files
+# do not change between system_server staging the files and apexd processing
+# the files.
+neverallow { domain -init -system_server -apexd } staging_data_file:dir *;
+neverallow { domain -init -system_server -apexd -kernel } staging_data_file:file *;
+neverallow { domain -init -system_server } staging_data_file:dir no_w_dir_perms;
+# apexd needs the link permission, so list every `no_w_file_perms` except for `link`.
+neverallow { domain -init -system_server } staging_data_file:file
+  { append create unlink relabelfrom rename setattr write no_x_file_perms };
 
 neverallow {
     domain
@@ -159,6 +173,7 @@ neverallow {
     -shell
     userdebug_or_eng(`-su')
     -system_server_startup # for memfd backed executable regions
+    -app_zygote
     -webview_zygote
     -zygote
     userdebug_or_eng(`-mediaextractor')

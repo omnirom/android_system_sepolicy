@@ -52,6 +52,7 @@ userdebug_or_eng(`
 ')
 
 # Root fs.
+allow domain tmpfs:dir { getattr search };
 allow domain rootfs:dir search;
 allow domain rootfs:lnk_file { read getattr };
 
@@ -124,6 +125,9 @@ allow domain system_security_cacerts_file:file r_file_perms;
 allow domain system_linker_exec:file { execute read open getattr map };
 allow domain system_linker_config_file:file r_file_perms;
 allow domain system_lib_file:file { execute read open getattr map };
+# To allow following symlinks at /system/bin/linker, /system/lib/libc.so, etc.
+allow domain system_linker_exec:lnk_file { read open getattr };
+allow domain system_lib_file:lnk_file { read open getattr };
 
 allow domain system_event_log_tags_file:file r_file_perms;
 
@@ -388,6 +392,11 @@ neverallow {
 
 # Ensure that all entrypoint executables are in exec_type or postinstall_file.
 neverallow * { file_type -exec_type -postinstall_file }:file entrypoint;
+
+# The dynamic linker always calls access(2) on the path. Don't generate SElinux
+# denials since the linker does not actually access the path in case the path
+# does not exist or isn't accessible for the process.
+dontaudit domain postinstall_mnt_dir:dir audit_access;
 
 #Ensure that nothing in userspace can access /dev/port
 neverallow {
@@ -1043,6 +1052,7 @@ full_treble_only(`
     -system_seccomp_policy_file
     -system_security_cacerts_file
     -system_zoneinfo_file
+    -task_profiles_file
     userdebug_or_eng(`-tcpdump_exec')
   }:file *;
 ')
@@ -1206,8 +1216,9 @@ neverallow {
   -zygote
 } shell:process { transition dyntransition };
 
-# Only domains spawned from zygote and runas may have the appdomain attribute.
-neverallow { domain -runas -app_zygote -webview_zygote -zygote } {
+# Only domains spawned from zygote, runas and simpleperf_app_runner may have the appdomain
+# attribute.
+neverallow { domain -simpleperf_app_runner -runas -app_zygote -webview_zygote -zygote } {
   appdomain -shell userdebug_or_eng(`-su')
 }:process { transition dyntransition };
 
@@ -1247,6 +1258,7 @@ neverallow {
   -dumpstate
   -init
   -installd
+  -simpleperf_app_runner
   -system_server # why?
   userdebug_or_eng(`-uncrypt')
 } shell_data_file:dir { open search };

@@ -25,6 +25,12 @@
 allow untrusted_app_all privapp_data_file:file { r_file_perms execute };
 allow untrusted_app_all app_data_file:file     { r_file_perms execute };
 
+# Follow priv-app symlinks. This is used for dynamite functionality.
+allow untrusted_app_all privapp_data_file:lnk_file r_file_perms;
+
+# Allow handling of less common filesystem objects
+allow untrusted_app_all app_data_file:{ lnk_file sock_file fifo_file } create_file_perms;
+
 # Allow loading and deleting executable shared libraries
 # within an application home directory. Such shared libraries would be
 # created by things like renderscript or via other mechanisms.
@@ -100,6 +106,16 @@ userdebug_or_eng(`
 # gdbserver for ndk-gdb ptrace attaches to app process.
 allow untrusted_app_all self:process ptrace;
 
+# Android Studio Instant Run has the application connect to a
+# runas_app socket listening in the abstract namespace.
+# https://developer.android.com/studio/run/
+# b/123297648
+allow untrusted_app_all runas_app:unix_stream_socket connectto;
+
+# Untrusted apps need to be able to send a SIGCHLD to runas_app
+# when running under a debugger (b/123612207)
+allow untrusted_app_all runas_app:process sigchld;
+
 # Cts: HwRngTest
 allow untrusted_app_all sysfs_hwrandom:dir search;
 allow untrusted_app_all sysfs_hwrandom:file r_file_perms;
@@ -122,6 +138,10 @@ allow untrusted_app_all vendor_app_file:lnk_file { open getattr read };
 allow untrusted_app_all traced:fd use;
 allow untrusted_app_all traced_tmpfs:file { read write getattr map };
 unix_socket_connect(untrusted_app_all, traced_producer, traced)
+
+# Allow heap profiling if the app opts in by being marked
+# profileable/debuggable.
+can_profile_heap(untrusted_app_all)
 
 # allow untrusted apps to use UDP sockets provided by the system server but not
 # modify them other than to connect

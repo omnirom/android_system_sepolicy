@@ -37,6 +37,7 @@
 /(vendor|system/vendor)/bin/hw/android\.hardware\.keymaster@3\.0-service      u:object_r:hal_keymaster_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.keymaster@4\.0-service      u:object_r:hal_keymaster_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.light@2\.0-service          u:object_r:hal_light_default_exec:s0
+/(vendor|system/vendor)/bin/hw/android\.hardware\.light@2\.0-service-lazy     u:object_r:hal_light_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.lowpan@1\.0-service         u:object_r:hal_lowpan_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.memtrack@1\.0-service       u:object_r:hal_memtrack_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.nfc@1\.0-service            u:object_r:hal_nfc_default_exec:s0
@@ -47,8 +48,7 @@
 /(vendor|system/vendor)/bin/hw/android\.hardware\.radio\.config@1\.0-service  u:object_r:hal_radio_config_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.radio@1\.2-radio-service    u:object_r:hal_radio_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.radio@1\.2-sap-service    u:object_r:hal_radio_default_exec:s0
-/(vendor|system/vendor)/bin/hw/android\.hardware\.sensors@1\.0-service        u:object_r:hal_sensors_default_exec:s0
-/(vendor|system/vendor)/bin/hw/android\.hardware\.sensors@2\.0-service        u:object_r:hal_sensors_default_exec:s0
+/(vendor|system/vendor)/bin/hw/android\.hardware\.sensors@[0-9]\.[0-9]-service  u:object_r:hal_sensors_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.secure_element@1\.0-service u:object_r:hal_secure_element_default_exec:s0
 /(vendor|system/vendor)/bin/hw/rild                                           u:object_r:rild_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.thermal@1\.[01]-service        u:object_r:hal_thermal_default_exec:s0
@@ -59,6 +59,7 @@
 /(vendor|system/vendor)/bin/hw/android\.hardware\.vr@1\.0-service             u:object_r:hal_vr_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.wifi\.offload@1\.0-service  u:object_r:hal_wifi_offload_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.wifi@1\.0-service           u:object_r:hal_wifi_default_exec:s0
+/(vendor|system/vendor)/bin/hw/android\.hardware\.wifi@1\.0-service-lazy      u:object_r:hal_wifi_default_exec:s0
 /(vendor|system/vendor)/bin/hw/hostapd                                        u:object_r:hal_wifi_hostapd_default_exec:s0
 /(vendor|system/vendor)/bin/hw/wpa_supplicant                                 u:object_r:hal_wifi_supplicant_default_exec:s0
 /(vendor|system/vendor)/bin/vndservicemanager                                 u:object_r:vndservicemanager_exec:s0

@@ -10,7 +10,8 @@ allow domain crash_dump:process sigchld;
 # heap profiling, as initialization will fail if it does not have the
 # necessary SELinux permissions.
 get_prop(domain, heapprofd_prop);
-userdebug_or_eng(`can_profile_heap({
+# Allow heap profiling on debug builds.
+userdebug_or_eng(`can_profile_heap_userdebug_or_eng({
   domain
   -bpfloader
   -init
@@ -27,6 +28,10 @@ userdebug_or_eng(`can_profile_heap({
 allow domain cgroup:dir search;
 allow { domain -appdomain -rs } cgroup:dir w_dir_perms;
 allow { domain -appdomain -rs } cgroup:file w_file_perms;
+
+allow domain cgroup_rc_file:dir search;
+allow domain cgroup_rc_file:file r_file_perms;
+allow domain task_profiles_file:file r_file_perms;
 
 # For now, everyone can access core property files
 # Device specific properties are not granted by default
@@ -187,3 +192,10 @@ neverallow {
     -exec_type
     -postinstall_file
 }:file execute;
+
+# Only init is allowed to write cgroup.rc file
+neverallow {
+  domain
+  -init
+  -vendor_init
+} cgroup_rc_file:file no_w_file_perms;

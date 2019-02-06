@@ -28,6 +28,8 @@ allow priv_app self:process ptrace;
 # TODO: Tighten (b/112357170)
 allow priv_app privapp_data_file:file execute;
 
+allow priv_app privapp_data_file:lnk_file create_file_perms;
+
 allow priv_app app_api_service:service_manager find;
 allow priv_app audioserver_service:service_manager find;
 allow priv_app cameraserver_service:service_manager find;
@@ -144,6 +146,10 @@ allow priv_app traced:fd use;
 allow priv_app traced_tmpfs:file { read write getattr map };
 unix_socket_connect(priv_app, traced_producer, traced)
 
+# Allow heap profiling if the app opts in by being marked
+# profileable/debuggable.
+can_profile_heap(priv_app)
+
 # suppress denials for non-API accesses.
 dontaudit priv_app exec_type:file getattr;
 dontaudit priv_app device:dir read;
@@ -227,3 +233,6 @@ auditallow priv_app cgroup:file *;
 # is dangerous and allows a full compromise of a privileged process
 # by an unprivileged process. b/112357170
 neverallow priv_app app_data_file:file no_x_file_perms;
+
+# Do not follow untrusted app provided symlinks
+neverallow priv_app app_data_file:lnk_file { open read getattr };

@@ -57,8 +57,10 @@ dreams                                    u:object_r:dreams_service:s0
 drm.drmManager                            u:object_r:drmserver_service:s0
 dropbox                                   u:object_r:dropbox_service:s0
 dumpstate                                 u:object_r:dumpstate_service:s0
+dynamic_android                           u:object_r:dynamic_android_service:s0
 econtroller                               u:object_r:radio_service:s0
 euicc_card_controller                     u:object_r:radio_service:s0
+external_vibrator_service                 u:object_r:external_vibrator_service:s0
 lowpan                                    u:object_r:lowpan_service:s0
 ethernet                                  u:object_r:ethernet_service:s0
 face                                      u:object_r:face_service:s0
@@ -74,6 +76,7 @@ hdmi_control                              u:object_r:hdmi_control_service:s0
 ions                                      u:object_r:radio_service:s0
 idmap                                     u:object_r:idmap_service:s0
 incident                                  u:object_r:incident_service:s0
+incidentcompanion                         u:object_r:incidentcompanion_service:s0
 inputflinger                              u:object_r:inputflinger_service:s0
 input_method                              u:object_r:input_method_service:s0
 input                                     u:object_r:input_service:s0
@@ -86,6 +89,7 @@ ims                                       u:object_r:radio_service:s0
 imms                                      u:object_r:imms_service:s0
 ipmemorystore                             u:object_r:ipmemorystore_service:s0
 ipsec                                     u:object_r:ipsec_service:s0
+ircs                                      u:object_r:radio_service:s0
 iris                                      u:object_r:iris_service:s0
 isms_msim                                 u:object_r:radio_service:s0
 isms2                                     u:object_r:radio_service:s0
@@ -148,6 +152,7 @@ procstats                                 u:object_r:procstats_service:s0
 radio.phonesubinfo                        u:object_r:radio_service:s0
 radio.phone                               u:object_r:radio_service:s0
 radio.sms                                 u:object_r:radio_service:s0
+rcs                                       u:object_r:radio_service:s0
 recovery                                  u:object_r:recovery_service:s0
 restrictions                              u:object_r:restrictions_service:s0
 role                                      u:object_r:role_service:s0

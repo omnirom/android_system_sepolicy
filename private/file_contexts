@@ -188,6 +188,7 @@
 /system(/.*)?		u:object_r:system_file:s0
 /system/lib(64)?(/.*)?		u:object_r:system_lib_file:s0
 /system/bin/atrace	u:object_r:atrace_exec:s0
+/system/bin/ashmemd	u:object_r:ashmemd_exec:s0
 /system/bin/bcc                 u:object_r:rs_exec:s0
 /system/bin/blank_screen	u:object_r:blank_screen_exec:s0
 /system/bin/e2fsdroid		u:object_r:e2fs_exec:s0
@@ -326,6 +327,7 @@
 /system/bin/apexd                u:object_r:apexd_exec:s0
 /system/bin/gsid                 u:object_r:gsid_exec:s0
 /system/bin/simpleperf_app_runner    u:object_r:simpleperf_app_runner_exec:s0
+/system/bin/notify_traceur\.sh       u:object_r:notify_traceur_exec:s0
 
 #############################
 # Vendor files
@@ -437,6 +439,7 @@
 /data/app/vmdl[^/]+\.tmp/oat(/.*)?           u:object_r:dalvikcache_data_file:s0
 /data/app-private(/.*)?               u:object_r:apk_private_data_file:s0
 /data/app-private/vmdl.*\.tmp(/.*)?   u:object_r:apk_private_tmp_file:s0
+/data/gsi(/.*)?        u:object_r:gsi_data_file:s0
 /data/tombstones(/.*)?	u:object_r:tombstone_data_file:s0
 /data/vendor/tombstones/wifi(/.*)? u:object_r:tombstone_wifi_data_file:s0
 /data/local/tmp(/.*)?	u:object_r:shell_data_file:s0
@@ -482,6 +485,7 @@
 /data/misc/recovery(/.*)?       u:object_r:recovery_data_file:s0
 /data/misc/shared_relro(/.*)?   u:object_r:shared_relro_file:s0
 /data/misc/sms(/.*)?            u:object_r:radio_data_file:s0
+/data/misc/stats-active-metric(/.*)? u:object_r:stats_data_file:s0
 /data/misc/stats-data(/.*)?     u:object_r:stats_data_file:s0
 /data/misc/stats-service(/.*)?  u:object_r:stats_data_file:s0
 /data/misc/systemkeys(/.*)?     u:object_r:systemkeys_data_file:s0
@@ -610,6 +614,7 @@
 #
 /metadata(/.*)?           u:object_r:metadata_file:s0
 /metadata/vold(/.*)?      u:object_r:vold_metadata_file:s0
+/metadata/gsi(/.*)?       u:object_r:gsi_metadata_file:s0
 
 #############################
 # asec containers

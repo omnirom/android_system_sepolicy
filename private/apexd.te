@@ -40,6 +40,10 @@ allow apexd apex_mnt_dir:filesystem { mount unmount };
 allow apexd apex_mnt_dir:dir mounton;
 # allow apexd to create symlinks in /apex
 allow apexd apex_mnt_dir:lnk_file create_file_perms;
+# allow apexd to unlink apex files in /data/apex/active
+# note that apexd won't be able to unlink files in /data/staging/session_XXXX,
+# because it doesn't have write permission for staging_data_file object.
+allow apexd staging_data_file:file unlink;
 
 # allow apexd to relabel apk_tmp_file to apex_data_file.
 # TODO(b/112669193) remove this when APEXes are staged via file descriptor
@@ -76,6 +80,10 @@ allow apexd kmsg_device:chr_file w_file_perms;
 
 # Allow self-execute for the fork mount helper.
 allow apexd apexd_exec:file execute_no_trans;
+
+# Unshare and make / private so that hooks cannot influence the
+# running system.
+allow apexd rootfs:dir mounton;
 
 # Allow to execute shell for pre- and postinstall scripts. A transition
 # rule is required, thus restricted to execute and not execute_no_trans.

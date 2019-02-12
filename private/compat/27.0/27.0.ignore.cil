@@ -37,7 +37,6 @@
     ctl_sigstop_prop
     device_config_boot_count_prop
     device_config_reset_performed_prop
-    device_config_flags_health_check_prop
     device_config_netd_native_prop
     exfat
     exported2_config_prop
@@ -132,6 +131,8 @@
     secure_element_service
     secure_element_tmpfs
     server_configurable_flags_data_file
+    simpleperf_app_runner
+    simpleperf_app_runner_exec
     slice_service
     stats
     stats_data_file

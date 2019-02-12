@@ -1,6 +1,7 @@
 # cameraserver - camera daemon
 type cameraserver, domain;
 type cameraserver_exec, system_file_type, exec_type, file_type;
+type cameraserver_tmpfs, file_type;
 
 binder_use(cameraserver)
 binder_call(cameraserver, binderservicedomain)
@@ -58,6 +59,11 @@ allow cameraserver adbd:unix_stream_socket { read write };
 allow cameraserver shell:fd use;
 allow cameraserver shell:unix_stream_socket { read write };
 allow cameraserver shell:fifo_file { read write };
+
+# Allow to talk with media codec
+allow cameraserver mediametrics_service:service_manager find;
+hal_client_domain(cameraserver, hal_omx)
+hal_client_domain(cameraserver, hal_allocator)
 
 # Allow shell commands from ADB for CTS testing/dumping
 userdebug_or_eng(`

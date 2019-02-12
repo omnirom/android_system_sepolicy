@@ -13,6 +13,7 @@ tmpfs_domain(system_server)
 type_transition system_server system_data_file:sock_file system_ndebug_socket "ndebugsocket";
 
 allow system_server zygote_tmpfs:file read;
+allow system_server appdomain_tmpfs:file { getattr map read write };
 
 # For art.
 allow system_server dalvikcache_data_file:dir r_dir_perms;
@@ -578,10 +579,12 @@ set_prop(system_server, ctl_bugreport_prop)
 set_prop(system_server, cppreopt_prop)
 
 # server configurable flags properties
-# STOPSHIP: Remove the ability for system_server to set property
-# device_config_flags_health_check_prop before release. (b/119627143)
-set_prop(system_server, device_config_flags_health_check_prop)
+set_prop(system_server, device_config_input_native_boot_prop)
 set_prop(system_server, device_config_netd_native_prop)
+set_prop(system_server, device_config_activity_manager_native_boot_prop)
+set_prop(system_server, device_config_runtime_native_boot_prop)
+set_prop(system_server, device_config_runtime_native_prop)
+set_prop(system_server, device_config_media_native_prop)
 
 # BootReceiver to read ro.boot.bootreason
 get_prop(system_server, bootloader_boot_reason_prop)
@@ -677,9 +680,10 @@ allow system_server cameraserver_service:service_manager find;
 allow system_server drmserver_service:service_manager find;
 allow system_server dumpstate_service:service_manager find;
 allow system_server fingerprintd_service:service_manager find;
-allow system_server hal_fingerprint_service:service_manager find;
 allow system_server gatekeeper_service:service_manager find;
 allow system_server gpu_service:service_manager find;
+allow system_server gsi_service:service_manager find;
+allow system_server hal_fingerprint_service:service_manager find;
 allow system_server idmap_service:service_manager find;
 allow system_server incident_service:service_manager find;
 allow system_server installd_service:service_manager find;
@@ -794,6 +798,9 @@ allowxperm system_server apk_data_file:file ioctl {
 };
 # Allow system process to access the keyring.
 allow system_server kernel:key search;
+userdebug_or_eng(`
+  allow system_server su:key search;
+')
 
 # Postinstall
 #
@@ -849,11 +856,15 @@ with_asan(`
   allow system_server zygote_exec:file rx_file_perms;
 ')
 
-# allow system_server to read the eBPF maps that stores the traffic stats information amd clean up
+# allow system_server to read the eBPF maps that stores the traffic stats information and update
 # the map after snapshot is recorded
 allow system_server fs_bpf:dir search;
-allow system_server fs_bpf:file read;
-allow system_server bpfloader:bpf map_read;
+allow system_server fs_bpf:file { read write };
+allow system_server bpfloader:bpf { map_read map_write };
+# in order to invoke side effect of close() on such a socket calling synchronize_rcu()
+# TODO: Remove this permission when 4.9 kernel is deprecated.
+allow system_server self:key_socket create;
+
 
 # ART Profiles.
 # Allow system_server to open profile snapshots for read.
@@ -933,8 +944,12 @@ neverallow {
   -system_server
   -flags_health_check
 } {
-  device_config_flags_health_check_prop
+  device_config_activity_manager_native_boot_prop
+  device_config_input_native_boot_prop
   device_config_netd_native_prop
+  device_config_runtime_native_boot_prop
+  device_config_runtime_native_prop
+  device_config_media_native_prop
 }:property_service set;
 
 # system_server should never be executing dex2oat. This is either

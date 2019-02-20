@@ -33,6 +33,10 @@ allow domain cgroup_rc_file:dir search;
 allow domain cgroup_rc_file:file r_file_perms;
 allow domain task_profiles_file:file r_file_perms;
 
+# Allow all domains to read sys.use_memfd to determine
+# if memfd support can be used if device supports it
+get_prop(domain, use_memfd_prop);
+
 # For now, everyone can access core property files
 # Device specific properties are not granted by default
 not_compatible_property(`
@@ -153,9 +157,10 @@ neverallow {
 neverallow { domain -init -system_server -apexd } staging_data_file:dir *;
 neverallow { domain -init -system_server -apexd -kernel } staging_data_file:file *;
 neverallow { domain -init -system_server } staging_data_file:dir no_w_dir_perms;
-# apexd needs the link permission, so list every `no_w_file_perms` except for `link`.
+# apexd needs the link and unlink permissions, so list every `no_w_file_perms`
+# except for `link` and `unlink`.
 neverallow { domain -init -system_server } staging_data_file:file
-  { append create unlink relabelfrom rename setattr write no_x_file_perms };
+  { append create relabelfrom rename setattr write no_x_file_perms };
 
 neverallow {
     domain

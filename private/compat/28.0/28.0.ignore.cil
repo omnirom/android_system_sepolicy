@@ -55,6 +55,7 @@
     gsi_service
     gsid
     gsid_exec
+    gsid_prop
     color_display_service
     external_vibrator_service
     hal_atrace_hwservice
@@ -63,9 +64,6 @@
     hal_health_storage_hwservice
     hal_input_classifier_hwservice
     hal_power_stats_hwservice
-    hal_system_suspend_default
-    hal_system_suspend_default_exec
-    hal_system_suspend_default_tmpfs
     heapprofd
     heapprofd_enabled_prop
     heapprofd_exec
@@ -111,6 +109,7 @@
     simpleperf_app_runner_exec
     su_tmpfs
     super_block_device
+    sysfs_fs_f2fs
     system_event_log_tags_file
     system_lmk_prop
     system_suspend_hwservice

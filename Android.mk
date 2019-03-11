@@ -1285,6 +1285,19 @@ plat_svcfiles :=
 plat_service_contexts.tmp :=
 
 ##################################
+include $(CLEAR_VARS)
+LOCAL_MODULE := plat_service_contexts.recovery
+LOCAL_MODULE_STEM := plat_service_contexts
+LOCAL_MODULE_CLASS := ETC
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_RECOVERY_ROOT_OUT)
+
+include $(BUILD_SYSTEM)/base_rules.mk
+
+$(LOCAL_BUILT_MODULE): $(built_plat_svc)
+	$(hide) cp -f $< $@
+
+##################################
 # nonplat_service_contexts is only allowed on non-full-treble devices
 ifneq ($(PRODUCT_SEPOLICY_SPLIT),true)
 
@@ -1315,6 +1328,19 @@ $(LOCAL_BUILT_MODULE): $(vendor_service_contexts.tmp) $(built_sepolicy) $(HOST_O
 built_vendor_svc := $(LOCAL_BUILT_MODULE)
 vendor_svcfiles :=
 vendor_service_contexts.tmp :=
+
+##################################
+include $(CLEAR_VARS)
+LOCAL_MODULE := vendor_service_contexts.recovery
+LOCAL_MODULE_STEM := vendor_service_contexts
+LOCAL_MODULE_CLASS := ETC
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_RECOVERY_ROOT_OUT)
+
+include $(BUILD_SYSTEM)/base_rules.mk
+
+$(LOCAL_BUILT_MODULE): $(built_vendor_svc)
+	$(hide) cp -f $< $@
 
 endif
 
@@ -1347,6 +1373,7 @@ $(LOCAL_BUILT_MODULE): $(plat_hwservice_contexts.tmp) $(built_sepolicy) $(HOST_O
 	sed -e 's/#.*$$//' -e '/^$$/d' $< > $@
 	$(HOST_OUT_EXECUTABLES)/checkfc -e -l $(PRIVATE_SEPOLICY) $@
 
+built_plat_hwsvc := $(LOCAL_BUILT_MODULE)
 plat_hwsvcfiles :=
 plat_hwservice_contexts.tmp :=
 
@@ -1379,6 +1406,7 @@ $(LOCAL_BUILT_MODULE): $(vendor_hwservice_contexts.tmp) $(built_sepolicy) $(HOST
 	sed -e 's/#.*$$//' -e '/^$$/d' $< > $@
 	$(hide) $(HOST_OUT_EXECUTABLES)/checkfc -e -l $(PRIVATE_SEPOLICY) $@
 
+built_vendor_hwsvc := $(LOCAL_BUILT_MODULE)
 vendor_hwsvcfiles :=
 vendor_hwservice_contexts.tmp :=
 
@@ -1407,8 +1435,48 @@ $(LOCAL_BUILT_MODULE): $(odm_hwservice_contexts.tmp) $(built_sepolicy) $(HOST_OU
 	sed -e 's/#.*$$//' -e '/^$$/d' $< > $@
 	$(hide) $(HOST_OUT_EXECUTABLES)/checkfc -e -l $(PRIVATE_SEPOLICY) $@
 
+built_odm_hwsvc := $(LOCAL_BUILT_MODULE)
 odm_hwsvcfiles :=
 odm_hwservice_contexts.tmp :=
+
+##################################
+include $(CLEAR_VARS)
+LOCAL_MODULE := plat_hwservice_contexts.recovery
+LOCAL_MODULE_STEM := plat_hwservice_contexts
+LOCAL_MODULE_CLASS := ETC
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_RECOVERY_ROOT_OUT)
+
+include $(BUILD_SYSTEM)/base_rules.mk
+
+$(LOCAL_BUILT_MODULE): $(built_plat_hwsvc)
+	$(hide) cp -f $< $@
+
+##################################
+include $(CLEAR_VARS)
+LOCAL_MODULE := vendor_hwservice_contexts.recovery
+LOCAL_MODULE_STEM := vendor_hwservice_contexts
+LOCAL_MODULE_CLASS := ETC
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_RECOVERY_ROOT_OUT)
+
+include $(BUILD_SYSTEM)/base_rules.mk
+
+$(LOCAL_BUILT_MODULE): $(built_vendor_hwsvc)
+	$(hide) cp -f $< $@
+
+##################################
+include $(CLEAR_VARS)
+LOCAL_MODULE := odm_hwservice_contexts.recovery
+LOCAL_MODULE_STEM := odm_hwservice_contexts
+LOCAL_MODULE_CLASS := ETC
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_RECOVERY_ROOT_OUT)
+
+include $(BUILD_SYSTEM)/base_rules.mk
+
+$(LOCAL_BUILT_MODULE): $(built_odm_hwsvc)
+	$(hide) cp -f $< $@
 
 ##################################
 include $(CLEAR_VARS)
@@ -1677,6 +1745,9 @@ built_sepolicy :=
 built_sepolicy_neverallows :=
 built_plat_svc :=
 built_vendor_svc :=
+built_plat_hwsvc :=
+built_vendor_hwsvc :=
+built_odm_hwsvc :=
 built_plat_sepolicy :=
 mapping_policy :=
 my_target_arch :=

@@ -45,11 +45,6 @@ allow apexd apex_mnt_dir:lnk_file create_file_perms;
 # because it doesn't have write permission for staging_data_file object.
 allow apexd staging_data_file:file unlink;
 
-# allow apexd to relabel apk_tmp_file to apex_data_file.
-# TODO(b/112669193) remove this when APEXes are staged via file descriptor
-allow apexd apk_tmp_file:file relabelfrom;
-allow apexd apex_data_file:file relabelto;
-
 # allow apexd to read files from /data/pkg_staging and hardlink them to /data/apex.
 allow apexd staging_data_file:dir r_dir_perms;
 allow apexd staging_data_file:file { r_file_perms link };
@@ -76,6 +71,10 @@ dontaudit apexd self:global_capability_class_set { dac_override dac_read_search 
 # Allow apexd to log to the kernel.
 allow apexd kmsg_device:chr_file w_file_perms;
 
+# Allow apexd to reboot device. Required for rollbacks of apexes that are
+# not covered by rollback manager.
+set_prop(apexd, powerctl_prop)
+
 # Apex pre- & post-install permission.
 
 # Allow self-execute for the fork mount helper.
@@ -89,9 +88,10 @@ allow apexd rootfs:dir mounton;
 # rule is required, thus restricted to execute and not execute_no_trans.
 allow apexd shell_exec:file { r_file_perms execute };
 
-# Allow apexd to reboot device. Required for rollbacks of apexes that are
-# not covered by rollback manager.
-set_prop(apexd, powerctl_prop)
+# Allow transition to ART APEX preinstall domain.
+domain_auto_trans(apexd, art_apex_preinstall_exec, art_apex_preinstall)
+# Allow transition to ART APEX postinstall domain.
+domain_auto_trans(apexd, art_apex_postinstall_exec, art_apex_postinstall)
 
 # Allow transition to test APEX preinstall domain.
 userdebug_or_eng(`

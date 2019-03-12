@@ -154,9 +154,9 @@ neverallow {
 # that these files cannot be accessed by other domains to ensure that the files
 # do not change between system_server staging the files and apexd processing
 # the files.
-neverallow { domain -init -system_server -apexd } staging_data_file:dir *;
-neverallow { domain -init -system_server -apexd -kernel } staging_data_file:file *;
-neverallow { domain -init -system_server } staging_data_file:dir no_w_dir_perms;
+neverallow { domain -init -system_server -apexd -installd} staging_data_file:dir *;
+neverallow { domain -init -system_server -apexd -kernel -installd } staging_data_file:file *;
+neverallow { domain -init -system_server -installd} staging_data_file:dir no_w_dir_perms;
 # apexd needs the link and unlink permissions, so list every `no_w_file_perms`
 # except for `link` and `unlink`.
 neverallow { domain -init -system_server } staging_data_file:file
@@ -204,3 +204,88 @@ neverallow {
   -init
   -vendor_init
 } cgroup_rc_file:file no_w_file_perms;
+
+# Only authorized processes should be writing to files in /data/dalvik-cache
+neverallow {
+  domain
+  -init # TODO: limit init to relabelfrom for files
+  -zygote
+  -installd
+  -postinstall_dexopt
+  -cppreopts
+  -dex2oat
+  -otapreopt_slot
+} dalvikcache_data_file:file no_w_file_perms;
+
+neverallow {
+  domain
+  -init
+  -installd
+  -postinstall_dexopt
+  -cppreopts
+  -dex2oat
+  -zygote
+  -otapreopt_slot
+} dalvikcache_data_file:dir no_w_dir_perms;
+
+# Minimize dac_override and dac_read_search.
+# Instead of granting them it is usually better to add the domain to
+# a Unix group or change the permissions of a file.
+define(`dac_override_allowed', `{
+  dnsmasq
+  dumpstate
+  init
+  installd
+  install_recovery
+  userdebug_or_eng(`llkd')
+  lmkd
+  netd
+  perfprofd
+  postinstall_dexopt
+  recovery
+  rss_hwm_reset
+  sdcardd
+  tee
+  ueventd
+  uncrypt
+  vendor_init
+  vold
+  vold_prepare_subdirs
+  zygote
+}')
+neverallow ~dac_override_allowed self:global_capability_class_set dac_override;
+# Since the kernel checks dac_read_search before dac_override, domains that
+# have dac_override should also have dac_read_search to eliminate spurious
+# denials.  Some domains have dac_read_search without having dac_override, so
+# this list should be a superset of the one above.
+neverallow ~{
+  dac_override_allowed
+  traced_probes
+} self:global_capability_class_set dac_read_search;
+
+# Latest versions of linux kernel do a check for dac_read_search before
+# verifying dac_override capability. So adding a dont audit rule for
+# dac_read_search for domains that already have dac_override exceptions
+# will address denials of dac_read_search from these domains.
+# kernel commit: https://github.com/torvalds/linux/commit/2a4c22426955d4fc04069811997b7390c0fb858e
+
+dontaudit {
+  dnsmasq
+  dumpstate
+  init
+  installd
+  install_recovery
+  lmkd
+  netd
+  perfprofd
+  postinstall_dexopt
+  recovery
+  sdcardd
+  tee
+  ueventd
+  uncrypt
+  vendor_init
+  vold
+  vold_prepare_subdirs
+  zygote
+} self:capability dac_read_search;

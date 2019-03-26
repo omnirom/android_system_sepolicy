@@ -12,6 +12,7 @@ camera.fifo.disable u:object_r:exported3_default_prop:s0 exact int
 dalvik.vm.appimageformat u:object_r:exported_dalvik_prop:s0 exact string
 dalvik.vm.backgroundgctype u:object_r:exported_dalvik_prop:s0 exact string
 dalvik.vm.boot-dex2oat-threads u:object_r:exported_dalvik_prop:s0 exact int
+dalvik.vm.boot-image u:object_r:exported_dalvik_prop:s0 exact string
 dalvik.vm.checkjni u:object_r:exported_dalvik_prop:s0 exact bool
 dalvik.vm.dex2oat-Xms u:object_r:exported_dalvik_prop:s0 exact string
 dalvik.vm.dex2oat-Xmx u:object_r:exported_dalvik_prop:s0 exact string
@@ -72,6 +73,7 @@ media.stagefright.cache-params u:object_r:exported3_default_prop:s0 exact string
 media.stagefright.thumbnail.prefer_hw_codecs u:object_r:exported3_default_prop:s0 exact bool
 persist.bluetooth.a2dp_offload.cap u:object_r:bluetooth_a2dp_offload_prop:s0 exact string
 persist.bluetooth.a2dp_offload.disabled u:object_r:bluetooth_a2dp_offload_prop:s0 exact bool
+persist.bluetooth.bluetooth_audio_hal.disabled u:object_r:bluetooth_audio_hal_prop:s0 exact bool
 persist.bluetooth.btsnoopenable u:object_r:exported_bluetooth_prop:s0 exact bool
 persist.config.calibration_fac u:object_r:exported3_default_prop:s0 exact string
 persist.dbg.volte_avail_ovr u:object_r:exported3_default_prop:s0 exact int
@@ -135,7 +137,6 @@ ro.storage_manager.enabled u:object_r:exported3_default_prop:s0 exact bool
 ro.telephony.call_ring.multiple u:object_r:exported3_default_prop:s0 exact bool
 ro.telephony.default_cdma_sub u:object_r:exported3_default_prop:s0 exact int
 ro.telephony.default_network u:object_r:exported3_default_prop:s0 exact string
-ro.telephony.iwlan_operation_mode u:object_r:exported3_default_prop:s0 exact int
 ro.url.legal u:object_r:exported3_default_prop:s0 exact string
 ro.url.legal.android_privacy u:object_r:exported3_default_prop:s0 exact string
 ro.vendor.build.security_patch u:object_r:vendor_security_patch_level_prop:s0 exact string
@@ -340,6 +341,7 @@ ro.product.vendor.device u:object_r:exported_default_prop:s0 exact string
 ro.product.vendor.manufacturer u:object_r:exported_default_prop:s0 exact string
 ro.product.vendor.model u:object_r:exported_default_prop:s0 exact string
 ro.product.vendor.name u:object_r:exported_default_prop:s0 exact string
+ro.telephony.iwlan_operation_mode u:object_r:exported_radio_prop:s0 exact enum default legacy AP-assisted
 ro.vendor.build.date u:object_r:exported_default_prop:s0 exact string
 ro.vendor.build.date.utc u:object_r:exported_default_prop:s0 exact int
 ro.vendor.build.fingerprint u:object_r:exported_default_prop:s0 exact string
@@ -349,6 +351,7 @@ ro.vts.coverage u:object_r:exported_default_prop:s0 exact int
 wifi.concurrent.interface u:object_r:exported_default_prop:s0 exact string
 wifi.direct.interface u:object_r:exported_default_prop:s0 exact string
 wifi.interface u:object_r:exported_default_prop:s0 exact string
+ro.apex.updatable u:object_r:exported_default_prop:s0 exact bool
 
 # public-readable
 ro.boot.revision u:object_r:exported2_default_prop:s0 exact string
@@ -357,25 +360,25 @@ ro.build.type u:object_r:exported2_default_prop:s0 exact string
 sys.shutdown.requested u:object_r:exported_system_prop:s0 exact string
 
 # Using Sysprop as API. So the ro.surface_flinger.* are guaranteed to be API-stable
-ro.surface_flinger.default_composition_dataspace u:object_r:exported_default_prop:s0 int
-ro.surface_flinger.default_composition_pixel_format u:object_r:exported_default_prop:s0 int
-ro.surface_flinger.force_hwc_copy_for_virtual_displays u:object_r:exported_default_prop:s0 bool
-ro.surface_flinger.has_HDR_display u:object_r:exported_default_prop:s0 bool
-ro.surface_flinger.has_wide_color_display u:object_r:exported_default_prop:s0 bool
-ro.surface_flinger.max_frame_buffer_acquired_buffers u:object_r:exported_default_prop:s0 int
-ro.surface_flinger.max_virtual_display_dimension u:object_r:exported_default_prop:s0 int
-ro.surface_flinger.primary_display_orientation u:object_r:exported_default_prop:s0 string
-ro.surface_flinger.present_time_offset_from_vsync_ns u:object_r:exported_default_prop:s0 int
-ro.surface_flinger.running_without_sync_framework u:object_r:exported_default_prop:s0 bool
-ro.surface_flinger.start_graphics_allocator_service u:object_r:exported_default_prop:s0 bool
-ro.surface_flinger.use_color_management u:object_r:exported_default_prop:s0 bool
-ro.surface_flinger.use_context_priority u:object_r:exported_default_prop:s0 bool
-ro.surface_flinger.use_vr_flinger u:object_r:exported_default_prop:s0 bool
-ro.surface_flinger.vsync_event_phase_offset_ns u:object_r:exported_default_prop:s0 int
-ro.surface_flinger.vsync_sf_event_phase_offset_ns u:object_r:exported_default_prop:s0 int
-ro.surface_flinger.wcg_composition_dataspace u:object_r:exported_default_prop:s0 int
-ro.surface_flinger.wcg_composition_pixel_format u:object_r:exported_default_prop:s0 int
-ro.surface_flinger.display_primary_red u:object_r:exported_default_prop:s0 string
-ro.surface_flinger.display_primary_green u:object_r:exported_default_prop:s0 string
-ro.surface_flinger.display_primary_blue u:object_r:exported_default_prop:s0 string
-ro.surface_flinger.display_primary_white u:object_r:exported_default_prop:s0 string
+ro.surface_flinger.default_composition_dataspace u:object_r:exported_default_prop:s0 exact int
+ro.surface_flinger.default_composition_pixel_format u:object_r:exported_default_prop:s0 exact int
+ro.surface_flinger.force_hwc_copy_for_virtual_displays u:object_r:exported_default_prop:s0 exact bool
+ro.surface_flinger.has_HDR_display u:object_r:exported_default_prop:s0 exact bool
+ro.surface_flinger.has_wide_color_display u:object_r:exported_default_prop:s0 exact bool
+ro.surface_flinger.max_frame_buffer_acquired_buffers u:object_r:exported_default_prop:s0 exact int
+ro.surface_flinger.max_virtual_display_dimension u:object_r:exported_default_prop:s0 exact int
+ro.surface_flinger.primary_display_orientation u:object_r:exported_default_prop:s0 exact string
+ro.surface_flinger.present_time_offset_from_vsync_ns u:object_r:exported_default_prop:s0 exact int
+ro.surface_flinger.running_without_sync_framework u:object_r:exported_default_prop:s0 exact bool
+ro.surface_flinger.start_graphics_allocator_service u:object_r:exported_default_prop:s0 exact bool
+ro.surface_flinger.use_color_management u:object_r:exported_default_prop:s0 exact bool
+ro.surface_flinger.use_context_priority u:object_r:exported_default_prop:s0 exact bool
+ro.surface_flinger.use_vr_flinger u:object_r:exported_default_prop:s0 exact bool
+ro.surface_flinger.vsync_event_phase_offset_ns u:object_r:exported_default_prop:s0 exact int
+ro.surface_flinger.vsync_sf_event_phase_offset_ns u:object_r:exported_default_prop:s0 exact int
+ro.surface_flinger.wcg_composition_dataspace u:object_r:exported_default_prop:s0 exact int
+ro.surface_flinger.wcg_composition_pixel_format u:object_r:exported_default_prop:s0 exact int
+ro.surface_flinger.display_primary_red u:object_r:exported_default_prop:s0 exact string
+ro.surface_flinger.display_primary_green u:object_r:exported_default_prop:s0 exact string
+ro.surface_flinger.display_primary_blue u:object_r:exported_default_prop:s0 exact string
+ro.surface_flinger.display_primary_white u:object_r:exported_default_prop:s0 exact string

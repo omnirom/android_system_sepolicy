@@ -120,12 +120,8 @@ allow system_server hal_camera:process { getsched setsched };
 allow system_server mediaserver:process { getsched setsched };
 allow system_server bootanim:process { getsched setsched };
 
-# Allow system_server to write to /proc/<pid>/timerslack_ns
-allow system_server appdomain:file w_file_perms;
-allow system_server audioserver:file w_file_perms;
-allow system_server cameraserver:file w_file_perms;
-allow system_server hal_audio_server:file w_file_perms;
-allow system_server hal_omx_server:file w_file_perms;
+# Allow system_server to write to /proc/<pid>/*
+allow system_server domain:file w_file_perms;
 
 # Read /proc/pid data for all domains. This is used by ProcessCpuTracker
 # within system_server to keep track of memory and CPU usage for
@@ -476,7 +472,7 @@ allow system_server wifi_data_file:file create_file_perms;
 allow system_server zoneinfo_data_file:dir create_dir_perms;
 allow system_server zoneinfo_data_file:file create_file_perms;
 
-# Manage /data/pkg_staging.
+# Manage /data/app-staging.
 allow system_server staging_data_file:dir create_dir_perms;
 allow system_server staging_data_file:file create_file_perms;
 
@@ -688,6 +684,7 @@ add_service(system_server, system_server_service);
 allow system_server audioserver_service:service_manager find;
 allow system_server batteryproperties_service:service_manager find;
 allow system_server cameraserver_service:service_manager find;
+allow system_server dnsresolver_service:service_manager find;
 allow system_server drmserver_service:service_manager find;
 allow system_server dumpstate_service:service_manager find;
 allow system_server fingerprintd_service:service_manager find;
@@ -807,11 +804,6 @@ allow system_server toolbox_exec:file rx_file_perms;
 allowxperm system_server apk_data_file:file ioctl {
   FS_IOC_ENABLE_VERITY FS_IOC_MEASURE_VERITY
 };
-# Allow system process to access the keyring.
-allow system_server kernel:key search;
-userdebug_or_eng(`
-  allow system_server su:key search;
-')
 
 # Postinstall
 #
@@ -1012,6 +1004,12 @@ wakelock_use(system_server)
 allow system_server apex_data_file:dir search;
 allow system_server apex_data_file:file r_file_perms;
 
+# Allow PasswordSlotManager rw access to /metadata/password_slots, so GSIs and the host image can
+# communicate which slots are available for use.
+allow system_server metadata_file:dir search;
+allow system_server password_slot_metadata_file:dir rw_dir_perms;
+allow system_server password_slot_metadata_file:file create_file_perms;
+
 # dexoptanalyzer is currently used only for secondary dex files which
 # system_server should never access.
 neverallow system_server dexoptanalyzer_exec:file no_x_file_perms;
@@ -1022,3 +1020,12 @@ neverallow system_server { domain -system_server }:process ptrace;
 # CAP_SYS_RESOURCE was traditionally needed for sensitive /proc/PID
 # file read access. However, that is now unnecessary (b/34951864)
 neverallow system_server system_server:global_capability_class_set sys_resource;
+
+# Only system_server/init should access /metadata/password_slots.
+neverallow { domain -init -system_server } password_slot_metadata_file:dir *;
+neverallow {
+  domain
+  -init
+  -system_server
+} password_slot_metadata_file:notdevfile_class_set ~{ relabelto getattr };
+neverallow { domain -init -system_server } password_slot_metadata_file:notdevfile_class_set *;

@@ -32,6 +32,7 @@ allow system_app icon_file:file r_file_perms;
 
 # Write to properties
 set_prop(system_app, bluetooth_a2dp_offload_prop)
+set_prop(system_app, bluetooth_audio_hal_prop)
 set_prop(system_app, bluetooth_prop)
 set_prop(system_app, debug_prop)
 set_prop(system_app, system_prop)
@@ -74,17 +75,20 @@ allow system_app servicemanager:service_manager list;
 allow system_app {
   service_manager_type
   -apex_service
+  -dnsresolver_service
   -dumpstate_service
   -installd_service
   -iorapd_service
   -ipmemorystore_service
   -netd_service
+  -system_suspend_control_service
   -virtual_touchpad_service
   -vold_service
   -vr_hwc_service
 }:service_manager find;
 # suppress denials for services system_app should not be accessing.
 dontaudit system_app {
+  dnsresolver_service
   dumpstate_service
   installd_service
   iorapd_service

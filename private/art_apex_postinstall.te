@@ -4,7 +4,7 @@
 type art_apex_postinstall, domain, coredomain;
 type art_apex_postinstall_exec, system_file_type, exec_type, file_type;
 
-# /dev/zero
+# /system/bin/sh (see b/126787589).
 allow art_apex_postinstall apexd:fd use;
 
 # Read temp dirs and files. Move directories.
@@ -17,6 +17,7 @@ allow art_apex_postinstall dalvikcache_data_file:file { r_file_perms unlink rela
 
 # Required for relabel.
 allow art_apex_postinstall file_contexts_file:file r_file_perms;
+allow art_apex_postinstall self:global_capability_class_set sys_admin;
 
 # Script helpers.
 allow art_apex_postinstall shell_exec:file rx_file_perms;
@@ -28,9 +29,3 @@ allow art_apex_postinstall system_file:file execute_no_trans;
 allowxperm art_apex_postinstall ota_data_file:file ioctl {
   FS_IOC_ENABLE_VERITY FS_IOC_MEASURE_VERITY
 };
-
-allow art_apex_postinstall kernel:key search;
-# For testing purposes, allow keys installed with su.
-userdebug_or_eng(`
-  allow art_apex_postinstall su:key search;
-')

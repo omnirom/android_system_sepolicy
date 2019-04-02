@@ -37,6 +37,7 @@ genfscon proc /sys/fs/pipe-max-size u:object_r:proc_pipe_conf:s0
 genfscon proc /sys/fs/protected_hardlinks u:object_r:proc_security:s0
 genfscon proc /sys/fs/protected_symlinks u:object_r:proc_security:s0
 genfscon proc /sys/fs/suid_dumpable u:object_r:proc_security:s0
+genfscon proc /sys/fs/verity/require_signatures u:object_r:proc_fs_verity:s0
 genfscon proc /sys/kernel/core_pattern u:object_r:usermodehelper:s0
 genfscon proc /sys/kernel/core_pipe_limit u:object_r:usermodehelper:s0
 genfscon proc /sys/kernel/domainname u:object_r:proc_hostname:s0
@@ -133,6 +134,7 @@ genfscon sysfs /power/wake_lock u:object_r:sysfs_wake_lock:s0
 genfscon sysfs /power/wake_unlock u:object_r:sysfs_wake_lock:s0
 genfscon sysfs /kernel/memory_state_time u:object_r:sysfs_power:s0
 genfscon sysfs /kernel/ipv4 u:object_r:sysfs_ipv4:s0
+genfscon sysfs /kernel/mm/transparent_hugepage u:object_r:sysfs_transparent_hugepage:s0
 genfscon sysfs /kernel/notes u:object_r:sysfs_kernel_notes:s0
 genfscon sysfs /kernel/uevent_helper u:object_r:sysfs_usermodehelper:s0
 genfscon sysfs /kernel/wakeup_reasons u:object_r:sysfs_wakeup_reasons:s0

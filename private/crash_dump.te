@@ -1,7 +1,7 @@
 typeattribute crash_dump coredomain;
 
-# Crash dump does not need to access the GPU.
-dontaudit crash_dump gpu_device:chr_file *;
+# Crash dump does not need to access devices passed across exec().
+dontaudit crash_dump { devpts dev_type }:chr_file { read write };
 
 allow crash_dump {
   domain
@@ -18,7 +18,7 @@ allow crash_dump {
   -vold
 }:process { ptrace signal sigchld sigstop sigkill };
 userdebug_or_eng(`
-  allow crash_dump { llkd logd vold }:process { ptrace signal sigchld sigstop sigkill };
+  allow crash_dump { apexd llkd logd vold }:process { ptrace signal sigchld sigstop sigkill };
 ')
 
 ###
@@ -29,6 +29,8 @@ userdebug_or_eng(`
 # files, so we avoid adding redundant assertions here
 
 neverallow crash_dump {
+  apexd
+  userdebug_or_eng(`-apexd')
   bpfloader
   init
   kernel

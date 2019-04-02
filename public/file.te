@@ -24,6 +24,7 @@ type proc_dirty, fs_type, proc_type;
 type proc_diskstats, fs_type, proc_type;
 type proc_extra_free_kbytes, fs_type, proc_type;
 type proc_filesystems, fs_type, proc_type;
+type proc_fs_verity, fs_type, proc_type;
 type proc_hostname, fs_type, proc_type;
 type proc_hung_task, fs_type, proc_type;
 type proc_interrupts, fs_type, proc_type;
@@ -92,6 +93,7 @@ type sysfs_net, fs_type, sysfs_type;
 type sysfs_power, fs_type, sysfs_type;
 type sysfs_rtc, fs_type, sysfs_type;
 type sysfs_switch, fs_type, sysfs_type;
+type sysfs_transparent_hugepage, fs_type, sysfs_type;
 type sysfs_usb, fs_type, sysfs_type;
 type sysfs_wakeup_reasons, fs_type, sysfs_type;
 type sysfs_fs_ext4_features, sysfs_type, fs_type;
@@ -202,6 +204,10 @@ type metadata_file, file_type;
 type vold_metadata_file, file_type;
 # GSI files within /metadata
 type gsi_metadata_file, file_type;
+# system_server shares Weaver slot information in /metadata
+type password_slot_metadata_file, file_type;
+# APEX files within /metadata
+type apex_metadata_file, file_type;
 
 # Type for /dev/cpu_variant:.*.
 type dev_cpu_variant, file_type;
@@ -274,7 +280,7 @@ type preloads_media_file, file_type, data_file_type, core_data_file_type;
 type dhcp_data_file, file_type, data_file_type, core_data_file_type;
 # /data/server_configurable_flags
 type server_configurable_flags_data_file, file_type, data_file_type, core_data_file_type;
-# /data/pkg_staging
+# /data/app-staging
 type staging_data_file, file_type, data_file_type, core_data_file_type;
 
 # Mount locations managed by vold

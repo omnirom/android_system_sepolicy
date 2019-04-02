@@ -2,6 +2,7 @@ type apexd_prop, property_type;
 type audio_prop, property_type, core_property_type;
 type boottime_prop, property_type;
 type bluetooth_a2dp_offload_prop, property_type;
+type bluetooth_audio_hal_prop, property_type;
 type bluetooth_prop, property_type;
 type bpf_progs_loaded_prop, property_type;
 type bootloader_boot_reason_prop, property_type;
@@ -81,6 +82,7 @@ type test_boot_reason_prop, property_type;
 type test_harness_prop, property_type;
 type time_prop, property_type;
 type traced_enabled_prop, property_type;
+type traced_lazy_prop, property_type;
 type use_memfd_prop, property_type;
 type vold_prop, property_type, core_property_type;
 type wifi_log_prop, property_type, log_property_type;
@@ -350,6 +352,7 @@ compatible_property_only(`
     -apexd_prop
     -audio_prop
     -bluetooth_a2dp_offload_prop
+    -bluetooth_audio_hal_prop
     -bluetooth_prop
     -bootloader_boot_reason_prop
     -boottime_prop
@@ -451,6 +454,7 @@ compatible_property_only(`
     -test_harness_prop
     -time_prop
     -traced_enabled_prop
+    -traced_lazy_prop
     -vendor_default_prop
     -vendor_security_patch_level_prop
     -vold_prop

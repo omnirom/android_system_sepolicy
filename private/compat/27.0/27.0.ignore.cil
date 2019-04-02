@@ -9,6 +9,7 @@
     adb_service
     app_binding_service
     apex_data_file
+    apex_metadata_file
     apex_mnt_dir
     apex_key_file
     apex_service
@@ -28,6 +29,7 @@
     bpfloader
     bpfloader_exec
     cgroup_bpf
+    charger_exec
     color_display_service
     content_capture_service
     crossprofileapps_service
@@ -38,6 +40,7 @@
     device_config_boot_count_prop
     device_config_reset_performed_prop
     device_config_netd_native_prop
+    dnsresolver_service
     exfat
     exported2_config_prop
     exported2_default_prop

@@ -24,6 +24,7 @@
 /lost\+found        u:object_r:rootfs:s0
 /acct               u:object_r:cgroup:s0
 /config             u:object_r:rootfs:s0
+/debug_ramdisk      u:object_r:tmpfs:s0
 /mnt                u:object_r:tmpfs:s0
 /postinstall        u:object_r:postinstall_mnt_dir:s0
 /postinstall/apex   u:object_r:postinstall_apex_mnt_dir:s0
@@ -535,6 +536,7 @@
 
 # Face vendor data file
 /data/vendor_de/[0-9]+/facedata(/.*)? u:object_r:face_vendor_data_file:s0
+/data/vendor_ce/[0-9]+/facedata(/.*)? u:object_r:face_vendor_data_file:s0
 
 # Iris vendor data file
 /data/vendor_de/[0-9]+/irisdata(/.*)? u:object_r:iris_vendor_data_file:s0

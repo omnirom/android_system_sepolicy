@@ -603,6 +603,7 @@ neverallow {
   -uncrypt
   -update_engine
   -vendor_init
+  -vendor_misc_writer
   -vold
   -recovery
   -ueventd
@@ -1396,10 +1397,4 @@ neverallow {
   -mediaswcodec_server
   -hal_omx_server
 } hal_codec2_hwservice:hwservice_manager add;
-
-neverallow {
-  domain
-  userdebug_or_eng(`-mediaextractor')
-  userdebug_or_eng(`-mediaswcodec')
-} mediaextractor_update_service:service_manager add;
 

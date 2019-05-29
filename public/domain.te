@@ -941,7 +941,7 @@ full_treble_only(`
 full_treble_only(`
     # Do not allow vendor components to execute files from system
     # except for the ones whitelist here.
-    auditallow {
+    neverallow {
         domain
         -coredomain
         -appdomain
@@ -1018,7 +1018,7 @@ full_treble_only(`
 full_treble_only(`
   # Do not allow vendor components access to /system files except for the
   # ones whitelisted here.
-  auditallow {
+  neverallow {
     domain
     -appdomain
     -coredomain

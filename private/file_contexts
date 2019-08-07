@@ -351,6 +351,7 @@
 /(vendor|system/vendor)/overlay(/.*)?          u:object_r:vendor_overlay_file:s0
 /(vendor|system/vendor)/framework(/.*)?        u:object_r:vendor_framework_file:s0
 
+/vendor/apex(/[^/]+){0,2}                      u:object_r:vendor_apex_file:s0
 /vendor/bin/misc_writer                        u:object_r:vendor_misc_writer_exec:s0
 
 # HAL location
@@ -640,6 +641,7 @@
 # external storage
 /mnt/media_rw(/.*)?         u:object_r:mnt_media_rw_file:s0
 /mnt/user(/.*)?             u:object_r:mnt_user_file:s0
+/mnt/sdcard                 u:object_r:mnt_sdcard_file:s0
 /mnt/runtime(/.*)?          u:object_r:storage_file:s0
 /storage(/.*)?              u:object_r:storage_file:s0
 

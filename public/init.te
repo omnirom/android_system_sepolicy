@@ -48,6 +48,9 @@ allow init {
 
 allow init super_block_device:lnk_file relabelto;
 
+# Create /mnt/sdcard -> /storage/self/primary symlink.
+allow init mnt_sdcard_file:lnk_file create;
+
 # setrlimit
 allow init self:global_capability_class_set sys_resource;
 
@@ -483,6 +486,7 @@ allowxperm init self:udp_socket ioctl SIOCSIFFLAGS;
 allow init self:global_capability_class_set net_raw;
 
 # Set scheduling info for psi monitor thread.
+# TODO: delete or revise this line b/131761776
 allow init kernel:process { getsched setsched };
 
 # swapon() needs write access to swap device

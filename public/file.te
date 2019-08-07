@@ -9,6 +9,7 @@ type proc_security, fs_type, proc_type;
 type proc_drop_caches, fs_type, proc_type;
 type proc_overcommit_memory, fs_type, proc_type;
 type proc_min_free_order_shift, fs_type, proc_type;
+type proc_kpageflags, fs_type, proc_type;
 # proc, sysfs, or other nodes that permit configuration of kernel usermodehelpers.
 type usermodehelper, fs_type, proc_type;
 type sysfs_usermodehelper, fs_type, sysfs_type;
@@ -32,6 +33,7 @@ type proc_iomem, fs_type, proc_type;
 type proc_keys, fs_type, proc_type;
 type proc_kmsg, fs_type, proc_type;
 type proc_loadavg, fs_type, proc_type;
+type proc_lowmemorykiller, fs_type, proc_type;
 type proc_max_map_count, fs_type, proc_type;
 type proc_meminfo, fs_type, proc_type;
 type proc_misc, fs_type, proc_type;
@@ -286,11 +288,14 @@ type dhcp_data_file, file_type, data_file_type, core_data_file_type;
 type server_configurable_flags_data_file, file_type, data_file_type, core_data_file_type;
 # /data/app-staging
 type staging_data_file, file_type, data_file_type, core_data_file_type;
+# /vendor/apex
+type vendor_apex_file, vendor_file_type, file_type;
 
 # Mount locations managed by vold
 type mnt_media_rw_file, file_type;
 type mnt_user_file, file_type;
 type mnt_expand_file, file_type;
+type mnt_sdcard_file, file_type;
 type storage_file, file_type;
 
 # Label for storage dirs which are just mount stubs

@@ -123,13 +123,6 @@ build_vendor_policy = $(call build_policy, $(1), $(PLAT_VENDOR_POLICY) $(BOARD_V
 # Builds paths for all policy files found in BOARD_ODM_SEPOLICY_DIRS.
 build_odm_policy = $(call build_policy, $(1), $(BOARD_ODM_SEPOLICY_DIRS))
 
-# Add a file containing only a newline in-between each policy configuration
-# 'contexts' file. This will allow OEM policy configuration files without a
-# final newline (0x0A) to be built correctly by the m4(1) macro processor.
-# $(1): the set of contexts file names.
-# $(2): the file containing only 0x0A.
-add_nl = $(foreach entry, $(1), $(subst $(entry), $(entry) $(2), $(entry)))
-
 sepolicy_build_files := security_classes \
                         initial_sids \
                         access_vectors \
@@ -214,6 +207,7 @@ LOCAL_MODULE := selinux_policy_system
 LOCAL_REQUIRED_MODULES += \
     plat_mapping_file \
     $(addsuffix .cil,$(PLATFORM_SEPOLICY_COMPAT_VERSIONS)) \
+    $(addsuffix .compat.cil,$(PLATFORM_SEPOLICY_COMPAT_VERSIONS)) \
     plat_sepolicy.cil \
     plat_sepolicy_and_mapping.sha256 \
     secilc \
@@ -221,11 +215,15 @@ LOCAL_REQUIRED_MODULES += \
 LOCAL_REQUIRED_MODULES += \
     build_sepolicy \
     plat_file_contexts \
+    plat_file_contexts_test \
     plat_mac_permissions.xml \
     plat_property_contexts \
+    plat_property_contexts_test \
     plat_seapp_contexts \
     plat_service_contexts \
+    plat_service_contexts_test \
     plat_hwservice_contexts \
+    plat_hwservice_contexts_test \
     searchpolicy \
 
 # This conditional inclusion closely mimics the conditional logic
@@ -243,6 +241,7 @@ ifneq ($(SELINUX_IGNORE_NEVERALLOWS),true)
 LOCAL_REQUIRED_MODULES += \
     sepolicy_tests \
     $(addprefix treble_sepolicy_tests_,$(PLATFORM_SEPOLICY_COMPAT_VERSIONS)) \
+    $(addsuffix _compat_test,$(PLATFORM_SEPOLICY_COMPAT_VERSIONS)) \
 
 endif
 endif
@@ -280,19 +279,25 @@ LOCAL_REQUIRED_MODULES += \
 
 LOCAL_REQUIRED_MODULES += \
     vendor_file_contexts \
+    vendor_file_contexts_test \
     vendor_mac_permissions.xml \
     vendor_property_contexts \
+    vendor_property_contexts_test \
     vendor_seapp_contexts \
     vendor_hwservice_contexts \
+    vendor_hwservice_contexts_test \
     vndservice_contexts \
 
 ifdef BOARD_ODM_SEPOLICY_DIRS
 LOCAL_REQUIRED_MODULES += \
     odm_sepolicy.cil \
     odm_file_contexts \
+    odm_file_contexts_test \
     odm_seapp_contexts \
     odm_property_contexts \
+    odm_property_contexts_test \
     odm_hwservice_contexts \
+    odm_hwservice_contexts_test \
     odm_mac_permissions.xml
 endif
 
@@ -300,10 +305,14 @@ ifdef HAS_PRODUCT_SEPOLICY
 LOCAL_REQUIRED_MODULES += \
     product_sepolicy.cil \
     product_file_contexts \
+    product_file_contexts_test \
     product_hwservice_contexts \
+    product_hwservice_contexts_test \
     product_property_contexts \
+    product_property_contexts_test \
     product_seapp_contexts \
     product_service_contexts \
+    product_service_contexts_test \
     product_mac_permissions.xml \
     product_mapping_file \
 
@@ -477,21 +486,6 @@ $(HOST_OUT_EXECUTABLES)/build_sepolicy $(plat_pub_policy.conf) $(reqd_policy_mas
 		-f $(PRIVATE_REQD_MASK) -t $@
 
 plat_pub_policy.conf :=
-
-##################################
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := sectxfile_nl
-LOCAL_MODULE_CLASS := ETC
-LOCAL_MODULE_TAGS := optional
-
-# Create a file containing newline only to add between context config files
-include $(BUILD_SYSTEM)/base_rules.mk
-$(LOCAL_BUILT_MODULE):
-	@mkdir -p $(dir $@)
-	$(hide) echo > $@
-
-built_nl := $(LOCAL_BUILT_MODULE)
 
 #################################
 include $(CLEAR_VARS)
@@ -1115,10 +1109,9 @@ ifeq ($(TARGET_FLATTEN_APEX),true)
     $(eval $(call build_flattened_apex_file_contexts,$(_input),$(_apex_name),$(_output),local_fc_files))\
    )
 endif
-local_fcfiles_with_nl := $(call add_nl, $(local_fc_files), $(built_nl))
 
 file_contexts.local.tmp := $(intermediates)/file_contexts.local.tmp
-$(file_contexts.local.tmp): $(local_fcfiles_with_nl)
+$(file_contexts.local.tmp): $(local_fc_files)
 	@mkdir -p $(dir $@)
 	$(hide) m4 --fatal-warnings -s $^ > $@
 
@@ -1128,11 +1121,9 @@ ifdef BOARD_ODM_SEPOLICY_DIRS
 device_fc_files += $(call build_odm_policy, file_contexts)
 endif
 
-device_fcfiles_with_nl := $(call add_nl, $(device_fc_files), $(built_nl))
-
 file_contexts.device.tmp := $(intermediates)/file_contexts.device.tmp
 $(file_contexts.device.tmp): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
-$(file_contexts.device.tmp): $(device_fcfiles_with_nl)
+$(file_contexts.device.tmp): $(device_fc_files)
 	@mkdir -p $(dir $@)
 	$(hide) m4 --fatal-warnings -s $(PRIVATE_ADDITIONAL_M4DEFS) $^ > $@
 
@@ -1142,7 +1133,7 @@ $(file_contexts.device.sorted.tmp): $(file_contexts.device.tmp) $(built_sepolicy
   $(HOST_OUT_EXECUTABLES)/fc_sort $(HOST_OUT_EXECUTABLES)/checkfc
 	@mkdir -p $(dir $@)
 	$(hide) $(HOST_OUT_EXECUTABLES)/checkfc -e $(PRIVATE_SEPOLICY) $<
-	$(hide) $(HOST_OUT_EXECUTABLES)/fc_sort $< $@
+	$(hide) $(HOST_OUT_EXECUTABLES)/fc_sort -i $< -o $@
 
 file_contexts.concat.tmp := $(intermediates)/file_contexts.concat.tmp
 $(file_contexts.concat.tmp): $(file_contexts.local.tmp) $(file_contexts.device.sorted.tmp)
@@ -1185,19 +1176,10 @@ bug_files :=
 endif
 
 ##################################
-include $(LOCAL_PATH)/file_contexts.mk
-
-##################################
 include $(LOCAL_PATH)/seapp_contexts.mk
 
 ##################################
-include $(LOCAL_PATH)/property_contexts.mk
-
-##################################
-include $(LOCAL_PATH)/service_contexts.mk
-
-##################################
-include $(LOCAL_PATH)/hwservice_contexts.mk
+include $(LOCAL_PATH)/contexts_tests.mk
 
 ##################################
 include $(CLEAR_VARS)
@@ -1238,12 +1220,13 @@ LOCAL_MODULE_TAGS := tests
 
 include $(BUILD_SYSTEM)/base_rules.mk
 
-all_fc_files := $(built_plat_fc) $(built_vendor_fc)
+all_fc_files := $(TARGET_OUT)/etc/selinux/plat_file_contexts
+all_fc_files += $(TARGET_OUT_VENDOR)/etc/selinux/vendor_file_contexts
 ifdef HAS_PRODUCT_SEPOLICY
-all_fc_args += $(built_product_fc)
+all_fc_files += $(TARGET_OUT_PRODUCT)/etc/selinux/product_file_contexts
 endif
 ifdef BOARD_ODM_SEPOLICY_DIRS
-all_fc_files += $(built_odm_fc)
+all_fc_files += $(TARGET_OUT_ODM)/etc/selinux/odm_file_contexts
 endif
 all_fc_args := $(foreach file, $(all_fc_files), -f $(file))
 
@@ -1315,31 +1298,29 @@ $(HOST_OUT_EXECUTABLES)/build_sepolicy $(base_plat_pub_policy.conf) $(reqd_polic
 	$(hide) $(HOST_OUT_EXECUTABLES)/build_sepolicy -a $(HOST_OUT_EXECUTABLES) filter_out \
 		-f $(PRIVATE_REQD_MASK) -t $@
 
-all_fc_files := $(built_plat_fc) $(built_vendor_fc)
-ifdef HAS_PRODUCT_SEPOLICY
-all_fc_files += $(built_product_fc)
-endif
-ifdef BOARD_ODM_SEPOLICY_DIRS
-all_fc_files += $(built_odm_fc)
-endif
-all_fc_args := $(foreach file, $(all_fc_files), -f $(file))
-
 # Tests for Treble compatibility of current platform policy and vendor policy of
 # given release version.
 version_under_treble_tests := 26.0
 include $(LOCAL_PATH)/treble_sepolicy_tests_for_release.mk
-
 version_under_treble_tests := 27.0
 include $(LOCAL_PATH)/treble_sepolicy_tests_for_release.mk
-
 version_under_treble_tests := 28.0
 include $(LOCAL_PATH)/treble_sepolicy_tests_for_release.mk
+
+version_under_treble_tests := 26.0
+include $(LOCAL_PATH)/compat.mk
+version_under_treble_tests := 27.0
+include $(LOCAL_PATH)/compat.mk
+version_under_treble_tests := 28.0
+include $(LOCAL_PATH)/compat.mk
 
 BASE_PLAT_PUBLIC_POLICY :=
 BASE_PLAT_PRIVATE_POLICY :=
 base_plat_policy.conf :=
 base_plat_pub_policy.conf :=
 plat_sepolicy :=
+all_fc_files :=
+all_fc_args :=
 
 #################################
 include $(CLEAR_VARS)
@@ -1379,28 +1360,15 @@ all_frozen_files :=
 #################################
 
 
-add_nl :=
 build_vendor_policy :=
 build_odm_policy :=
 build_policy :=
-built_plat_fc :=
-built_product_fc :=
-built_vendor_fc :=
-built_odm_fc :=
-built_nl :=
 built_plat_cil :=
 built_pub_vers_cil :=
 built_plat_mapping_cil :=
 built_product_mapping_cil :=
-built_plat_pc :=
-built_product_pc :=
 built_vendor_cil :=
-built_vendor_pc :=
-built_vendor_sc :=
 built_odm_cil :=
-built_odm_pc :=
-built_odm_sc :=
-built_plat_sc :=
 built_precompiled_sepolicy :=
 built_sepolicy :=
 built_sepolicy_neverallows :=

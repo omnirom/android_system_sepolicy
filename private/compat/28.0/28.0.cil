@@ -1,3 +1,8 @@
+;; attributes removed from current policy
+(typeattribute hal_wifi_offload)
+(typeattribute hal_wifi_offload_client)
+(typeattribute hal_wifi_offload_server)
+
 ;; types removed from current policy
 (type alarm_device)
 (type audio_seq_device)
@@ -5,6 +10,7 @@
 (type commontime_management_service)
 (type cpuctl_device)
 (type full_device)
+(type hal_wifi_offload_hwservice)
 (type i2c_device)
 (type kmem_device)
 (type mediacodec)
@@ -1381,6 +1387,8 @@
   ( proc
     proc_fs_verity
     proc_keys
+    proc_kpageflags
+    proc_lowmemorykiller
     proc_pressure_cpu
     proc_pressure_io
     proc_pressure_mem
@@ -1617,7 +1625,9 @@
 (typeattributeset thermalcallback_hwservice_28_0 (thermalcallback_hwservice))
 (typeattributeset thermal_service_28_0 (thermal_service))
 (typeattributeset timezone_service_28_0 (timezone_service))
-(typeattributeset tmpfs_28_0 (tmpfs))
+(typeattributeset tmpfs_28_0
+  ( mnt_sdcard_file
+    tmpfs))
 (typeattributeset tombstoned_28_0 (tombstoned))
 (typeattributeset tombstone_data_file_28_0 (tombstone_data_file))
 (typeattributeset tombstoned_crash_socket_28_0 (tombstoned_crash_socket))

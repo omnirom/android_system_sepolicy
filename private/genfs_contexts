@@ -13,6 +13,7 @@ genfscon proc /iomem u:object_r:proc_iomem:s0
 genfscon proc /keys u:object_r:proc_keys:s0
 genfscon proc /kmsg u:object_r:proc_kmsg:s0
 genfscon proc /loadavg u:object_r:proc_loadavg:s0
+genfscon proc /lowmemorykiller u:object_r:proc_lowmemorykiller:s0
 genfscon proc /meminfo u:object_r:proc_meminfo:s0
 genfscon proc /misc u:object_r:proc_misc:s0
 genfscon proc /modules u:object_r:proc_modules:s0
@@ -32,6 +33,7 @@ genfscon proc /softirqs u:object_r:proc_timer:s0
 genfscon proc /stat u:object_r:proc_stat:s0
 genfscon proc /swaps u:object_r:proc_swaps:s0
 genfscon proc /sysrq-trigger u:object_r:proc_sysrq:s0
+genfscon proc /kpageflags u:object_r:proc_kpageflags:s0
 genfscon proc /sys/abi/swp u:object_r:proc_abi:s0
 genfscon proc /sys/fs/pipe-max-size u:object_r:proc_pipe_conf:s0
 genfscon proc /sys/fs/protected_hardlinks u:object_r:proc_security:s0

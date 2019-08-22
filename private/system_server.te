@@ -125,6 +125,7 @@ allow system_server mediaserver:process { getsched setsched };
 allow system_server bootanim:process { getsched setsched };
 
 # Set scheduling info for psi monitor thread.
+# TODO: delete this line b/131761776
 allow system_server kernel:process { getsched setsched };
 
 # Allow system_server to write to /proc/<pid>/*
@@ -236,7 +237,6 @@ hal_client_domain(system_server, hal_vr)
 hal_client_domain(system_server, hal_weaver)
 hal_client_domain(system_server, hal_wifi)
 hal_client_domain(system_server, hal_wifi_hostapd)
-hal_client_domain(system_server, hal_wifi_offload)
 hal_client_domain(system_server, hal_wifi_supplicant)
 
 # Talk with graphics composer fences
@@ -605,6 +605,7 @@ set_prop(system_server, device_config_activity_manager_native_boot_prop)
 set_prop(system_server, device_config_runtime_native_boot_prop)
 set_prop(system_server, device_config_runtime_native_prop)
 set_prop(system_server, device_config_media_native_prop)
+set_prop(system_server, device_config_sys_traced_prop)
 
 # BootReceiver to read ro.boot.bootreason
 get_prop(system_server, bootloader_boot_reason_prop)
@@ -963,6 +964,7 @@ neverallow {
   device_config_runtime_native_boot_prop
   device_config_runtime_native_prop
   device_config_media_native_prop
+  device_config_sys_traced_prop
 }:property_service set;
 
 # system_server should never be executing dex2oat. This is either

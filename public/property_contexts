@@ -279,6 +279,7 @@ ro.boot.slot_suffix u:object_r:exported_default_prop:s0 exact string
 ro.bootimage.build.date u:object_r:exported_default_prop:s0 exact string
 ro.bootimage.build.date.utc u:object_r:exported_default_prop:s0 exact int
 ro.bootimage.build.fingerprint u:object_r:exported_default_prop:s0 exact string
+ro.build.ab_update u:object_r:exported_default_prop:s0 exact string
 ro.build.expect.baseband u:object_r:exported_default_prop:s0 exact string
 ro.build.expect.bootloader u:object_r:exported_default_prop:s0 exact string
 ro.carrier u:object_r:exported_default_prop:s0 exact string

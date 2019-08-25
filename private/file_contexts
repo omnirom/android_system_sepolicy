@@ -99,6 +99,7 @@
 /dev/iio:device[0-9]+   u:object_r:iio_device:s0
 /dev/ion		u:object_r:ion_device:s0
 /dev/keychord   u:object_r:keychord_device:s0
+/dev/linkerconfig(/.*)? u:object_r:linkerconfig_file:s0
 /dev/loop-control	u:object_r:loop_control_device:s0
 /dev/modem.*		u:object_r:radio_device:s0
 /dev/mtp_usb		u:object_r:mtp_device:s0
@@ -179,6 +180,7 @@
 # System files
 #
 /system(/.*)?		u:object_r:system_file:s0
+/system/apex/com.android.runtime	u:object_r:runtime_apex_dir:s0
 /system/lib(64)?(/.*)?		u:object_r:system_lib_file:s0
 /system/lib(64)?/bootstrap(/.*)? u:object_r:system_bootstrap_lib_file:s0
 /system/bin/atrace	u:object_r:atrace_exec:s0
@@ -255,11 +257,11 @@
 /system/bin/pppd	u:object_r:ppp_exec:s0
 /system/bin/racoon	u:object_r:racoon_exec:s0
 /system/xbin/su		u:object_r:su_exec:s0
-/system/bin/perfprofd  u:object_r:perfprofd_exec:s0
 /system/bin/dnsmasq     u:object_r:dnsmasq_exec:s0
 /system/bin/healthd     u:object_r:healthd_exec:s0
 /system/bin/clatd	u:object_r:clatd_exec:s0
 /system/bin/linker(64)? u:object_r:system_linker_exec:s0
+/system/bin/linkerconfig u:object_r:linkerconfig_exec:s0
 /system/bin/bootstrap/linker(64)? u:object_r:system_linker_exec:s0
 /system/bin/llkd        u:object_r:llkd_exec:s0
 /system/bin/lmkd        u:object_r:lmkd_exec:s0
@@ -300,7 +302,9 @@
 /system/bin/hw/android\.system\.suspend@1\.0-service          u:object_r:system_suspend_exec:s0
 /system/etc/cgroups\.json               u:object_r:cgroup_desc_file:s0
 /system/etc/event-log-tags              u:object_r:system_event_log_tags_file:s0
+/system/etc/group                       u:object_r:system_group_file:s0
 /system/etc/ld\.config.*                u:object_r:system_linker_config_file:s0
+/system/etc/passwd                      u:object_r:system_passwd_file:s0
 /system/etc/seccomp_policy(/.*)?        u:object_r:system_seccomp_policy_file:s0
 /system/etc/security/cacerts(/.*)?      u:object_r:system_security_cacerts_file:s0
 /system/etc/selinux/mapping/[0-9]+\.[0-9]+\.cil       u:object_r:sepolicy_file:s0
@@ -395,6 +399,8 @@
 # Product files
 #
 /(product|system/product)(/.*)?                                 u:object_r:system_file:s0
+/(product|system/product)/etc/group                             u:object_r:system_group_file:s0
+/(product|system/product)/etc/passwd                            u:object_r:system_passwd_file:s0
 /(product|system/product)/overlay(/.*)?                         u:object_r:vendor_overlay_file:s0
 
 /(product|system/product)/etc/selinux/product_file_contexts      u:object_r:file_contexts_file:s0
@@ -404,11 +410,15 @@
 /(product|system/product)/etc/selinux/product_service_contexts   u:object_r:service_contexts_file:s0
 /(product|system/product)/etc/selinux/product_mac_permissions\.xml u:object_r:mac_perms_file:s0
 
+/(product|system/product)/lib(64)?(/.*)?                         u:object_r:system_lib_file:s0
+
 #############################
-# Product-Services files
+# SystemExt files
 #
-/(product_services|system/product_services)(/.*)?               u:object_r:system_file:s0
-/(product_services|system/product_services)/overlay(/.*)?       u:object_r:vendor_overlay_file:s0
+/(system_ext|system/system_ext)(/.*)?               u:object_r:system_file:s0
+/(system_ext|system/system_ext)/etc/group           u:object_r:system_group_file:s0
+/(system_ext|system/system_ext)/etc/passwd          u:object_r:system_passwd_file:s0
+/(system_ext|system/system_ext)/overlay(/.*)?       u:object_r:vendor_overlay_file:s0
 
 #############################
 # Vendor files from /(product|system/product)/vendor_overlay
@@ -504,12 +514,12 @@
 /data/misc/user(/.*)?           u:object_r:misc_user_data_file:s0
 /data/misc/vpn(/.*)?            u:object_r:vpn_data_file:s0
 /data/misc/wifi(/.*)?           u:object_r:wifi_data_file:s0
+/data/misc_ce/[0-9]+/wifi(/.*)? u:object_r:wifi_data_file:s0
 /data/misc/wifi/sockets(/.*)?   u:object_r:wpa_socket:s0
 /data/misc/wifi/sockets/wpa_ctrl.*   u:object_r:system_wpa_socket:s0
 /data/misc/zoneinfo(/.*)?       u:object_r:zoneinfo_data_file:s0
 /data/misc/vold(/.*)?           u:object_r:vold_data_file:s0
 /data/misc/iorapd(/.*)?         u:object_r:iorapd_data_file:s0
-/data/misc/perfprofd(/.*)?      u:object_r:perfprofd_data_file:s0
 /data/misc/update_engine(/.*)?  u:object_r:update_engine_data_file:s0
 /data/misc/update_engine_log(/.*)?  u:object_r:update_engine_log_data_file:s0
 /data/system/dropbox(/.*)?      u:object_r:dropbox_data_file:s0
@@ -629,6 +639,7 @@
 /metadata/vold(/.*)?      u:object_r:vold_metadata_file:s0
 /metadata/gsi(/.*)?       u:object_r:gsi_metadata_file:s0
 /metadata/password_slots(/.*)?    u:object_r:password_slot_metadata_file:s0
+/metadata/ota(/.*)?       u:object_r:ota_metadata_file:s0
 
 #############################
 # asec containers

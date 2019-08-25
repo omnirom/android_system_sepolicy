@@ -81,7 +81,12 @@ allow {
 } ashmem_device:chr_file rw_file_perms;
 
 # Allow using fds to /dev/ashmem.
-allow domain ashmemd:fd use;
+allow domain ashmem_server:fd use;
+
+# Allow vendor hals to access IAshmem
+# TODO(b/134783601): Change to a whitelist.
+allow { domain -coredomain -appdomain } system_ashmem_hwservice:hwservice_manager find;
+allow { domain -coredomain -appdomain } ashmem_server: binder call;
 
 # /dev/binder can be accessed by non-vendor domains and by apps
 allow {
@@ -136,10 +141,12 @@ allow domain {
 allow domain system_file:lnk_file { getattr read };
 
 # Global access to /system/etc/security/cacerts/*, /system/etc/seccomp_policy/*, /system/lib[64]/*,
-# linker and its config.
+# /(system|product|system_ext)/etc/(group|passwd), linker and its config.
 allow domain system_seccomp_policy_file:file r_file_perms;
 # cacerts are accessible from public Java API.
 allow domain system_security_cacerts_file:file r_file_perms;
+allow domain system_group_file:file r_file_perms;
+allow domain system_passwd_file:file r_file_perms;
 allow domain system_linker_exec:file { execute read open getattr map };
 allow domain system_linker_config_file:file r_file_perms;
 allow domain system_lib_file:file { execute read open getattr map };
@@ -421,11 +428,9 @@ neverallow { domain -init } usermodehelper:file { append write };
 neverallow { domain -init -ueventd } sysfs_usermodehelper:file { append write };
 neverallow { domain -init -vendor_init } proc_security:file { append open read write };
 
-# Nobody is allowed to make binder calls into init.
-# Only servicemanager may transfer binder references to init
-# vendor_init shouldn't use binder at all.
-neverallow * init:binder ~{ transfer };
-neverallow { domain -servicemanager } init:binder { transfer };
+# Init can't do anything with binder calls. If this neverallow rule is being
+# triggered, it's probably due to a service with no SELinux domain.
+neverallow * init:binder *;
 neverallow * vendor_init:binder *;
 
 # Don't allow raw read/write/open access to block_device
@@ -995,7 +1000,6 @@ full_treble_only(`
     -crash_dump
     -init # starts vendor executables
     -kernel # loads /vendor/firmware
-    userdebug_or_eng(`-perfprofd')
     userdebug_or_eng(`-heapprofd')
     -shell
     -system_executes_vendor_violators
@@ -1035,10 +1039,12 @@ full_treble_only(`
     -netutils_wrapper_exec
     -property_contexts_file
     -system_event_log_tags_file
+    -system_group_file
     -system_lib_file
     with_asan(`-system_asan_options_file')
     -system_linker_exec
     -system_linker_config_file
+    -system_passwd_file
     -system_seccomp_policy_file
     -system_security_cacerts_file
     -system_zoneinfo_file
@@ -1320,7 +1326,6 @@ full_treble_only(`
     -crash_dump
     -init
     -kernel
-    -perfprofd
     -heapprofd
     -ueventd
   } vendor_file:file { no_w_file_perms no_x_file_perms open };

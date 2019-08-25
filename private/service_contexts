@@ -32,6 +32,7 @@ carrier_config                            u:object_r:radio_service:s0
 clipboard                                 u:object_r:clipboard_service:s0
 com.android.net.IProxyService             u:object_r:IProxyService_service:s0
 companiondevice                           u:object_r:companion_device_service:s0
+platform_compat                           u:object_r:platform_compat_service:s0
 connectivity                              u:object_r:connectivity_service:s0
 connmetrics                               u:object_r:connmetrics_service:s0
 consumer_ir                               u:object_r:consumer_ir_service:s0
@@ -91,7 +92,7 @@ iphonesubinfo                             u:object_r:radio_service:s0
 ims                                       u:object_r:radio_service:s0
 imms                                      u:object_r:imms_service:s0
 ipsec                                     u:object_r:ipsec_service:s0
-ircs                                      u:object_r:radio_service:s0
+ircsmessage                               u:object_r:radio_service:s0
 iris                                      u:object_r:iris_service:s0
 isms_msim                                 u:object_r:radio_service:s0
 isms2                                     u:object_r:radio_service:s0
@@ -137,7 +138,6 @@ otadexopt                                 u:object_r:otadexopt_service:s0
 overlay                                   u:object_r:overlay_service:s0
 package                                   u:object_r:package_service:s0
 package_native                            u:object_r:package_native_service:s0
-perfprofd                                 u:object_r:perfprofd_service:s0
 permission                                u:object_r:permission_service:s0
 permissionmgr                             u:object_r:permissionmgr_service:s0
 persistent_data_block                     u:object_r:persistent_data_block_service:s0
@@ -197,6 +197,7 @@ timezone                                  u:object_r:timezone_service:s0
 thermalservice                            u:object_r:thermal_service:s0
 trust                                     u:object_r:trust_service:s0
 tv_input                                  u:object_r:tv_input_service:s0
+uce                                       u:object_r:uce_service:s0
 uimode                                    u:object_r:uimode_service:s0
 updatelock                                u:object_r:updatelock_service:s0
 uri_grants                                u:object_r:uri_grants_service:s0
@@ -218,5 +219,6 @@ wifi                                      u:object_r:wifi_service:s0
 wificond                                  u:object_r:wificond_service:s0
 wifiaware                                 u:object_r:wifiaware_service:s0
 wifirtt                                   u:object_r:rttmanager_service:s0
+wifi_stack                                u:object_r:wifi_stack_service:s0
 window                                    u:object_r:window_service:s0
 *                                         u:object_r:default_android_service:s0

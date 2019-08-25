@@ -9,6 +9,8 @@ android.hardware.audio.effect::IEffectsFactory                  u:object_r:hal_a
 android.hardware.audio::IDevicesFactory                         u:object_r:hal_audio_hwservice:s0
 android.hardware.authsecret::IAuthSecret                        u:object_r:hal_authsecret_hwservice:s0
 android.hardware.automotive.audiocontrol::IAudioControl         u:object_r:hal_audiocontrol_hwservice:s0
+android.hardware.automotive.can::ICanController                 u:object_r:hal_can_controller_hwservice:s0
+android.hardware.automotive.can::ICanBus                        u:object_r:hal_can_bus_hwservice:s0
 android.hardware.automotive.evs::IEvsEnumerator                 u:object_r:hal_evs_hwservice:s0
 android.hardware.automotive.vehicle::IVehicle                   u:object_r:hal_vehicle_hwservice:s0
 android.hardware.biometrics.face::IBiometricsFace               u:object_r:hal_face_hwservice:s0
@@ -62,6 +64,7 @@ android.hardware.thermal::IThermal                              u:object_r:hal_t
 android.hardware.thermal::IThermalCallback                      u:object_r:thermalcallback_hwservice:s0
 android.hardware.tv.cec::IHdmiCec                               u:object_r:hal_tv_cec_hwservice:s0
 android.hardware.tv.input::ITvInput                             u:object_r:hal_tv_input_hwservice:s0
+android.hardware.tv.tuner::ITuner                             	u:object_r:hal_tv_tuner_hwservice:s0
 android.hardware.usb::IUsb                                      u:object_r:hal_usb_hwservice:s0
 android.hardware.usb.gadget::IUsbGadget                         u:object_r:hal_usb_gadget_hwservice:s0
 android.hardware.vibrator::IVibrator                            u:object_r:hal_vibrator_hwservice:s0
@@ -75,6 +78,7 @@ android.hidl.base::IBase                                        u:object_r:hidl_
 android.hidl.manager::IServiceManager                           u:object_r:hidl_manager_hwservice:s0
 android.hidl.memory::IMapper                                    u:object_r:hidl_memory_hwservice:s0
 android.hidl.token::ITokenManager                               u:object_r:hidl_token_hwservice:s0
+android.system.ashmem::IAshmem                                  u:object_r:system_ashmem_hwservice:s0
 android.system.net.netd::INetd                                  u:object_r:system_net_netd_hwservice:s0
 android.system.suspend::ISystemSuspend                          u:object_r:system_suspend_hwservice:s0
 android.system.wifi.keystore::IKeystore                         u:object_r:system_wifi_keystore_hwservice:s0

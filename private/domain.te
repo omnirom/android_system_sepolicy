@@ -42,6 +42,9 @@ allow domain vendor_task_profiles_file:file r_file_perms;
 # if memfd support can be used if device supports it
 get_prop(domain, use_memfd_prop);
 
+# Allow to read properties for linker
+get_prop(domain, linker_prop);
+
 # For now, everyone can access core property files
 # Device specific properties are not granted by default
 not_compatible_property(`
@@ -82,6 +85,10 @@ userdebug_or_eng(`
   allow domain su:key search;
 ')
 
+# Allow access to linkerconfig file
+allow domain linkerconfig_file:dir search;
+allow domain linkerconfig_file:file r_file_perms;
+
 # Limit ability to ptrace or read sensitive /proc/pid files of processes
 # with other UIDs to these whitelisted domains.
 neverallow {
@@ -92,7 +99,6 @@ neverallow {
   userdebug_or_eng(`-incidentd')
   -storaged
   -system_server
-  userdebug_or_eng(`-perfprofd')
 } self:global_capability_class_set sys_ptrace;
 
 # Limit ability to generate hardware unique device ID attestations to priv_apps
@@ -127,7 +133,6 @@ neverallow {
   -app_zygote
   -dexoptanalyzer
   -installd
-  userdebug_or_eng(`-perfprofd')
   -profman
   -rs # spawned by appdomain, so carryover the exception above
   -runas
@@ -149,7 +154,6 @@ neverallow {
   -appdomain
   -app_zygote
   -installd
-  userdebug_or_eng(`-perfprofd')
   -rs # spawned by appdomain, so carryover the exception above
 } { privapp_data_file app_data_file }:file_class_set open;
 
@@ -259,7 +263,6 @@ define(`dac_override_allowed', `{
   lmkd
   migrate_legacy_obb_data
   netd
-  perfprofd
   postinstall_dexopt
   recovery
   rss_hwm_reset

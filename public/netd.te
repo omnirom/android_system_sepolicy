@@ -1,6 +1,6 @@
 # network manager
 type netd, domain, mlstrustedsubject;
-type netd_exec, exec_type, file_type;
+type netd_exec, system_file_type, exec_type, file_type;
 
 net_domain(netd)
 # in addition to ioctls whitelisted for all domains, grant netd priv_sock_ioctls.
@@ -19,6 +19,11 @@ allow netd self:global_capability_class_set { net_admin net_raw kill };
 # for netd to operate.
 dontaudit netd self:global_capability_class_set fsetid;
 
+# Allow netd to open /dev/tun, set it up and pass it to clatd
+allow netd tun_device:chr_file rw_file_perms;
+allowxperm netd tun_device:chr_file ioctl { TUNGETIFF TUNSETIFF };
+allow netd self:tun_socket create;
+
 allow netd self:netlink_kobject_uevent_socket create_socket_perms_no_ioctl;
 allow netd self:netlink_route_socket nlmsg_write;
 allow netd self:netlink_nflog_socket create_socket_perms_no_ioctl;
@@ -34,16 +39,16 @@ allow netd devpts:chr_file rw_file_perms;
 # Acquire advisory lock on /system/etc/xtables.lock
 allow netd system_file:file lock;
 
-# Allow netd to write to qtaguid ctrl file. This is the same privilege level that normal apps have
-# TODO: Add proper rules to prevent other process to access qtaguid_proc file after migration
-#       complete
-allow netd qtaguid_proc:file rw_file_perms;
+# Allow netd to write to qtaguid ctrl file.
+# TODO: Add proper rules to prevent other process to access qtaguid_proc file
+# after migration complete
+allow netd proc_qtaguid_ctrl:file rw_file_perms;
 # Allow netd to read /dev/qtaguid. This is the same privilege level that normal apps have.
 allow netd qtaguid_device:chr_file r_file_perms;
 
-r_dir_file(netd, proc_net)
+r_dir_file(netd, proc_net_type)
 # For /proc/sys/net/ipv[46]/route/flush.
-allow netd proc_net:file rw_file_perms;
+allow netd proc_net_type:file rw_file_perms;
 
 # Enables PppController and interface enumeration (among others)
 allow netd sysfs:dir r_dir_perms;
@@ -55,13 +60,15 @@ allow netd sysfs_net:file w_file_perms;
 # TODO: added to match above sysfs rule. Remove me?
 allow netd sysfs_usb:file write;
 
-allow netd fs_bpf:dir  create_dir_perms;
-allow netd fs_bpf:file create_file_perms;
+r_dir_file(netd, cgroup_bpf)
+
+allow netd fs_bpf:dir search;
+allow netd fs_bpf:file { read write setattr };
 
 # TODO: netd previously thought it needed these permissions to do WiFi related
 #       work.  However, after all the WiFi stuff is gone, we still need them.
 #       Why?
-allow netd self:global_capability_class_set { dac_override chown };
+allow netd self:global_capability_class_set { dac_override dac_read_search chown };
 
 # Needed to update /data/misc/net/rt_tables
 allow netd net_data_file:file create_file_perms;
@@ -83,6 +90,7 @@ set_prop(netd, netd_stable_secret_prop)
 # Allow netd to publish a binder service and make binder calls.
 binder_use(netd)
 add_service(netd, netd_service)
+add_service(netd, dnsresolver_service)
 allow netd dumpstate:fifo_file  { getattr write };
 
 # Allow netd to call into the system server so it can check permissions.
@@ -94,6 +102,7 @@ allow netd netd_listener_service:service_manager find;
 
 # Allow netd to operate on sockets that are passed to it.
 allow netd netdomain:{
+  icmp_socket
   tcp_socket
   udp_socket
   rawip_socket
@@ -105,13 +114,11 @@ allow netd netdomain:fd use;
 # give netd permission to read and write netlink xfrm
 allow netd self:netlink_xfrm_socket { create_socket_perms_no_ioctl nlmsg_write nlmsg_read };
 
-# give netd permission to use eBPF functionalities
-allow netd self:bpf { map_create map_read map_write };
-
 # Allow netd to register as hal server.
 add_hwservice(netd, system_net_netd_hwservice)
 hwbinder_use(netd)
 get_prop(netd, hwservicemanager_prop)
+get_prop(netd, device_config_netd_native_prop)
 
 ###
 ### Neverallow rules
@@ -128,17 +135,31 @@ neverallow netd { domain }:process ptrace;
 neverallow netd system_file:dir_file_class_set write;
 
 # Write to files in /data/data or system files on /data
-neverallow netd { app_data_file system_data_file }:dir_file_class_set write;
+neverallow netd { app_data_file privapp_data_file system_data_file }:dir_file_class_set write;
 
-# only system_server and dumpstate may find netd service
-neverallow { domain -system_server -dumpstate -netd } netd_service:service_manager find;
+# only system_server, dumpstate and network stack app may find netd service
+neverallow {
+    domain
+    -system_server
+    -dumpstate
+    -network_stack
+    -netd
+    -netutils_wrapper
+} netd_service:service_manager find;
 
-# only netd can create the bpf maps
-neverallow { domain -netd } netd:bpf { map_create };
+# only system_server, dumpstate and network stack app may find dnsresolver service
+neverallow {
+    domain
+    -system_server
+    -dumpstate
+    -network_stack
+    -netd
+    -netutils_wrapper
+} dnsresolver_service:service_manager find;
 
 # apps may not interact with netd over binder.
-neverallow appdomain netd:binder call;
-neverallow netd { appdomain userdebug_or_eng(`-su') }:binder call;
+neverallow { appdomain -network_stack } netd:binder call;
+neverallow netd { appdomain -network_stack userdebug_or_eng(`-su') }:binder call;
 
 # persist.netd.stable_secret contains RFC 7217 secret key which should never be
 # leaked to other processes. Make sure it never leaks.
@@ -147,3 +168,12 @@ neverallow { domain -netd -init -dumpstate } netd_stable_secret_prop:file r_file
 # We want to ensure that no other process ever tries tampering with persist.netd.stable_secret,
 # the RFC 7217 secret key managed by netd. Doing so could compromise user privacy.
 neverallow { domain -netd -init } netd_stable_secret_prop:property_service set;
+
+# If an already existing file is opened with O_CREATE, the kernel might generate
+# a false report of a create denial. Silence these denials and make sure that
+# inappropriate permissions are not granted.
+neverallow netd proc_net:dir no_w_dir_perms;
+dontaudit netd proc_net:dir write;
+
+neverallow netd sysfs_net:dir no_w_dir_perms;
+dontaudit netd sysfs_net:dir write;

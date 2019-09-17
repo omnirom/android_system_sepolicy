@@ -187,9 +187,10 @@ neverallow coredomain {
 
 # TODO(b/120243891): HAL permission to tee_device is included into coredomain
 # on non-Treble devices.
-full_treble_only(`
-  neverallow coredomain tee_device:chr_file { open read append write ioctl };
-')
+# TODO(b/121350843): Re-enable this block after resolving Treble violations
+# full_treble_only(`
+#   neverallow coredomain tee_device:chr_file { open read append write ioctl };
+# ')
 
 # Allow access to ashmemd to request /dev/ashmem fds.
 allow {

@@ -33,6 +33,7 @@
     content_capture_service
     content_suggestions_service
     cpu_variant_prop
+    ctl_apexd_prop
     ctl_gsid_prop
     dev_cpu_variant
     device_config_activity_manager_native_boot_prop
@@ -114,6 +115,7 @@
     rss_hwm_reset_exec
     runas_app
     runas_app_tmpfs
+    runtime_apex_dir
     runtime_service
     sdcard_block_device
     sensor_privacy_service
@@ -123,6 +125,7 @@
     su_tmpfs
     super_block_device
     sysfs_fs_f2fs
+    system_ashmem_hwservice
     system_bootstrap_lib_file
     system_event_log_tags_file
     system_lmk_prop

@@ -87,6 +87,7 @@ neverallow all_untrusted_apps file_type:file link;
 
 # Do not allow untrusted apps to access network MAC address file
 neverallow all_untrusted_apps sysfs_mac_address:file no_rw_file_perms;
+neverallow all_untrusted_apps sysfs_net:file no_rw_file_perms;
 
 # Do not allow any write access to files in /sys
 neverallow all_untrusted_apps sysfs_type:file { no_w_file_perms no_x_file_perms };
@@ -137,8 +138,8 @@ neverallow { all_untrusted_apps -mediaprovider } {
   ')
 }:dir_file_class_set { create unlink };
 
-# No untrusted component should be touching /dev/fuse
-neverallow all_untrusted_apps fuse_device:chr_file *;
+# No untrusted component except mediaprovider should be touching /dev/fuse
+neverallow { all_untrusted_apps -mediaprovider } fuse_device:chr_file *;
 
 # Do not allow untrusted apps to directly open the tun_device
 neverallow all_untrusted_apps tun_device:chr_file open;

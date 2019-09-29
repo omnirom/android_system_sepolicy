@@ -83,6 +83,7 @@
 /dev/block/vold/.+	u:object_r:vold_device:s0
 /dev/block/ram[0-9]*	u:object_r:ram_device:s0
 /dev/block/zram[0-9]*	u:object_r:ram_device:s0
+/dev/boringssl/selftest(/.*)?	u:object_r:boringssl_self_test_marker:s0
 /dev/bus/usb(.*)?       u:object_r:usb_device:s0
 /dev/console		u:object_r:console_device:s0
 /dev/cpu_variant:.*     u:object_r:dev_cpu_variant:s0
@@ -180,7 +181,7 @@
 # System files
 #
 /system(/.*)?		u:object_r:system_file:s0
-/system/apex/com.android.runtime	u:object_r:runtime_apex_dir:s0
+/system/apex/com.android.art	u:object_r:art_apex_dir:s0
 /system/lib(64)?(/.*)?		u:object_r:system_lib_file:s0
 /system/lib(64)?/bootstrap(/.*)? u:object_r:system_bootstrap_lib_file:s0
 /system/bin/atrace	u:object_r:atrace_exec:s0
@@ -188,6 +189,7 @@
 /system/bin/auditctl	u:object_r:auditctl_exec:s0
 /system/bin/bcc                 u:object_r:rs_exec:s0
 /system/bin/blank_screen	u:object_r:blank_screen_exec:s0
+/system/bin/boringssl_self_test(32|64) u:object_r:boringssl_self_test_exec:s0
 /system/bin/charger		u:object_r:charger_exec:s0
 /system/bin/e2fsdroid		u:object_r:e2fs_exec:s0
 /system/bin/mke2fs		u:object_r:e2fs_exec:s0
@@ -434,9 +436,9 @@
 # NOTE: When modifying existing label rules, changes may also need to
 # propagate to the "Expanded data files" section.
 #
-/data(/.*)?		u:object_r:system_data_file:s0
+/data		u:object_r:system_data_root_file:s0
+/data/(.*)?		u:object_r:system_data_file:s0
 /data/system/packages\.list u:object_r:packages_list_file:s0
-/data/.layout_version		u:object_r:install_data_file:s0
 /data/unencrypted(/.*)?         u:object_r:unencrypted_data_file:s0
 /data/backup(/.*)?		u:object_r:backup_data_file:s0
 /data/secure/backup(/.*)?	u:object_r:backup_data_file:s0
@@ -495,6 +497,7 @@
 /data/misc/dhcp-6\.8\.2(/.*)?     u:object_r:dhcp_data_file:s0
 /data/misc/gatekeeper(/.*)?     u:object_r:gatekeeper_data_file:s0
 /data/misc/incidents(/.*)?	    u:object_r:incident_data_file:s0
+/data/misc/installd(/.*)?		u:object_r:install_data_file:s0
 /data/misc/keychain(/.*)?       u:object_r:keychain_data_file:s0
 /data/misc/keystore(/.*)?       u:object_r:keystore_data_file:s0
 /data/misc/logd(/.*)?           u:object_r:misc_logd_file:s0

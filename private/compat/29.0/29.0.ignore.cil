@@ -5,6 +5,7 @@
 (typeattribute new_objects)
 (typeattributeset new_objects
   ( new_objects
+    boringssl_self_test
     charger_prop
     cold_boot_done_prop
     platform_compat_service
@@ -16,7 +17,7 @@
     init_svc_debug_prop
     linker_prop
     ota_metadata_file
-    runtime_apex_dir
+    art_apex_dir
     system_ashmem_hwservice
     system_group_file
     system_passwd_file

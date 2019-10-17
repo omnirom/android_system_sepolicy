@@ -61,8 +61,6 @@ dalvik.vm.method-trace u:object_r:exported_dalvik_prop:s0 exact bool
 dalvik.vm.method-trace-file u:object_r:exported_dalvik_prop:s0 exact string
 dalvik.vm.method-trace-file-siz u:object_r:exported_dalvik_prop:s0 exact int
 dalvik.vm.method-trace-stream u:object_r:exported_dalvik_prop:s0 exact bool
-dalvik.vm.profilesystemserver u:object_r:exported_dalvik_prop:s0 exact bool
-dalvik.vm.profilebootimage u:object_r:exported_dalvik_prop:s0 exact bool
 dalvik.vm.usejit u:object_r:exported_dalvik_prop:s0 exact bool
 dalvik.vm.usejitprofiles u:object_r:exported_dalvik_prop:s0 exact bool
 dalvik.vm.zygote.max-boot-retry u:object_r:exported_dalvik_prop:s0 exact int
@@ -113,6 +111,7 @@ ro.control_privapp_permissions u:object_r:exported3_default_prop:s0 exact string
 ro.cp_system_other_odex u:object_r:exported3_default_prop:s0 exact int
 ro.crypto.allow_encrypt_override u:object_r:exported2_vold_prop:s0 exact bool
 ro.crypto.scrypt_params u:object_r:exported2_vold_prop:s0 exact string
+ro.crypto.set_dun u:object_r:exported2_vold_prop:s0 exact bool
 ro.crypto.volume.filenames_mode u:object_r:exported2_vold_prop:s0 exact string
 ro.dalvik.vm.native.bridge u:object_r:exported_dalvik_prop:s0 exact string
 ro.enable_boot_charger_mode u:object_r:exported3_default_prop:s0 exact bool
@@ -403,3 +402,4 @@ ro.surface_flinger.set_display_power_timer_ms u:object_r:exported_default_prop:s
 ro.surface_flinger.support_kernel_idle_timer u:object_r:exported_default_prop:s0 exact bool
 ro.surface_flinger.use_smart_90_for_video u:object_r:exported_default_prop:s0 exact bool
 ro.surface_flinger.color_space_agnostic_dataspace u:object_r:exported_default_prop:s0 exact int
+ro.surface_flinger.refresh_rate_switching u:object_r:exported_default_prop:s0 exact bool

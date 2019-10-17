@@ -88,15 +88,9 @@ allow domain ashmem_server:fd use;
 allow { domain -coredomain -appdomain } system_ashmem_hwservice:hwservice_manager find;
 allow { domain -coredomain -appdomain } ashmem_server: binder call;
 
-# /dev/binder can be accessed by non-vendor domains and by apps
-allow {
-  coredomain
-  appdomain
-  binder_in_vendor_violators # TODO(b/35870313): Remove once all violations are gone
-  -hwservicemanager
-} binder_device:chr_file rw_file_perms;
-# Devices which are not full TREBLE have fewer restrictions on access to /dev/binder
-not_full_treble(`allow { domain -hwservicemanager -vndservicemanager } binder_device:chr_file rw_file_perms;')
+# /dev/binder can be accessed by ... everyone! :)
+allow { domain -hwservicemanager -vndservicemanager } binder_device:chr_file rw_file_perms;
+
 allow { domain -servicemanager -vndservicemanager -isolated_app } hwbinder_device:chr_file rw_file_perms;
 allow domain ptmx_device:chr_file rw_file_perms;
 allow domain random_device:chr_file rw_file_perms;
@@ -228,8 +222,9 @@ not_full_treble(`
   allow domain system_data_file:dir getattr;
 ')
 allow { coredomain appdomain } system_data_file:dir getattr;
-# /data has the label system_data_file. Vendor components need the search
-# permission on system_data_file for path traversal to /data/vendor.
+# /data has the label system_data_root_file. Vendor components need the search
+# permission on system_data_root_file for path traversal to /data/vendor.
+allow domain system_data_root_file:dir { search getattr } ;
 allow domain system_data_file:dir search;
 # TODO restrict this to non-coredomain
 allow domain vendor_data_file:dir { getattr search };
@@ -242,9 +237,6 @@ allow domain proc_cpuinfo:file r_file_perms;
 
 # /dev/cpu_variant:.*
 allow domain dev_cpu_variant:file r_file_perms;
-
-# jemalloc needs to read /proc/sys/vm/overcommit_memory
-allow domain proc_overcommit_memory:file r_file_perms;
 
 # profiling needs to read /proc/sys/kernel/perf_event_max_sample_rate
 allow domain proc_perf:file r_file_perms;
@@ -630,30 +622,23 @@ neverallow hwservicemanager vndbinder_device:chr_file no_rw_file_perms;
 neverallow vndservicemanager binder_device:chr_file no_rw_file_perms;
 neverallow vndservicemanager hwbinder_device:chr_file no_rw_file_perms;
 
-# On full TREBLE devices, only core components and apps can use Binder and servicemanager. Non-core
-# domain apps need this because Android framework offers many of its services to apps as Binder
-# services.
+# system services cant add vendor services
+neverallow {
+  coredomain
+} vendor_service:service_manager add;
+
 full_treble_only(`
+  # vendor services cant add system services
   neverallow {
     domain
     -coredomain
-    -appdomain
-    -binder_in_vendor_violators # TODO(b/35870313): Remove once all violations are gone
-  } binder_device:chr_file rw_file_perms;
+    -binder_in_vendor_violators # TODO(b/131617943) remove once all violators are gone
+  } {
+    service_manager_type
+    -vendor_service
+  }:service_manager add;
 ')
 
-# libcutils can probe for /dev/binder permissions with access(). Ignore
-# generated denials. See b/129073672 for details.
-dontaudit domain binder_device:chr_file audit_access;
-
-full_treble_only(`
-  neverallow {
-    domain
-    -coredomain
-    -appdomain # restrictions for vendor apps are declared lower down
-    -binder_in_vendor_violators # TODO(b/35870313): Remove once all violations are gone
-  } service_manager_type:service_manager find;
-')
 full_treble_only(`
   # Vendor apps are permited to use only stable public services. If they were to use arbitrary
   # services which can change any time framework/core is updated, breakage is likely.
@@ -678,14 +663,6 @@ full_treble_only(`
     -vr_hwc_service
     -vr_manager_service
   }:service_manager find;
-')
-full_treble_only(`
-  neverallow {
-    domain
-    -coredomain
-    -appdomain
-    -binder_in_vendor_violators # TODO(b/35870313): Remove once all violations are gone
-  } servicemanager:binder { call transfer };
 ')
 
 # On full TREBLE devices, only vendor components, shell, and su can use VendorBinder.
@@ -879,6 +856,7 @@ full_treble_only(`
   } {
     core_data_file_type
     -system_data_file # default label for files on /data. Covered below...
+    -system_data_root_file
     -vendor_data_file
     -zoneinfo_data_file
     with_native_coverage(`-method_trace_data_file')
@@ -890,6 +868,7 @@ full_treble_only(`
     core_data_file_type
     -unencrypted_data_file
     -system_data_file
+    -system_data_root_file
     -vendor_data_file
     -zoneinfo_data_file
     with_native_coverage(`-method_trace_data_file')
@@ -941,6 +920,7 @@ full_treble_only(`
         coredomain
         -init
         -shell
+        -ueventd
     } vendor_shell_exec:file { execute execute_no_trans };
 ')
 
@@ -971,6 +951,7 @@ full_treble_only(`
       -init
       -shell
       -system_executes_vendor_violators
+      -ueventd
     } {
       vendor_file_type
       -same_process_hal_file
@@ -1151,6 +1132,7 @@ neverallow {
   -system_server
   -system_app
   -init
+  -toolbox # TODO(b/141108496) We want to remove toolbox
   -installd # for relabelfrom and unlink, check for this in explicit neverallow
   -vold_prepare_subdirs # For unlink
   with_asan(`-asan_extract')
@@ -1403,4 +1385,3 @@ neverallow {
   -hal_codec2_server
   -hal_omx_server
 } hal_codec2_hwservice:hwservice_manager add;
-

@@ -80,7 +80,18 @@ allow init self:global_capability_class_set sys_chroot;
 
 # Create and mount on directories in /.
 allow init rootfs:dir create_dir_perms;
-allow init { rootfs cache_file cgroup storage_file system_data_file system_file vendor_file postinstall_mnt_dir }:dir mounton;
+allow init {
+    rootfs
+    cache_file
+    cgroup
+    storage_file
+    mnt_user_file
+    system_data_file
+    system_data_root_file
+    system_file
+    vendor_file
+    postinstall_mnt_dir
+}:dir mounton;
 allow init cgroup_bpf:dir { create mounton };
 
 # Mount bpf fs on sys/fs/bpf
@@ -92,8 +103,8 @@ allow init device:dir mounton;
 # Mount tmpfs on /apex
 allow init apex_mnt_dir:dir mounton;
 
-# Bind-mount on /system/apex/com.android.runtime
-allow init runtime_apex_dir:dir mounton;
+# Bind-mount on /system/apex/com.android.art
+allow init art_apex_dir:dir mounton;
 
 # Create and remove symlinks in /.
 allow init rootfs:lnk_file { create unlink };
@@ -340,7 +351,7 @@ allow init {
   proc_net_type
   proc_max_map_count
   proc_min_free_order_shift
-  proc_overcommit_memory
+  proc_overcommit_memory      # /proc/sys/vm/overcommit_memory
   proc_panic
   proc_page_cluster
   proc_perf
@@ -535,9 +546,6 @@ allowxperm init data_file_type:dir ioctl {
   FS_IOC_SET_ENCRYPTION_POLICY
 };
 
-# Allow init to write to /proc/sys/vm/overcommit_memory
-allow init proc_overcommit_memory:file { write };
-
 # Raw writes to misc block device
 allow init misc_block_device:blk_file w_file_perms;
 
@@ -578,6 +586,15 @@ neverallow init { app_data_file privapp_data_file }:lnk_file read;
 # init should never execute a program without changing to another domain.
 neverallow init { file_type fs_type }:file execute_no_trans;
 
+# The use of sensitive environment variables, such as LD_PRELOAD, is disallowed
+# when init is executing other binaries. The use of LD_PRELOAD for init spawned
+# services is generally considered a no-no, as it injects libraries which the
+# binary was not expecting. This is especially problematic for APEXes. The use
+# of LD_PRELOAD via APEXes is a layering violation, and inappropriately loads
+# code into a process which wasn't expecting that code, with potentially
+# unexpected side effects. (b/140789528)
+neverallow init *:process noatsecure;
+
 # init can never add binder services
 neverallow init service_manager_type:service_manager { add find };
 # init can never list binder services
@@ -591,3 +608,8 @@ neverallow init sysfs:file { open read write };
 
 # No domain should be allowed to ptrace init.
 neverallow * init:process ptrace;
+
+# init owns the root of /data
+# TODO(b/140259336) We want to remove vendor_init
+# TODO(b/141108496) We want to remove toolbox
+neverallow { domain -init -toolbox -vendor_init -vold } system_data_root_file:dir { write add_name remove_name };

@@ -30,6 +30,7 @@ $$(LOCAL_BUILT_MODULE): $(2) $(1) $$(built_sepolicy)
 endef
 
 system_out := $(TARGET_OUT)/etc/selinux
+system_ext_out := $(TARGET_OUT_SYSTEM_EXT)/etc/selinux
 product_out := $(TARGET_OUT_PRODUCT)/etc/selinux
 vendor_out := $(TARGET_OUT_VENDOR)/etc/selinux
 odm_out := $(TARGET_OUT_ODM)/etc/selinux
@@ -45,6 +46,17 @@ LOCAL_MODULE_TAGS := optional
 include $(BUILD_SYSTEM)/base_rules.mk
 
 $(eval $(call run_contexts_test, $(system_out)/plat_file_contexts, $(checkfc),))
+
+##################################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := system_ext_file_contexts_test
+LOCAL_MODULE_CLASS := FAKE
+LOCAL_MODULE_TAGS := optional
+
+include $(BUILD_SYSTEM)/base_rules.mk
+
+$(eval $(call run_contexts_test, $(system_ext_out)/system_ext_file_contexts, $(checkfc),))
 
 ##################################
 include $(CLEAR_VARS)
@@ -90,6 +102,17 @@ LOCAL_MODULE_TAGS := optional
 include $(BUILD_SYSTEM)/base_rules.mk
 
 $(eval $(call run_contexts_test, $(system_out)/plat_hwservice_contexts, $(checkfc), -e -l))
+
+##################################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := system_ext_hwservice_contexts_test
+LOCAL_MODULE_CLASS := FAKE
+LOCAL_MODULE_TAGS := optional
+
+include $(BUILD_SYSTEM)/base_rules.mk
+
+$(eval $(call run_contexts_test, $(system_ext_out)/system_ext_hwservice_contexts, $(checkfc), -e -l))
 
 ##################################
 include $(CLEAR_VARS)
@@ -140,6 +163,24 @@ $(eval $(call run_contexts_test, $(pc_files), $(property_info_checker),))
 
 ##################################
 
+ifdef HAS_SYSTEM_EXT_SEPOLICY_DIR
+
+pc_files += $(system_ext_out)/system_ext_property_contexts
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := system_ext_property_contexts_test
+LOCAL_MODULE_CLASS := FAKE
+LOCAL_MODULE_TAGS := optional
+
+include $(BUILD_SYSTEM)/base_rules.mk
+
+$(eval $(call run_contexts_test, $(pc_files), $(property_info_checker),))
+
+endif
+
+##################################
+
 pc_files += $(vendor_out)/vendor_property_contexts
 
 include $(CLEAR_VARS)
@@ -172,7 +213,7 @@ endif
 
 ##################################
 
-ifdef HAS_PRODUCT_SEPOLICY
+ifdef HAS_PRODUCT_SEPOLICY_DIR
 
 pc_files += $(product_out)/product_property_contexts
 
@@ -200,6 +241,17 @@ LOCAL_MODULE_TAGS := optional
 include $(BUILD_SYSTEM)/base_rules.mk
 
 $(eval $(call run_contexts_test, $(system_out)/plat_service_contexts, $(checkfc), -s))
+
+##################################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := system_ext_service_contexts_test
+LOCAL_MODULE_CLASS := FAKE
+LOCAL_MODULE_TAGS := optional
+
+include $(BUILD_SYSTEM)/base_rules.mk
+
+$(eval $(call run_contexts_test, $(system_ext_out)/system_ext_service_contexts, $(checkfc), -s))
 
 ##################################
 include $(CLEAR_VARS)

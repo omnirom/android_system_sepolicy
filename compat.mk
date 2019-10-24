@@ -18,11 +18,20 @@ all_cil_files := \
     $(built_vendor_cil) \
     $(ALL_MODULES.$(version).compat.cil.BUILT) \
 
-ifdef HAS_PRODUCT_SEPOLICY
-all_cil_files += \
-    $(built_product_cil) \
-    $(built_product_mapping_cil) \
+ifdef HAS_SYSTEM_EXT_SEPOLICY
+all_cil_files += $(built_system_ext_cil)
+endif
 
+ifdef HAS_SYSTEM_EXT_PUBLIC_SEPOLICY
+all_cil_files += $(built_system_ext_mapping_cil)
+endif
+
+ifdef HAS_PRODUCT_SEPOLICY
+all_cil_files += $(built_product_cil)
+endif
+
+ifdef HAS_PRODUCT_PUBLIC_SEPOLICY
+all_cil_files += $(built_product_mapping_cil)
 endif
 
 ifdef BOARD_ODM_SEPOLICY_DIRS

@@ -68,12 +68,15 @@ allow platform_app system_api_service:service_manager find;
 allow platform_app vr_manager_service:service_manager find;
 allow platform_app gpu_service:service_manager find;
 allow platform_app stats_service:service_manager find;
+userdebug_or_eng(`
+  allow platform_app platform_compat_service:service_manager find;
+')
 
 # Allow platform apps to interact with gpuservice
 binder_call(platform_app, gpuservice)
 
 # Allow platform apps to log via statsd.
-allow platform_app statsd:binder call;
+binder_call(platform_app statsd)
 
 # Access to /data/preloads
 allow platform_app preloads_data_file:file r_file_perms;

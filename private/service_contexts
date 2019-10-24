@@ -10,7 +10,6 @@ android.service.gatekeeper.IGateKeeperService    u:object_r:gatekeeper_service:s
 app_binding                               u:object_r:app_binding_service:s0
 app_prediction                            u:object_r:app_prediction_service:s0
 apexservice                               u:object_r:apex_service:s0
-ashmem_device_service                     u:object_r:ashmem_device_service:s0
 gsiservice                                u:object_r:gsi_service:s0
 appops                                    u:object_r:appops_service:s0
 appwidget                                 u:object_r:appwidget_service:s0
@@ -33,6 +32,7 @@ clipboard                                 u:object_r:clipboard_service:s0
 com.android.net.IProxyService             u:object_r:IProxyService_service:s0
 companiondevice                           u:object_r:companion_device_service:s0
 platform_compat                           u:object_r:platform_compat_service:s0
+platform_compat_native                    u:object_r:platform_compat_service:s0
 connectivity                              u:object_r:connectivity_service:s0
 connmetrics                               u:object_r:connmetrics_service:s0
 consumer_ir                               u:object_r:consumer_ir_service:s0
@@ -168,6 +168,7 @@ sensorservice                             u:object_r:sensorservice_service:s0
 sensor_privacy                            u:object_r:sensor_privacy_service:s0
 serial                                    u:object_r:serial_service:s0
 servicediscovery                          u:object_r:servicediscovery_service:s0
+manager                                   u:object_r:service_manager_service:s0
 settings                                  u:object_r:settings_service:s0
 shortcut                                  u:object_r:shortcut_service:s0
 simphonebook_msim                         u:object_r:radio_service:s0

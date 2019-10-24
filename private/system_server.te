@@ -296,6 +296,8 @@ allow system_server mediaserver:udp_socket rw_socket_perms;
 allow system_server mediadrmserver:tcp_socket rw_socket_perms;
 allow system_server mediadrmserver:udp_socket rw_socket_perms;
 
+userdebug_or_eng(`perfetto_producer({ system_server })')
+
 # Get file context
 allow system_server file_contexts_file:file r_file_perms;
 # access for mac_permissions
@@ -597,6 +599,7 @@ set_prop(system_server, device_config_activity_manager_native_boot_prop)
 set_prop(system_server, device_config_runtime_native_boot_prop)
 set_prop(system_server, device_config_runtime_native_prop)
 set_prop(system_server, device_config_media_native_prop)
+set_prop(system_server, device_config_storage_native_boot_prop)
 set_prop(system_server, device_config_sys_traced_prop)
 
 # BootReceiver to read ro.boot.bootreason
@@ -626,6 +629,9 @@ set_prop(system_server, test_harness_prop)
 
 # Read gsid.image_running.
 get_prop(system_server, gsid_prop)
+
+# Read the property that mocks an OTA
+get_prop(system_server, mock_ota_prop)
 
 # Create a socket for connections from debuggerd.
 allow system_server system_ndebug_socket:sock_file create_file_perms;
@@ -949,6 +955,7 @@ neverallow {
   device_config_runtime_native_boot_prop
   device_config_runtime_native_prop
   device_config_media_native_prop
+  device_config_storage_native_boot_prop
   device_config_sys_traced_prop
 }:property_service set;
 
@@ -1000,6 +1007,12 @@ wakelock_use(system_server)
 # Only apexd is allowed to create new entries or write to any file under /data/apex.
 allow system_server apex_data_file:dir { getattr search };
 allow system_server apex_data_file:file r_file_perms;
+
+# Allow the system server to read files under /vendor/apex. This is where
+# vendor APEX packages might be installed and system_server needs to parse
+# these packages to inspect the signatures and other metadata.
+allow system_server vendor_apex_file:dir { getattr search };
+allow system_server vendor_apex_file:file r_file_perms;
 
 # Allow PasswordSlotManager rw access to /metadata/password_slots, so GSIs and the host image can
 # communicate which slots are available for use.

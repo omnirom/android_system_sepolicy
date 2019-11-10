@@ -10,7 +10,7 @@
 /(vendor|system/vendor)/bin/hw/android\.hardware\.bluetooth@1\.0-service      u:object_r:hal_bluetooth_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.bluetooth@1\.0-service\.btlinux    u:object_r:hal_bluetooth_btlinux_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.biometrics\.fingerprint@2\.1-service u:object_r:hal_fingerprint_default_exec:s0
-/(vendor|system/vendor)/bin/hw/android\.hardware\.boot@1\.0-service           u:object_r:hal_bootctl_default_exec:s0
+/(vendor|system/vendor)/bin/hw/android\.hardware\.boot@1\.[0-9]+-service      u:object_r:hal_bootctl_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.broadcastradio@\d+\.\d+-service u:object_r:hal_broadcastradio_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.camera\.provider@2\.[0-9]+-service_64       u:object_r:hal_camera_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.camera\.provider@2\.[0-9]+-service          u:object_r:hal_camera_default_exec:s0
@@ -22,8 +22,8 @@
 /(vendor|system/vendor)/bin/hw/android\.hardware\.contexthub@1\.0-service     u:object_r:hal_contexthub_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.drm@1\.0-service            u:object_r:hal_drm_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.drm@1\.0-service-lazy       u:object_r:hal_drm_default_exec:s0
-/(vendor|system/vendor)/bin/hw/android\.hardware\.cas@1\.[01]-service            u:object_r:hal_cas_default_exec:s0
-/(vendor|system/vendor)/bin/hw/android\.hardware\.cas@1\.[01]-service-lazy       u:object_r:hal_cas_default_exec:s0
+/(vendor|system/vendor)/bin/hw/android\.hardware\.cas@1\.[0-2]-service            u:object_r:hal_cas_default_exec:s0
+/(vendor|system/vendor)/bin/hw/android\.hardware\.cas@1\.[0-2]-service-lazy       u:object_r:hal_cas_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.dumpstate@1\.0-service\.example      u:object_r:hal_dumpstate_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.gatekeeper@1\.0-service     u:object_r:hal_gatekeeper_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.gnss@[0-9]\.[0-9]-service   u:object_r:hal_gnss_default_exec:s0
@@ -76,6 +76,12 @@
 /(vendor|system/vendor)/lib(64)?/hw/android\.hardware\.graphics\.mapper@4\.0-impl\.so u:object_r:same_process_hal_file:s0
 /(vendor|system/vendor)/lib(64)?/hw/android\.hardware\.renderscript@1\.0-impl\.so     u:object_r:same_process_hal_file:s0
 /(vendor|system/vendor)/lib(64)?/hw/gralloc\.default\.so                              u:object_r:same_process_hal_file:s0
+
+#############################
+# Libraries removed from vndk-sp (must still be accessible by passthrough HALs using them)
+#
+/(vendor|system/vendor)/lib(64)?/libhwbinder.so u:object_r:same_process_hal_file:s0
+/(vendor|system/vendor)/lib(64)?/libhidltransport.so u:object_r:same_process_hal_file:s0
 
 #############################
 # Data files

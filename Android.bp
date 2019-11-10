@@ -71,27 +71,95 @@ se_filegroup {
 }
 
 se_cil_compat_map {
-    name: "26.0.cil",
+    name: "plat_26.0.cil",
+    stem: "26.0.cil",
     bottom_half: [":26.0.board.compat.map"],
-    top_half: "27.0.cil",
+    top_half: "plat_27.0.cil",
 }
 
 se_cil_compat_map {
-    name: "27.0.cil",
+    name: "plat_27.0.cil",
+    stem: "27.0.cil",
     bottom_half: [":27.0.board.compat.map"],
-    top_half: "28.0.cil",
+    top_half: "plat_28.0.cil",
 }
 
 se_cil_compat_map {
-    name: "28.0.cil",
+    name: "plat_28.0.cil",
+    stem: "28.0.cil",
     bottom_half: [":28.0.board.compat.map"],
-    top_half: "29.0.cil",
+    top_half: "plat_29.0.cil",
 }
 
 se_cil_compat_map {
-    name: "29.0.cil",
+    name: "plat_29.0.cil",
+    stem: "29.0.cil",
     bottom_half: [":29.0.board.compat.map"],
-    // top_half: "30.0.cil",
+    // top_half: "plat_30.0.cil",
+}
+
+se_cil_compat_map {
+    name: "system_ext_26.0.cil",
+    stem: "26.0.cil",
+    bottom_half: [":26.0.board.compat.map"],
+    top_half: "system_ext_27.0.cil",
+    system_ext_specific: true,
+}
+
+se_cil_compat_map {
+    name: "system_ext_27.0.cil",
+    stem: "27.0.cil",
+    bottom_half: [":27.0.board.compat.map"],
+    top_half: "system_ext_28.0.cil",
+    system_ext_specific: true,
+}
+
+se_cil_compat_map {
+    name: "system_ext_28.0.cil",
+    stem: "28.0.cil",
+    bottom_half: [":28.0.board.compat.map"],
+    top_half: "system_ext_29.0.cil",
+    system_ext_specific: true,
+}
+
+se_cil_compat_map {
+    name: "system_ext_29.0.cil",
+    stem: "29.0.cil",
+    bottom_half: [":29.0.board.compat.map"],
+    // top_half: "system_ext_30.0.cil",
+    system_ext_specific: true,
+}
+
+se_cil_compat_map {
+    name: "product_26.0.cil",
+    stem: "26.0.cil",
+    bottom_half: [":26.0.board.compat.map"],
+    top_half: "product_27.0.cil",
+    product_specific: true,
+}
+
+se_cil_compat_map {
+    name: "product_27.0.cil",
+    stem: "27.0.cil",
+    bottom_half: [":27.0.board.compat.map"],
+    top_half: "product_28.0.cil",
+    product_specific: true,
+}
+
+se_cil_compat_map {
+    name: "product_28.0.cil",
+    stem: "28.0.cil",
+    bottom_half: [":28.0.board.compat.map"],
+    top_half: "product_29.0.cil",
+    product_specific: true,
+}
+
+se_cil_compat_map {
+    name: "product_29.0.cil",
+    stem: "29.0.cil",
+    bottom_half: [":29.0.board.compat.map"],
+    // top_half: "product_30.0.cil",
+    product_specific: true,
 }
 
 se_cil_compat_map {
@@ -199,6 +267,13 @@ file_contexts {
 }
 
 file_contexts {
+    name: "system_ext_file_contexts",
+    srcs: [":file_contexts_files"],
+    system_ext_specific: true,
+    recovery_available: true,
+}
+
+file_contexts {
     name: "product_file_contexts",
     srcs: [":file_contexts_files"],
     product_specific: true,
@@ -215,6 +290,12 @@ file_contexts {
 hwservice_contexts {
     name: "plat_hwservice_contexts",
     srcs: [":hwservice_contexts_files"],
+}
+
+hwservice_contexts {
+    name: "system_ext_hwservice_contexts",
+    srcs: [":hwservice_contexts_files"],
+    system_ext_specific: true,
 }
 
 hwservice_contexts {
@@ -243,6 +324,13 @@ property_contexts {
 }
 
 property_contexts {
+    name: "system_ext_property_contexts",
+    srcs: [":property_contexts_files"],
+    system_ext_specific: true,
+    recovery_available: true,
+}
+
+property_contexts {
     name: "product_property_contexts",
     srcs: [":property_contexts_files"],
     product_specific: true,
@@ -267,6 +355,12 @@ property_contexts {
 service_contexts {
     name: "plat_service_contexts",
     srcs: [":service_contexts_files"],
+}
+
+service_contexts {
+    name: "system_ext_service_contexts",
+    srcs: [":service_contexts_files"],
+    system_ext_specific: true,
 }
 
 service_contexts {

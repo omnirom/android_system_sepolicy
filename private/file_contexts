@@ -75,6 +75,7 @@
 /dev/adf-interface[0-9]*\.[0-9]*	u:object_r:graphics_device:s0
 /dev/adf-overlay-engine[0-9]*\.[0-9]*	u:object_r:graphics_device:s0
 /dev/ashmem		u:object_r:ashmem_device:s0
+/dev/ashmem(.*)?	u:object_r:ashmem_libcutils_device:s0
 /dev/audio.*		u:object_r:audio_device:s0
 /dev/binder		u:object_r:binder_device:s0
 /dev/block(/.*)?	u:object_r:block_device:s0
@@ -185,7 +186,6 @@
 /system/lib(64)?(/.*)?		u:object_r:system_lib_file:s0
 /system/lib(64)?/bootstrap(/.*)? u:object_r:system_bootstrap_lib_file:s0
 /system/bin/atrace	u:object_r:atrace_exec:s0
-/system/bin/ashmemd	u:object_r:ashmemd_exec:s0
 /system/bin/auditctl	u:object_r:auditctl_exec:s0
 /system/bin/bcc                 u:object_r:rs_exec:s0
 /system/bin/blank_screen	u:object_r:blank_screen_exec:s0
@@ -253,6 +253,7 @@
 /system/bin/recovery-persist     u:object_r:recovery_persist_exec:s0
 /system/bin/recovery-refresh     u:object_r:recovery_refresh_exec:s0
 /system/bin/sdcard      u:object_r:sdcardd_exec:s0
+/system/bin/snapshotctl      u:object_r:snapshotctl_exec:s0
 /system/bin/dhcpcd      u:object_r:dhcp_exec:s0
 /system/bin/dhcpcd-6\.8\.2	u:object_r:dhcp_exec:s0
 /system/bin/mtpd	u:object_r:mtp_exec:s0
@@ -283,12 +284,12 @@
 /system/bin/cppreopts\.sh   u:object_r:cppreopts_exec:s0
 /system/bin/preloads_copy\.sh u:object_r:preloads_copy_exec:s0
 /system/bin/preopt2cachename u:object_r:preopt2cachename_exec:s0
-/system/bin/install-recovery\.sh u:object_r:install_recovery_exec:s0
 /system/bin/dex2oat(d)?     u:object_r:dex2oat_exec:s0
 /system/bin/dexoptanalyzer(d)?     u:object_r:dexoptanalyzer_exec:s0
 /system/bin/viewcompiler     u:object_r:viewcompiler_exec:s0
 /system/bin/profman(d)?     u:object_r:profman_exec:s0
 /system/bin/iorapd          u:object_r:iorapd_exec:s0
+/system/bin/iorap\.prefetcherd u:object_r:iorap_prefetcherd_exec:s0
 /system/bin/sgdisk      u:object_r:sgdisk_exec:s0
 /system/bin/blkid       u:object_r:blkid_exec:s0
 /system/bin/tzdatacheck u:object_r:tzdatacheck_exec:s0
@@ -357,11 +358,16 @@
 /(vendor|system/vendor)/overlay(/.*)?          u:object_r:vendor_overlay_file:s0
 /(vendor|system/vendor)/framework(/.*)?        u:object_r:vendor_framework_file:s0
 
-/vendor/apex(/[^/]+){0,2}                      u:object_r:vendor_apex_file:s0
-/vendor/bin/misc_writer                        u:object_r:vendor_misc_writer_exec:s0
+/(vendor|system/vendor)/apex(/[^/]+){0,2}                      u:object_r:vendor_apex_file:s0
+/(vendor|system/vendor)/bin/misc_writer                        u:object_r:vendor_misc_writer_exec:s0
+/(vendor|system/vendor)/bin/boringssl_self_test(32|64)         u:object_r:vendor_boringssl_self_test_exec:s0
 
 # HAL location
 /(vendor|system/vendor)/lib(64)?/hw            u:object_r:vendor_hal_file:s0
+
+/(vendor|system/vendor)/etc/selinux/(vendor|nonplat)_service_contexts u:object_r:nonplat_service_contexts_file:s0
+
+/(vendor|system/vendor)/bin/install-recovery\.sh u:object_r:vendor_install_recovery_exec:s0
 
 #############################
 # OEM and ODM files
@@ -378,9 +384,9 @@
 /(odm|vendor/odm)/framework(/.*)?             u:object_r:vendor_framework_file:s0
 
 # Input configuration
-/(odm|vendor|vendor/odm)/usr/keylayout(/.*)?\.kl            u:object_r:vendor_keylayout_file:s0
-/(odm|vendor|vendor/odm)/usr/keychars(/.*)?\.kcm            u:object_r:vendor_keychars_file:s0
-/(odm|vendor|vendor/odm)/usr/idc(/.*)?\.idc                 u:object_r:vendor_idc_file:s0
+/(odm|vendor/odm|vendor|system/vendor)/usr/keylayout(/.*)?\.kl        u:object_r:vendor_keylayout_file:s0
+/(odm|vendor/odm|vendor|system/vendor)/usr/keychars(/.*)?\.kcm        u:object_r:vendor_keychars_file:s0
+/(odm|vendor/odm|vendor|system/vendor)/usr/idc(/.*)?\.idc             u:object_r:vendor_idc_file:s0
 
 /oem(/.*)?              u:object_r:oemfs:s0
 /oem/overlay(/.*)?      u:object_r:vendor_overlay_file:s0
@@ -422,6 +428,13 @@
 /(system_ext|system/system_ext)/etc/passwd          u:object_r:system_passwd_file:s0
 /(system_ext|system/system_ext)/overlay(/.*)?       u:object_r:vendor_overlay_file:s0
 
+/(system_ext|system/system_ext)/etc/selinux/system_ext_file_contexts        u:object_r:file_contexts_file:s0
+/(system_ext|system/system_ext)/etc/selinux/system_ext_hwservice_contexts   u:object_r:hwservice_contexts_file:s0
+/(system_ext|system/system_ext)/etc/selinux/system_ext_property_contexts    u:object_r:property_contexts_file:s0
+/(system_ext|system/system_ext)/etc/selinux/system_ext_seapp_contexts       u:object_r:seapp_contexts_file:s0
+/(system_ext|system/system_ext)/etc/selinux/system_ext_service_contexts     u:object_r:service_contexts_file:s0
+/(system_ext|system/system_ext)/etc/selinux/system_ext_mac_permissions\.xml u:object_r:mac_perms_file:s0
+
 #############################
 # Vendor files from /(product|system/product)/vendor_overlay
 #
@@ -460,6 +473,7 @@
 /data/app-private(/.*)?               u:object_r:apk_private_data_file:s0
 /data/app-private/vmdl.*\.tmp(/.*)?   u:object_r:apk_private_tmp_file:s0
 /data/gsi(/.*)?        u:object_r:gsi_data_file:s0
+/data/gsi/ota(/.*)?    u:object_r:ota_image_data_file:s0
 /data/tombstones(/.*)?	u:object_r:tombstone_data_file:s0
 /data/vendor/tombstones/wifi(/.*)? u:object_r:tombstone_wifi_data_file:s0
 /data/local/tmp(/.*)?	u:object_r:shell_data_file:s0
@@ -641,6 +655,7 @@
 /metadata/apex(/.*)?      u:object_r:apex_metadata_file:s0
 /metadata/vold(/.*)?      u:object_r:vold_metadata_file:s0
 /metadata/gsi(/.*)?       u:object_r:gsi_metadata_file:s0
+/metadata/gsi/ota(/.*)?   u:object_r:ota_metadata_file:s0
 /metadata/password_slots(/.*)?    u:object_r:password_slot_metadata_file:s0
 /metadata/ota(/.*)?       u:object_r:ota_metadata_file:s0
 

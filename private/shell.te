@@ -34,9 +34,7 @@ unix_socket_connect(shell, traced_consumer, traced)
 
 # Allow shell binaries to write trace data to Perfetto. Used for testing and
 # cmdline utils.
-allow shell traced:fd use;
-allow shell traced_tmpfs:file { read write getattr map };
-unix_socket_connect(shell, traced_producer, traced)
+perfetto_producer(shell)
 
 domain_auto_trans(shell, vendor_shell_exec, vendor_shell)
 
@@ -52,7 +50,7 @@ binder_call(shell, statsd);
 
 # Allow shell to read and unlink traces stored in /data/misc/perfetto-traces.
 allow shell perfetto_traces_data_file:dir rw_dir_perms;
-allow shell perfetto_traces_data_file:file r_file_perms;
+allow shell perfetto_traces_data_file:file { r_file_perms unlink };
 
 # Allow shell to run adb shell cmd gpu commands.
 binder_call(shell, gpuservice);
@@ -79,3 +77,9 @@ binder_call(shell, lpdumpd)
 userdebug_or_eng(`
   set_prop(shell, linker_prop)
 ')
+
+# Allow shell to get encryption policy of /data/local/tmp/, for CTS
+allowxperm shell shell_data_file:dir ioctl {
+  FS_IOC_GET_ENCRYPTION_POLICY
+  FS_IOC_GET_ENCRYPTION_POLICY_EX
+};

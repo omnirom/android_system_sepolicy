@@ -54,6 +54,7 @@ type backup_service, app_api_service, ephemeral_app_api_service, system_server_s
 type batterystats_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type battery_service, system_server_service, service_manager_type;
 type binder_calls_stats_service, system_server_service, service_manager_type;
+type blob_store_service, app_api_service, system_server_service, service_manager_type;
 type bluetooth_manager_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type broadcastradio_service, system_server_service, service_manager_type;
 type cameraproxy_service, system_server_service, service_manager_type;
@@ -188,6 +189,12 @@ type wifiaware_service, app_api_service, system_server_service, service_manager_
 type window_service, system_api_service, system_server_service, service_manager_type;
 type inputflinger_service, system_api_service, system_server_service, service_manager_type;
 type wpantund_service, system_api_service, service_manager_type;
+
+###
+### HAL Services
+###
+
+type hal_vibrator_service, vendor_service, service_manager_type;
 
 ###
 ### Neverallow rules

@@ -6,6 +6,7 @@
 (typeattributeset new_objects
   ( new_objects
     ashmem_libcutils_device
+    blob_store_service
     boringssl_self_test
     charger_prop
     cold_boot_done_prop
@@ -16,6 +17,7 @@
     hal_can_bus_hwservice
     hal_can_controller_hwservice
     hal_tv_tuner_hwservice
+    hal_vibrator_service
     init_svc_debug_prop
     iorap_prefetcherd
     iorap_prefetcherd_data_file

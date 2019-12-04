@@ -49,6 +49,7 @@ type appops_service, app_api_service, ephemeral_app_api_service, system_server_s
 type appwidget_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type assetatlas_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type audio_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
+type auth_service, app_api_service, system_server_service, service_manager_type;
 type autofill_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type backup_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type batterystats_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
@@ -167,6 +168,7 @@ type telecom_service, app_api_service, ephemeral_app_api_service, system_server_
 type thermal_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type timedetector_service, system_server_service, service_manager_type;
 type timezone_service, system_server_service, service_manager_type;
+type timezonedetector_service, system_server_service, service_manager_type;
 type trust_service, app_api_service, system_server_service, service_manager_type;
 type tv_input_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type uimode_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;

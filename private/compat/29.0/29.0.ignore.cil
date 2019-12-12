@@ -5,6 +5,9 @@
 (typeattribute new_objects)
 (typeattributeset new_objects
   ( new_objects
+    apex_module_data_file
+    apex_rollback_data_file
+    app_integrity_service
     app_search_service
     auth_service
     ashmem_libcutils_device
@@ -19,6 +22,7 @@
     gmscore_app
     hal_can_bus_hwservice
     hal_can_controller_hwservice
+    hal_rebootescrow_service
     hal_tv_tuner_hwservice
     hal_vibrator_service
     init_svc_debug_prop
@@ -26,8 +30,14 @@
     iorap_prefetcherd_data_file
     iorap_prefetcherd_exec
     iorap_prefetcherd_tmpfs
+    mediatranscoding_service
+    mediatranscoding
+    mediatranscoding_exec
+    mediatranscoding_tmpfs
     linker_prop
+    linkerconfig_file
     mock_ota_prop
+    module_sdkext_prop
     ota_metadata_file
     ota_prop
     art_apex_dir
@@ -35,9 +45,12 @@
     system_group_file
     system_jvmti_agent_prop
     system_passwd_file
+    tethering_service
     timezonedetector_service
+    usb_serial_device
     userspace_reboot_prop
     userspace_reboot_exported_prop
+    vehicle_hal_prop
     vendor_apex_file
     vendor_boringssl_self_test
     vendor_install_recovery

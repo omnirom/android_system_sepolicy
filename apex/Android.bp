@@ -63,6 +63,13 @@ filegroup {
 }
 
 filegroup {
+  name: "com.android.ipsec-file_contexts",
+  srcs: [
+    "com.android.ipsec-file_contexts",
+  ],
+}
+
+filegroup {
   name: "com.android.i18n-file_contexts",
   srcs: [
     "com.android.i18n-file_contexts",
@@ -73,6 +80,13 @@ filegroup {
   name: "com.android.media-file_contexts",
   srcs: [
     "com.android.media-file_contexts",
+  ],
+}
+
+filegroup {
+  name: "com.android.mediaprovider-file_contexts",
+  srcs: [
+    "com.android.mediaprovider-file_contexts",
   ],
 }
 

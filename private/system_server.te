@@ -37,10 +37,12 @@ allow system_server zygote:fd use;
 allow system_server zygote:process sigchld;
 
 # May kill zygote on crashes.
-allow system_server zygote:process sigkill;
-allow system_server crash_dump:process sigkill;
-allow system_server webview_zygote:process sigkill;
-allow system_server app_zygote:process sigkill;
+allow system_server {
+  app_zygote
+  crash_dump
+  webview_zygote
+  zygote
+}:process { sigkill signull };
 
 # Read /system/bin/app_process.
 allow system_server zygote_exec:file r_file_perms;
@@ -110,6 +112,8 @@ allow system_server self:netlink_route_socket nlmsg_write;
 
 # Kill apps.
 allow system_server appdomain:process { getpgid sigkill signal };
+# signull allowed for kill(pid, 0) existence test.
+allow system_server appdomain:process { signull };
 
 # Set scheduling info for apps.
 allow system_server appdomain:process { getsched setsched };
@@ -222,6 +226,7 @@ hal_client_domain(system_server, hal_oemlock)
 hal_client_domain(system_server, hal_omx)
 hal_client_domain(system_server, hal_power)
 hal_client_domain(system_server, hal_power_stats)
+hal_client_domain(system_server, hal_rebootescrow)
 hal_client_domain(system_server, hal_sensors)
 hal_client_domain(system_server, hal_tetheroffload)
 hal_client_domain(system_server, hal_thermal)
@@ -638,6 +643,9 @@ get_prop(system_server, gsid_prop)
 # Read the property that mocks an OTA
 get_prop(system_server, mock_ota_prop)
 
+# Read the property as feature flag for protecting apks with fs-verity.
+get_prop(system_server, apk_verity_prop)
+
 # Create a socket for connections from debuggerd.
 allow system_server system_ndebug_socket:sock_file create_file_perms;
 
@@ -1008,6 +1016,9 @@ allow system_server system_server_startup:unix_dgram_socket write;
 # Allow system server to communicate to apexd
 allow system_server apex_service:service_manager find;
 allow system_server apexd:binder call;
+
+# Allow system server to scan /apex for flattened APEXes
+allow system_server apex_mnt_dir:dir r_dir_perms;
 
 # Allow system server to communicate to system-suspend's control interface
 allow system_server system_suspend_control_service:service_manager find;

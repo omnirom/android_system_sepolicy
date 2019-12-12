@@ -1161,6 +1161,7 @@ neverallow {
   -system_server
   -system_app
   -init
+  -toolbox # TODO(b/141108496) We want to remove toolbox
   -installd # for relabelfrom and unlink, check for this in explicit neverallow
   -vold_prepare_subdirs # For unlink
   -update_engine
@@ -1415,4 +1416,3 @@ neverallow {
   -hal_codec2_server
   -hal_omx_server
 } hal_codec2_hwservice:hwservice_manager add;
-

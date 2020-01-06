@@ -24,6 +24,7 @@
 /lost\+found        u:object_r:rootfs:s0
 /acct               u:object_r:cgroup:s0
 /config             u:object_r:rootfs:s0
+/data_mirror        u:object_r:mirror_data_file:s0
 /debug_ramdisk      u:object_r:tmpfs:s0
 /mnt                u:object_r:tmpfs:s0
 /postinstall        u:object_r:postinstall_mnt_dir:s0
@@ -480,6 +481,7 @@
 /data/app-private/vmdl.*\.tmp(/.*)?   u:object_r:apk_private_tmp_file:s0
 /data/gsi(/.*)?        u:object_r:gsi_data_file:s0
 /data/gsi/ota(/.*)?    u:object_r:ota_image_data_file:s0
+/data/incremental(/.*)?   u:object_r:incremental_root_file:s0
 /data/tombstones(/.*)?	u:object_r:tombstone_data_file:s0
 /data/vendor/tombstones/wifi(/.*)? u:object_r:tombstone_wifi_data_file:s0
 /data/local/tmp(/.*)?	u:object_r:shell_data_file:s0

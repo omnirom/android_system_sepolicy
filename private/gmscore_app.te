@@ -63,9 +63,13 @@ dontaudit gmscore_app sysfs_dm:file r_file_perms;
 dontaudit gmscore_app sysfs_loop:file r_file_perms;
 dontaudit gmscore_app wifi_prop:file r_file_perms;
 dontaudit gmscore_app { wifi_prop exported_wifi_prop }:file r_file_perms;
+dontaudit gmscore_app mirror_data_file:dir search;
 
 # Access the network
 net_domain(gmscore_app)
+
+# webview crash handling depends on self ptrace (b/27697529, b/20150694, b/19277529#comment7)
+allow gmscore_app self:process ptrace;
 
 # Allow loading executable code from writable priv-app home
 # directories. This is a W^X violation, however, it needs
@@ -109,3 +113,21 @@ allow gmscore_app stats_service:service_manager find;
 # running "adb install foo.apk".
 allow gmscore_app shell_data_file:file r_file_perms;
 allow gmscore_app shell_data_file:dir r_dir_perms;
+
+# Write to /cache.
+allow gmscore_app { cache_file cache_recovery_file }:dir create_dir_perms;
+allow gmscore_app { cache_file cache_recovery_file }:file create_file_perms;
+# /cache is a symlink to /data/cache on some devices. Allow reading the link.
+allow gmscore_app cache_file:lnk_file r_file_perms;
+
+# Write to /data/ota_package for OTA packages.
+allow gmscore_app ota_package_file:dir rw_dir_perms;
+allow gmscore_app ota_package_file:file create_file_perms;
+
+# Used by Finsky / Android "Verify Apps" functionality when
+# running "adb install foo.apk".
+allow gmscore_app shell_data_file:file r_file_perms;
+allow gmscore_app shell_data_file:dir r_dir_perms;
+
+# b/18504118: Allow reads from /data/anr/traces.txt
+allow gmscore_app anr_data_file:file r_file_perms;

@@ -51,6 +51,7 @@ country_detector                          u:object_r:country_detector_service:s0
 coverage                                  u:object_r:coverage_service:s0
 cpuinfo                                   u:object_r:cpuinfo_service:s0
 crossprofileapps                          u:object_r:crossprofileapps_service:s0
+dataloader_manager                        u:object_r:dataloader_manager_service:s0
 dbinfo                                    u:object_r:dbinfo_service:s0
 device_config                             u:object_r:device_config_service:s0
 device_policy                             u:object_r:device_policy_service:s0
@@ -75,6 +76,7 @@ external_vibrator_service                 u:object_r:external_vibrator_service:s
 lowpan                                    u:object_r:lowpan_service:s0
 ethernet                                  u:object_r:ethernet_service:s0
 face                                      u:object_r:face_service:s0
+file_integrity                            u:object_r:file_integrity_service:s0
 fingerprint                               u:object_r:fingerprint_service:s0
 font                                      u:object_r:font_service:s0
 android.hardware.fingerprint.IFingerprintDaemon u:object_r:fingerprintd_service:s0
@@ -98,6 +100,8 @@ iphonesubinfo2                            u:object_r:radio_service:s0
 iphonesubinfo                             u:object_r:radio_service:s0
 ims                                       u:object_r:radio_service:s0
 imms                                      u:object_r:imms_service:s0
+incremental                               u:object_r:incremental_service:s0
+incremental_service                       u:object_r:incremental_service:s0
 ipsec                                     u:object_r:ipsec_service:s0
 ircsmessage                               u:object_r:radio_service:s0
 iris                                      u:object_r:iris_service:s0
@@ -186,7 +190,9 @@ sip                                       u:object_r:radio_service:s0
 slice                                     u:object_r:slice_service:s0
 stats                                     u:object_r:stats_service:s0
 statscompanion                            u:object_r:statscompanion_service:s0
+statsmanager                              u:object_r:statsmanager_service:s0
 soundtrigger                              u:object_r:voiceinteraction_service:s0
+soundtrigger_middleware                   u:object_r:soundtrigger_middleware_service:s0
 statusbar                                 u:object_r:statusbar_service:s0
 storaged                                  u:object_r:storaged_service:s0
 storaged_pri                              u:object_r:storaged_service:s0

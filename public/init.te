@@ -86,6 +86,7 @@ allow init {
     rootfs
     cache_file
     cgroup
+    linkerconfig_file
     storage_file
     mnt_user_file
     system_data_file
@@ -382,6 +383,7 @@ allow init {
   sysfs_leds
   sysfs_power
   sysfs_fs_f2fs
+  sysfs_dm
 }:file w_file_perms;
 
 allow init {

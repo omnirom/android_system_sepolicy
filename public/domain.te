@@ -80,6 +80,10 @@ allow domain ashmem_libcutils_device:chr_file rw_file_perms;
 # /dev/binder can be accessed by ... everyone! :)
 allow { domain -hwservicemanager -vndservicemanager } binder_device:chr_file rw_file_perms;
 
+# /dev/binderfs needs to be accessed by everyone too!
+allow domain binderfs:dir { getattr search };
+allow domain binderfs_logs_proc:dir search;
+
 allow { domain -servicemanager -vndservicemanager -isolated_app } hwbinder_device:chr_file rw_file_perms;
 allow domain ptmx_device:chr_file rw_file_perms;
 allow domain random_device:chr_file rw_file_perms;
@@ -101,6 +105,10 @@ get_prop(domain, exported_system_prop)
 get_prop(domain, exported_vold_prop)
 get_prop(domain, exported2_default_prop)
 get_prop(domain, logd_prop)
+get_prop(domain, vndk_prop)
+
+# Allow every to read binder cache properties
+get_prop(domain, binder_cache_system_server_prop)
 
 # Let everyone read log properties, so that liblog can avoid sending unloggable
 # messages to logd.
@@ -492,9 +500,9 @@ neverallow { domain recovery_only(`userdebug_or_eng(`-fastbootd')') } contextmou
 # system_app_service rather than the generic type.
 # New service_types are defined in {,hw,vnd}service.te and new mappings
 # from service name to service_type are defined in {,hw,vnd}service_contexts.
-neverallow * default_android_service:service_manager add;
-neverallow * default_android_vndservice:service_manager { add find };
-neverallow * default_android_hwservice:hwservice_manager { add find };
+neverallow * default_android_service:service_manager *;
+neverallow * default_android_vndservice:service_manager *;
+neverallow * default_android_hwservice:hwservice_manager *;
 
 # Looking up the base class/interface of all HwBinder services is a bad idea.
 # hwservicemanager currently offer such lookups only to make it so that security
@@ -509,6 +517,7 @@ neverallow * hidl_base_hwservice:hwservice_manager find;
 # anyone but init to modify unknown properties.
 neverallow { domain -init -vendor_init } default_prop:property_service set;
 neverallow { domain -init -vendor_init } mmc_prop:property_service set;
+neverallow { domain -init -vendor_init } vndk_prop:property_service set;
 
 compatible_property_only(`
     neverallow { domain -init } default_prop:property_service set;
@@ -1164,10 +1173,11 @@ neverallow {
   -zygote
 } shell:process { transition dyntransition };
 
-# Only domains spawned from zygote, runas and simpleperf_app_runner may have the appdomain
-# attribute.
+# Only domains spawned from zygote, runas and simpleperf_app_runner may have
+# the appdomain attribute. simpleperf is excluded as a domain transitioned to
+# when running an app-scoped profiling session.
 neverallow { domain -simpleperf_app_runner -runas -app_zygote -webview_zygote -zygote } {
-  appdomain -shell userdebug_or_eng(`-su')
+  appdomain -shell -simpleperf userdebug_or_eng(`-su')
 }:process { transition dyntransition };
 
 # Minimize read access to shell- or app-writable symlinks.

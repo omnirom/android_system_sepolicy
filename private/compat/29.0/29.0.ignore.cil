@@ -17,14 +17,19 @@
     cold_boot_done_prop
     platform_compat_service
     ctl_apexd_prop
+    dataloader_manager_service
     device_config_storage_native_boot_prop
     device_config_sys_traced_prop
+    file_integrity_service
     gmscore_app
     hal_can_bus_hwservice
     hal_can_controller_hwservice
     hal_rebootescrow_service
     hal_tv_tuner_hwservice
     hal_vibrator_service
+    incfs
+    incremental_service
+    incremental_root_file
     init_svc_debug_prop
     iorap_prefetcherd
     iorap_prefetcherd_data_file
@@ -34,6 +39,7 @@
     mediatranscoding
     mediatranscoding_exec
     mediatranscoding_tmpfs
+    mirror_data_file
     linker_prop
     linkerconfig_file
     mock_ota_prop
@@ -42,6 +48,7 @@
     ota_prop
     art_apex_dir
     service_manager_service
+    soundtrigger_middleware_service
     system_group_file
     system_jvmti_agent_prop
     system_passwd_file

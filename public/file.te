@@ -83,6 +83,7 @@ type sysfs_devices_block, fs_type, sysfs_type;
 type sysfs_dm, fs_type, sysfs_type;
 type sysfs_dt_firmware_android, fs_type, sysfs_type;
 type sysfs_extcon, fs_type, sysfs_type;
+type sysfs_ion, fs_type, sysfs_type;
 type sysfs_ipv4, fs_type, sysfs_type;
 type sysfs_kernel_notes, fs_type, sysfs_type, mlstrustedobject;
 type sysfs_leds, fs_type, sysfs_type;
@@ -139,6 +140,8 @@ type oemfs, fs_type, contextmount_type;
 type usbfs, fs_type;
 type binfmt_miscfs, fs_type;
 type app_fusefs, fs_type, contextmount_type;
+
+type incfs, fs_type;
 
 # File types
 type unlabeled, file_type;
@@ -302,6 +305,8 @@ type server_configurable_flags_data_file, file_type, data_file_type, core_data_f
 type staging_data_file, file_type, data_file_type, core_data_file_type;
 # /vendor/apex
 type vendor_apex_file, vendor_file_type, file_type;
+# /data/incremental
+type incremental_root_file, file_type, data_file_type, core_data_file_type;
 
 # Mount locations managed by vold
 type mnt_media_rw_file, file_type;
@@ -329,6 +334,9 @@ type postinstall_mnt_dir, file_type;
 type postinstall_file, file_type;
 # /postinstall/apex: Mount point used for APEX images within /postinstall.
 type postinstall_apex_mnt_dir, file_type;
+
+# /data_mirror: Contains mirror directory for storing all apps data.
+type mirror_data_file, file_type, core_data_file_type;
 
 # /data/misc subdirectories
 type adb_keys_file, file_type, data_file_type, core_data_file_type;

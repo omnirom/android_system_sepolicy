@@ -507,6 +507,8 @@ func (c *policyBinary) GenerateAndroidBuildActions(ctx android.ModuleContext) {
 			Text("permissive").
 			Text(" > ").
 			Output(permissiveDomains)
+		rule.Command().Text("sed").FlagWithArg("-i ", "'/backuptool/d'").Input(permissiveDomains)
+		rule.Command().Text("sed").FlagWithArg("-i ", "'/recovery/d'").Input(permissiveDomains)
 		rule.Temporary(permissiveDomains)
 
 		msg := `==========\n` +

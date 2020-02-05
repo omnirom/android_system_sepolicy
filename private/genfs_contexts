@@ -145,6 +145,7 @@ genfscon sysfs /kernel/mm/transparent_hugepage u:object_r:sysfs_transparent_huge
 genfscon sysfs /kernel/notes u:object_r:sysfs_kernel_notes:s0
 genfscon sysfs /kernel/uevent_helper u:object_r:sysfs_usermodehelper:s0
 genfscon sysfs /kernel/wakeup_reasons u:object_r:sysfs_wakeup_reasons:s0
+genfscon sysfs /module/dm_verity/parameters/prefetch_cluster u:object_r:sysfs_dm_verity:s0
 genfscon sysfs /module/lowmemorykiller u:object_r:sysfs_lowmemorykiller:s0
 genfscon sysfs /module/tcp_cubic/parameters u:object_r:sysfs_net:s0
 genfscon sysfs /module/wlan/parameters/fwpath u:object_r:sysfs_wlan_fwpath:s0
@@ -290,9 +291,15 @@ genfscon debugfs /tracing/events/ftrace/print/                                  
 
 genfscon debugfs /kcov								 u:object_r:debugfs_kcov:s0
 
+genfscon binder /binder u:object_r:binder_device:s0
+genfscon binder /hwbinder u:object_r:hwbinder_device:s0
+genfscon binder /vndbinder u:object_r:vndbinder_device:s0
+genfscon binder /binder_logs u:object_r:binderfs_logs:s0
+genfscon binder /binder_logs/proc u:object_r:binderfs_logs_proc:s0
 
 genfscon inotifyfs / u:object_r:inotify:s0
 genfscon vfat / u:object_r:vfat:s0
+genfscon binder / u:object_r:binderfs:s0
 genfscon exfat / u:object_r:exfat:s0
 genfscon debugfs / u:object_r:debugfs:s0
 genfscon fuse / u:object_r:fuse:s0

@@ -14,6 +14,9 @@ tmpfs_domain(system_server)
 # Create a socket for connections from crash_dump.
 type_transition system_server system_data_file:sock_file system_ndebug_socket "ndebugsocket";
 
+# Create a socket for connections from zygotes.
+type_transition system_server system_data_file:sock_file system_unsolzygote_socket "unsolzygotesocket";
+
 allow system_server zygote_tmpfs:file read;
 allow system_server appdomain_tmpfs:file { getattr map read write };
 
@@ -656,6 +659,9 @@ get_prop(system_server, apk_verity_prop)
 # Create a socket for connections from debuggerd.
 allow system_server system_ndebug_socket:sock_file create_file_perms;
 
+# Create a socket for connections from zygotes.
+allow system_server system_unsolzygote_socket:sock_file create_file_perms;
+
 # Manage cache files.
 allow system_server cache_file:lnk_file r_file_perms;
 allow system_server { cache_file cache_recovery_file }:dir { relabelfrom create_dir_perms };
@@ -830,6 +836,9 @@ allow system_server adbd:unix_stream_socket connectto;
 allow system_server adbd:fd use;
 allow system_server adbd:unix_stream_socket { getattr getopt ioctl read write shutdown };
 
+# Read persist.adb.wifi. properties
+get_prop(system_server, shell_prop)
+
 # Allow invoking tools like "timeout"
 allow system_server toolbox_exec:file rx_file_perms;
 
@@ -860,6 +869,7 @@ r_dir_file(system_server, proc_asound)
 r_dir_file(system_server, proc_net_type)
 r_dir_file(system_server, proc_qtaguid_stat)
 allow system_server {
+  proc_cmdline
   proc_loadavg
   proc_meminfo
   proc_pagetypeinfo
@@ -970,6 +980,16 @@ neverallow system_server *:process dyntransition;
 # Only allow crash_dump to connect to system_ndebug_socket.
 neverallow { domain -init -system_server -crash_dump } system_ndebug_socket:sock_file { open write };
 
+# Only allow zygotes to connect to system_unsolzygote_socket.
+neverallow {
+  domain
+  -init
+  -system_server
+  -zygote
+  -app_zygote
+  -webview_zygote
+} system_unsolzygote_socket:sock_file { open write };
+
 # Only allow init, system_server, flags_health_check to set properties for server configurable flags
 neverallow {
   domain
@@ -1050,6 +1070,11 @@ allow system_server apex_data_file:file r_file_perms;
 allow system_server vendor_apex_file:dir { getattr search };
 allow system_server vendor_apex_file:file r_file_perms;
 
+# Allow the system server to manage relevant apex module data files.
+allow system_server apex_module_data_file:dir { getattr search };
+allow system_server apex_permission_data_file:dir create_dir_perms;
+allow system_server apex_permission_data_file:file create_file_perms;
+
 # Allow PasswordSlotManager rw access to /metadata/password_slots, so GSIs and the host image can
 # communicate which slots are available for use.
 allow system_server metadata_file:dir search;
@@ -1089,3 +1114,8 @@ neverallow {
   -system_server
 } password_slot_metadata_file:notdevfile_class_set ~{ relabelto getattr };
 neverallow { domain -init -system_server } password_slot_metadata_file:notdevfile_class_set *;
+
+# Allow systemserver to read/write the invalidation property
+set_prop(system_server, binder_cache_system_server_prop)
+neverallow { domain -system_server -init }
+    binder_cache_system_server_prop:property_service set;

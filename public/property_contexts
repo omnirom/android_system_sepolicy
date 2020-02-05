@@ -254,10 +254,10 @@ ro.build.tags u:object_r:exported2_default_prop:s0 exact string
 ro.build.user u:object_r:exported2_default_prop:s0 exact string
 ro.build.version.base_os u:object_r:exported2_default_prop:s0 exact string
 ro.build.version.codename u:object_r:exported2_default_prop:s0 exact string
+ro.build.version.extensions. u:object_r:module_sdkextensions_prop:s0 prefix int
 ro.build.version.incremental u:object_r:exported2_default_prop:s0 exact string
 ro.build.version.preview_sdk u:object_r:exported2_default_prop:s0 exact int
 ro.build.version.release u:object_r:exported2_default_prop:s0 exact string
-ro.build.version.extensions. u:object_r:module_sdkext_prop:s0 prefix int
 ro.build.version.sdk u:object_r:exported2_default_prop:s0 exact int
 ro.build.version.security_patch u:object_r:exported2_default_prop:s0 exact string
 ro.crypto.state u:object_r:exported_vold_prop:s0 exact string
@@ -287,6 +287,7 @@ aaudio.mixer_bursts u:object_r:exported_default_prop:s0 exact int
 aaudio.mmap_exclusive_policy u:object_r:exported_default_prop:s0 exact int
 aaudio.mmap_policy u:object_r:exported_default_prop:s0 exact int
 aaudio.wakeup_delay_usec u:object_r:exported_default_prop:s0 exact int
+config.disable_cameraservice u:object_r:exported_camera_prop:s0 exact bool
 gsm.sim.operator.numeric u:object_r:exported_radio_prop:s0 exact string
 media.mediadrmservice.enable u:object_r:exported_default_prop:s0 exact bool
 persist.rcs.supported u:object_r:exported_default_prop:s0 exact int
@@ -374,20 +375,21 @@ ro.product.vendor.device u:object_r:exported_default_prop:s0 exact string
 ro.product.vendor.manufacturer u:object_r:exported_default_prop:s0 exact string
 ro.product.vendor.model u:object_r:exported_default_prop:s0 exact string
 ro.product.vendor.name u:object_r:exported_default_prop:s0 exact string
+ro.product.vndk.version u:object_r:vndk_prop:s0 exact string
 ro.telephony.iwlan_operation_mode u:object_r:exported_radio_prop:s0 exact enum default legacy AP-assisted
 ro.vendor.build.date u:object_r:exported_default_prop:s0 exact string
 ro.vendor.build.date.utc u:object_r:exported_default_prop:s0 exact int
 ro.vendor.build.fingerprint u:object_r:exported_default_prop:s0 exact string
 ro.vendor.build.version.incremental u:object_r:exported_default_prop:s0 exact string
-ro.vndk.lite u:object_r:exported_default_prop:s0 exact bool
-ro.vndk.version u:object_r:exported_default_prop:s0 exact string
+ro.vndk.lite u:object_r:vndk_prop:s0 exact bool
+ro.vndk.version u:object_r:vndk_prop:s0 exact string
 ro.vts.coverage u:object_r:exported_default_prop:s0 exact int
 wifi.active.interface u:object_r:exported_wifi_prop:s0 exact string
 wifi.concurrent.interface u:object_r:exported_default_prop:s0 exact string
 wifi.direct.interface u:object_r:exported_default_prop:s0 exact string
 wifi.interface u:object_r:exported_default_prop:s0 exact string
 ro.apex.updatable u:object_r:exported_default_prop:s0 exact bool
-ro.init.userspace_reboot.is_supported u:object_r:userspace_reboot_prop:s0 exact bool
+ro.init.userspace_reboot.is_supported u:object_r:userspace_reboot_config_prop:s0 exact bool
 
 # public-readable
 ro.boot.revision u:object_r:exported2_default_prop:s0 exact string
@@ -426,3 +428,8 @@ ro.surface_flinger.support_kernel_idle_timer u:object_r:exported_default_prop:s0
 ro.surface_flinger.use_smart_90_for_video u:object_r:exported_default_prop:s0 exact bool
 ro.surface_flinger.color_space_agnostic_dataspace u:object_r:exported_default_prop:s0 exact int
 ro.surface_flinger.refresh_rate_switching u:object_r:exported_default_prop:s0 exact bool
+
+# Binder cache properties.  These are world-readable
+cache_key.has_system_feature             u:object_r:binder_cache_system_server_prop:s0
+cache_key.is_interactive                 u:object_r:binder_cache_system_server_prop:s0
+cache_key.is_power_save_mode             u:object_r:binder_cache_system_server_prop:s0

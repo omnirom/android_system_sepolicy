@@ -6,6 +6,7 @@ type fwk_display_hwservice, hwservice_manager_type, coredomain_hwservice, protec
 type fwk_scheduler_hwservice, hwservice_manager_type, coredomain_hwservice, protected_hwservice;
 type fwk_sensor_hwservice, hwservice_manager_type, coredomain_hwservice, protected_hwservice;
 type fwk_stats_hwservice, hwservice_manager_type, coredomain_hwservice, protected_hwservice;
+type fwk_automotive_display_hwservice, hwservice_manager_type, coredomain_hwservice, protected_hwservice;
 type hal_atrace_hwservice, hwservice_manager_type, protected_hwservice;
 type hal_audio_hwservice, hwservice_manager_type, protected_hwservice;
 type hal_audiocontrol_hwservice, hwservice_manager_type, protected_hwservice;
@@ -27,6 +28,7 @@ type hal_gnss_hwservice, hwservice_manager_type, protected_hwservice;
 type hal_graphics_composer_hwservice, hwservice_manager_type, protected_hwservice;
 type hal_health_hwservice, hwservice_manager_type, protected_hwservice;
 type hal_health_storage_hwservice, hwservice_manager_type, protected_hwservice;
+type hal_identity_hwservice, hwservice_manager_type, protected_hwservice;
 type hal_input_classifier_hwservice, hwservice_manager_type, protected_hwservice;
 type hal_ir_hwservice, hwservice_manager_type, protected_hwservice;
 type hal_keymaster_hwservice, hwservice_manager_type, protected_hwservice;

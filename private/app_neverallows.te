@@ -9,6 +9,7 @@ define(`all_untrusted_apps',`{
   untrusted_app
   untrusted_app_25
   untrusted_app_27
+  untrusted_app_29
   untrusted_app_all
 }')
 # Receive or send uevent messages.
@@ -111,6 +112,14 @@ neverallow all_untrusted_apps *:{
   alg_socket nfc_socket vsock_socket kcm_socket qipcrtr_socket smc_socket xdp_socket
 } *;
 
+# Disallow sending RTM_GETLINK messages on netlink sockets.
+neverallow {
+  all_untrusted_apps
+  -untrusted_app_25
+  -untrusted_app_27
+  -untrusted_app_29
+} domain:netlink_route_socket { nlmsg_readpriv };
+
 # Do not allow untrusted apps access to /cache
 neverallow { all_untrusted_apps -mediaprovider } { cache_file cache_recovery_file }:dir ~{ r_dir_perms };
 neverallow { all_untrusted_apps -mediaprovider } { cache_file cache_recovery_file }:file ~{ read getattr };
@@ -136,8 +145,8 @@ neverallow { all_untrusted_apps -mediaprovider } {
   ')
 }:dir_file_class_set { create unlink };
 
-# No untrusted component except mediaprovider should be touching /dev/fuse
-neverallow { all_untrusted_apps -mediaprovider } fuse_device:chr_file *;
+# No untrusted component should be touching /dev/fuse
+neverallow all_untrusted_apps fuse_device:chr_file *;
 
 # Do not allow untrusted apps to directly open the tun_device
 neverallow all_untrusted_apps tun_device:chr_file open;

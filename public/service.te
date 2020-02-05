@@ -1,3 +1,4 @@
+type aidl_lazy_test_service,    service_manager_type;
 type apex_service,              service_manager_type;
 type audioserver_service,       service_manager_type;
 type batteryproperties_service, app_api_service, ephemeral_app_api_service, service_manager_type;
@@ -165,6 +166,7 @@ type shortcut_service, app_api_service, system_server_service, service_manager_t
 type slice_service, app_api_service, system_server_service, service_manager_type;
 type statusbar_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type storagestats_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
+type system_config_service, system_api_service, system_server_service, service_manager_type;
 type system_update_service, system_server_service, service_manager_type;
 type soundtrigger_middleware_service, system_server_service, service_manager_type;
 type task_service, system_server_service, service_manager_type;
@@ -203,6 +205,7 @@ type tethering_service, app_api_service, ephemeral_app_api_service, system_serve
 ### HAL Services
 ###
 
+type hal_power_service, vendor_service, service_manager_type;
 type hal_rebootescrow_service, vendor_service, service_manager_type;
 type hal_vibrator_service, vendor_service, service_manager_type;
 

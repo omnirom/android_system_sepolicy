@@ -150,8 +150,9 @@
 /dev/socket/tombstoned_crash u:object_r:tombstoned_crash_socket:s0
 /dev/socket/tombstoned_java_trace u:object_r:tombstoned_java_trace_socket:s0
 /dev/socket/tombstoned_intercept u:object_r:tombstoned_intercept_socket:s0
-/dev/socket/traced_producer	u:object_r:traced_producer_socket:s0
 /dev/socket/traced_consumer	u:object_r:traced_consumer_socket:s0
+/dev/socket/traced_perf	u:object_r:traced_perf_socket:s0
+/dev/socket/traced_producer	u:object_r:traced_producer_socket:s0
 /dev/socket/heapprofd	u:object_r:heapprofd_socket:s0
 /dev/socket/uncrypt	u:object_r:uncrypt_socket:s0
 /dev/socket/wpa_eth[0-9] u:object_r:wpa_socket:s0
@@ -282,6 +283,7 @@
 /system/bin/rss_hwm_reset	u:object_r:rss_hwm_reset_exec:s0
 /system/bin/perfetto        u:object_r:perfetto_exec:s0
 /system/bin/traced        u:object_r:traced_exec:s0
+/system/bin/traced_perf        u:object_r:traced_perf_exec:s0
 /system/bin/traced_probes        u:object_r:traced_probes_exec:s0
 /system/bin/heapprofd        u:object_r:heapprofd_exec:s0
 /system/bin/uncrypt     u:object_r:uncrypt_exec:s0
@@ -342,7 +344,6 @@
 /system/bin/simpleperf_app_runner    u:object_r:simpleperf_app_runner_exec:s0
 /system/bin/notify_traceur\.sh       u:object_r:notify_traceur_exec:s0
 /system/bin/migrate_legacy_obb_data\.sh u:object_r:migrate_legacy_obb_data_exec:s0
-/system/bin/aidl_lazy_test_server    u:object_r:aidl_lazy_test_server_exec:s0
 /system/bin/android\.frameworks\.automotive\.display@1\.0-service u:object_r:automotive_display_exec:s0
 
 #############################
@@ -445,6 +446,8 @@
 /(system_ext|system/system_ext)/etc/selinux/system_ext_service_contexts     u:object_r:service_contexts_file:s0
 /(system_ext|system/system_ext)/etc/selinux/system_ext_mac_permissions\.xml u:object_r:mac_perms_file:s0
 
+/(system_ext|system/system_ext)/bin/aidl_lazy_test_server   u:object_r:aidl_lazy_test_server_exec:s0
+
 #############################
 # Vendor files from /(product|system/product)/vendor_overlay
 #
@@ -478,7 +481,10 @@
 /data/apex/active/(.*)?		u:object_r:staging_data_file:s0
 /data/apex/backup/(.*)?		u:object_r:staging_data_file:s0
 /data/app(/.*)?                       u:object_r:apk_data_file:s0
+# Traditional /data/app/[packageName]-[randomString]/base.apk location
 /data/app/[^/]+/oat(/.*)?                u:object_r:dalvikcache_data_file:s0
+# /data/app/[randomStringA]/[packageName]-[randomStringB]/base.apk layout
+/data/app/[^/]+/[^/]+/oat(/.*)?                u:object_r:dalvikcache_data_file:s0
 /data/app/vmdl[^/]+\.tmp(/.*)?           u:object_r:apk_tmp_file:s0
 /data/app/vmdl[^/]+\.tmp/oat(/.*)?           u:object_r:dalvikcache_data_file:s0
 /data/app-private(/.*)?               u:object_r:apk_private_data_file:s0
@@ -696,6 +702,7 @@
 # external storage
 /mnt/media_rw(/.*)?         u:object_r:mnt_media_rw_file:s0
 /mnt/user(/.*)?             u:object_r:mnt_user_file:s0
+/mnt/pass_through(/.*)?     u:object_r:mnt_pass_through_file:s0
 /mnt/sdcard                 u:object_r:mnt_sdcard_file:s0
 /mnt/runtime(/.*)?          u:object_r:storage_file:s0
 /storage(/.*)?              u:object_r:storage_file:s0

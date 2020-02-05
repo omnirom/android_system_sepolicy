@@ -18,6 +18,7 @@
     automotive_display_exec
     ashmem_libcutils_device
     blob_store_service
+    binder_cache_bluetooth_server_prop
     binder_cache_system_server_prop
     binderfs
     binderfs_logs
@@ -30,6 +31,7 @@
     dataloader_manager_service
     device_config_storage_native_boot_prop
     device_config_sys_traced_prop
+    device_config_window_manager_native_boot_prop
     exported_camera_prop
     file_integrity_service
     fwk_automotive_display_hwservice
@@ -37,6 +39,7 @@
     hal_can_bus_hwservice
     hal_can_controller_hwservice
     hal_identity_hwservice
+    hal_light_service
     hal_power_service
     hal_rebootescrow_service
     hal_tv_tuner_hwservice
@@ -55,13 +58,16 @@
     mediatranscoding_exec
     mediatranscoding_tmpfs
     mirror_data_file
+    light_service
     linker_prop
     linkerconfig_file
+    mnt_pass_through_file
     mock_ota_prop
     module_sdkextensions_prop
     ota_metadata_file
     ota_prop
     art_apex_dir
+    rebootescrow_hal_prop
     service_manager_service
     simpleperf
     soundtrigger_middleware_service
@@ -72,6 +78,8 @@
     system_passwd_file
     system_unsolzygote_socket
     tethering_service
+    traced_perf
+    traced_perf_socket
     timezonedetector_service
     untrusted_app_29
     usb_serial_device

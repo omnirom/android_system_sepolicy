@@ -60,6 +60,9 @@ allow priv_app cache_file:lnk_file r_file_perms;
 allow priv_app media_rw_data_file:dir create_dir_perms;
 allow priv_app media_rw_data_file:file create_file_perms;
 
+# Access to /mnt/pass_through.
+allow priv_app mnt_pass_through_file:dir r_dir_perms;
+
 # Used by Finsky / Android "Verify Apps" functionality when
 # running "adb install foo.apk".
 allow priv_app shell_data_file:file r_file_perms;
@@ -89,13 +92,6 @@ r_dir_file(priv_app, sysfs_zram)
 
 r_dir_file(priv_app, rootfs)
 
-# Allow GMS core to open kernel config for OTA matching through libvintf
-allow priv_app config_gz:file { open read getattr };
-# b/142672293: No other priv-app should need this allow rule now that GMS core runs in its own domain.
-userdebug_or_eng(`
-  auditallow priv_app config_gz:file { open read getattr };
-')
-
 # access the mac address
 allowxperm priv_app self:udp_socket ioctl SIOCGIFHWADDR;
 
@@ -123,9 +119,9 @@ allow priv_app incident_service:service_manager find;
 binder_call(priv_app, incidentd)
 allow priv_app incidentd:fifo_file { read write };
 
-# Allow heap profiling if the app opts in by being marked
-# profileable/debuggable.
+# Allow profiling if the app opts in by being marked profileable/debuggable.
 can_profile_heap(priv_app)
+can_profile_perf(priv_app)
 
 # Allow priv_apps to check whether Dynamic System Update is enabled
 get_prop(priv_app, dynamic_system_prop)

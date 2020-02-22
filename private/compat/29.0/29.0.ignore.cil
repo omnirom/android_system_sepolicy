@@ -44,9 +44,7 @@
     hal_rebootescrow_service
     hal_tv_tuner_hwservice
     hal_vibrator_service
-    incfs
     incremental_service
-    incremental_root_file
     init_perf_lsm_hooks_prop
     init_svc_debug_prop
     iorap_prefetcherd
@@ -66,10 +64,12 @@
     module_sdkextensions_prop
     ota_metadata_file
     ota_prop
+    prereboot_data_file
     art_apex_dir
     rebootescrow_hal_prop
     service_manager_service
     simpleperf
+    snapshotctl_log_data_file
     soundtrigger_middleware_service
     sysfs_dm_verity
     system_config_service
@@ -83,12 +83,13 @@
     timezonedetector_service
     untrusted_app_29
     usb_serial_device
-    userspace_reboot_prop
     userspace_reboot_config_prop
     userspace_reboot_exported_prop
+    userspace_reboot_log_prop
     vehicle_hal_prop
     vendor_apex_file
     vendor_boringssl_self_test
+    vendor_incremental_module
     vendor_install_recovery
     vendor_install_recovery_exec
     virtual_ab_prop))

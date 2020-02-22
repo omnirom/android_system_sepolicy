@@ -218,6 +218,10 @@ userdebug_or_eng(`
 allow dumpstate misc_logd_file:dir r_dir_perms;
 allow dumpstate misc_logd_file:file r_file_perms;
 
+# Access /data/misc/prereboot
+allow dumpstate prereboot_data_file:dir r_dir_perms;
+allow dumpstate prereboot_data_file:file r_file_perms;
+
 allow dumpstate app_fuse_file:dir r_dir_perms;
 allow dumpstate overlayfs_file:dir r_dir_perms;
 
@@ -295,14 +299,20 @@ allow dumpstate self:netlink_generic_socket create_socket_perms_no_ioctl;
 # Allow dumpstate to run ss
 allow dumpstate { domain pdx_channel_socket_type pdx_endpoint_socket_type }:socket_class_set getattr;
 
+# Allow dumpstate to read linkerconfig directory
+allow dumpstate linkerconfig_file:dir { read open };
+
 # For when dumpstate runs df
 dontaudit dumpstate {
   mnt_vendor_file
   mirror_data_file
+  mnt_user_file
 }:dir search;
 dontaudit dumpstate {
   apex_mnt_dir
+  linkerconfig_file
   mirror_data_file
+  mnt_user_file
 }:dir getattr;
 
 # Allow dumpstate to talk to bufferhubd over binder
@@ -311,8 +321,21 @@ binder_call(dumpstate, bufferhubd);
 # Allow dumpstate to talk to mediaswcodec over binder
 binder_call(dumpstate, mediaswcodec);
 
+# Allow dumpstate to talk to these stable AIDL services over binder
+binder_call(dumpstate, hal_rebootescrow_server)
+allow hal_rebootescrow_server dumpstate:fifo_file write;
+allow hal_rebootescrow_server dumpstate:fd use;
+
 # Allow dumpstate to kill vendor dumpstate service by init
 set_prop(dumpstate, ctl_dumpstate_prop)
+
+#Access /data/misc/snapshotctl_log
+allow dumpstate snapshotctl_log_data_file:dir r_dir_perms;
+allow dumpstate snapshotctl_log_data_file:file r_file_perms;
+
+#Allow access to /dev/binderfs/binder_logs
+allow dumpstate binderfs_logs:dir r_dir_perms;
+allow dumpstate binderfs_logs:file r_file_perms;
 
 ###
 ### neverallow rules

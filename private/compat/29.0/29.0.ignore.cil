@@ -8,9 +8,11 @@
     aidl_lazy_test_server
     aidl_lazy_test_server_exec
     aidl_lazy_test_service
+    adbd_prop
     apex_module_data_file
     apex_permission_data_file
     apex_rollback_data_file
+    apex_wifi_data_file
     app_integrity_service
     app_search_service
     auth_service
@@ -53,6 +55,10 @@
     incremental_service
     init_perf_lsm_hooks_prop
     init_svc_debug_prop
+    iorap_inode2filename
+    iorap_inode2filename_data_file
+    iorap_inode2filename_exec
+    iorap_inode2filename_tmpfs
     iorap_prefetcherd
     iorap_prefetcherd_data_file
     iorap_prefetcherd_exec
@@ -79,6 +85,7 @@
     socket_hook_prop
     soundtrigger_middleware_service
     sysfs_dm_verity
+    system_adbd_prop
     system_config_service
     system_group_file
     system_jvmti_agent_prop
@@ -86,6 +93,7 @@
     system_unsolzygote_socket
     tethering_service
     traced_perf
+    traced_perf_enabled_prop
     traced_perf_socket
     timezonedetector_service
     untrusted_app_29

@@ -24,6 +24,13 @@ allow system_server appdomain_tmpfs:file { getattr map read write };
 # For Incremental Service to check if incfs is available
 allow system_server proc_filesystems:file r_file_perms;
 
+# To create files on Incremental File System
+allow system_server incremental_control_file:file { ioctl r_file_perms };
+allowxperm system_server incremental_control_file:file ioctl INCFS_IOCTL_CREATE_FILE;
+
+# To get signature of an APK installed on Incremental File System
+allowxperm system_server apk_data_file:file ioctl INCFS_IOCTL_READ_SIGNATURE;
+
 # For art.
 allow system_server dalvikcache_data_file:dir r_dir_perms;
 allow system_server dalvikcache_data_file:file r_file_perms;
@@ -607,6 +614,7 @@ set_prop(system_server, overlay_prop)
 set_prop(system_server, exported_overlay_prop)
 set_prop(system_server, pm_prop)
 set_prop(system_server, exported_pm_prop)
+set_prop(system_server, socket_hook_prop)
 userdebug_or_eng(`set_prop(system_server, wifi_log_prop)')
 
 # ctl interface
@@ -1141,3 +1149,6 @@ neverallow { domain -system_server -init }
 # system_server cannot use this access to read perf event data like process stacks.
 allow system_server self:perf_event { open write cpu kernel };
 neverallow system_server self:perf_event ~{ open write cpu kernel };
+
+# Do not allow any domain other than init or system server to set the property
+neverallow { domain -init -system_server } socket_hook_prop:property_service set;

@@ -853,8 +853,11 @@ allow system_server adbd:unix_stream_socket connectto;
 allow system_server adbd:fd use;
 allow system_server adbd:unix_stream_socket { getattr getopt ioctl read write shutdown };
 
-# Read persist.adb.wifi. properties
-get_prop(system_server, shell_prop)
+# Read service.adb.tls.port, persist.adb.wifi. properties
+get_prop(system_server, adbd_prop)
+
+# Set persist.adb.tls_server.enable property
+set_prop(system_server, system_adbd_prop)
 
 # Allow invoking tools like "timeout"
 allow system_server toolbox_exec:file rx_file_perms;
@@ -1096,6 +1099,8 @@ allow system_server vendor_apex_file:file r_file_perms;
 allow system_server apex_module_data_file:dir { getattr search };
 allow system_server apex_permission_data_file:dir create_dir_perms;
 allow system_server apex_permission_data_file:file create_file_perms;
+allow system_server apex_wifi_data_file:dir create_dir_perms;
+allow system_server apex_wifi_data_file:file create_file_perms;
 
 # Allow PasswordSlotManager rw access to /metadata/password_slots, so GSIs and the host image can
 # communicate which slots are available for use.

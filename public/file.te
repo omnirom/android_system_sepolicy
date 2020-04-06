@@ -210,8 +210,6 @@ type vendor_overlay_file, vendor_file_type, file_type;
 # Type for all vendor public libraries. These libs should only be exposed to
 # apps. ABI stability of these libs is vendor's responsibility.
 type vendor_public_lib_file, vendor_file_type, file_type;
-# Default type for incremental file system driver
-type vendor_incremental_module, vendor_file_type, file_type;
 
 # Input configuration
 type vendor_keylayout_file, vendor_file_type, file_type;
@@ -352,6 +350,7 @@ type adb_keys_file, file_type, data_file_type, core_data_file_type;
 type apex_module_data_file, file_type, data_file_type, core_data_file_type;
 type apex_permission_data_file, file_type, data_file_type, core_data_file_type;
 type apex_rollback_data_file, file_type, data_file_type, core_data_file_type;
+type apex_wifi_data_file, file_type, data_file_type, core_data_file_type;
 type audio_data_file, file_type, data_file_type, core_data_file_type;
 type audioserver_data_file, file_type, data_file_type, core_data_file_type;
 type bluetooth_data_file, file_type, data_file_type, core_data_file_type;

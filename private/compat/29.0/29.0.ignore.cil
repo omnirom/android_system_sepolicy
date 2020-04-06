@@ -8,14 +8,16 @@
     aidl_lazy_test_server
     aidl_lazy_test_server_exec
     aidl_lazy_test_service
+    adbd_prop
     apex_module_data_file
     apex_permission_data_file
     apex_rollback_data_file
+    apex_wifi_data_file
     app_integrity_service
     app_search_service
     auth_service
-    automotive_display
-    automotive_display_exec
+    automotive_display_service
+    automotive_display_service_exec
     ashmem_libcutils_device
     blob_store_service
     binder_cache_bluetooth_server_prop
@@ -37,6 +39,7 @@
     device_config_storage_native_boot_prop
     device_config_sys_traced_prop
     device_config_window_manager_native_boot_prop
+    device_config_configuration_prop
     exported_camera_prop
     file_integrity_service
     fwk_automotive_display_hwservice
@@ -53,6 +56,10 @@
     incremental_service
     init_perf_lsm_hooks_prop
     init_svc_debug_prop
+    iorap_inode2filename
+    iorap_inode2filename_data_file
+    iorap_inode2filename_exec
+    iorap_inode2filename_tmpfs
     iorap_prefetcherd
     iorap_prefetcherd_data_file
     iorap_prefetcherd_exec
@@ -74,11 +81,13 @@
     art_apex_dir
     rebootescrow_hal_prop
     service_manager_service
+    service_manager_vndservice
     simpleperf
     snapshotctl_log_data_file
     socket_hook_prop
     soundtrigger_middleware_service
     sysfs_dm_verity
+    system_adbd_prop
     system_config_service
     system_group_file
     system_jvmti_agent_prop
@@ -86,6 +95,7 @@
     system_unsolzygote_socket
     tethering_service
     traced_perf
+    traced_perf_enabled_prop
     traced_perf_socket
     timezonedetector_service
     untrusted_app_29
@@ -94,10 +104,11 @@
     userspace_reboot_exported_prop
     userspace_reboot_log_prop
     vehicle_hal_prop
+    tv_tuner_resource_mgr_service
     vendor_apex_file
     vendor_boringssl_self_test
-    vendor_incremental_module
     vendor_install_recovery
     vendor_install_recovery_exec
+    vendor_socket_hook_prop
     vendor_socket_hook_prop
     virtual_ab_prop))

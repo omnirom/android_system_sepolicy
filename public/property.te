@@ -12,6 +12,7 @@ system_internal_prop(device_config_runtime_native_prop)
 system_internal_prop(device_config_storage_native_boot_prop)
 system_internal_prop(device_config_sys_traced_prop)
 system_internal_prop(device_config_window_manager_native_boot_prop)
+system_internal_prop(device_config_configuration_prop)
 system_internal_prop(firstboot_prop)
 system_internal_prop(gsid_prop)
 system_internal_prop(init_perf_lsm_hooks_prop)
@@ -20,6 +21,9 @@ system_internal_prop(last_boot_reason_prop)
 system_internal_prop(netd_stable_secret_prop)
 system_internal_prop(pm_prop)
 system_internal_prop(userspace_reboot_log_prop)
+system_internal_prop(system_adbd_prop)
+system_internal_prop(adbd_prop)
+system_internal_prop(traced_perf_enabled_prop)
 
 compatible_property_only(`
     # DO NOT ADD ANY PROPERTIES HERE
@@ -64,6 +68,7 @@ compatible_property_only(`
 # Properties used by binder caches
 system_restricted_prop(binder_cache_bluetooth_server_prop)
 system_restricted_prop(binder_cache_system_server_prop)
+system_restricted_prop(boottime_public_prop)
 system_restricted_prop(bq_config_prop)
 system_restricted_prop(module_sdkextensions_prop)
 system_restricted_prop(nnapi_ext_deny_product_prop)
@@ -565,4 +570,20 @@ neverallow {
   -system_server
 } {
   userspace_reboot_log_prop
+}:property_service set;
+
+neverallow {
+  # Only allow init and system_server to set system_adbd_prop
+  -init
+  -system_server
+} {
+  system_adbd_prop
+}:property_service set;
+
+neverallow {
+  # Only allow init and adbd to set adbd_prop
+  -init
+  -adbd
+} {
+  adbd_prop
 }:property_service set;

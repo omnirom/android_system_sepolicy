@@ -11,7 +11,7 @@ type appdomain_tmpfs, file_type;
 # WebView and other application-specific JIT compilers
 allow appdomain self:process execmem;
 
-allow appdomain ashmem_device:chr_file execute;
+allow appdomain { ashmem_device ashmem_libcutils_device }:chr_file execute;
 
 # Receive and use open file descriptors inherited from zygote.
 allow appdomain zygote:fd use;
@@ -317,7 +317,7 @@ allow appdomain same_process_hal_file:file { execute read open getattr map };
 allow appdomain proc_meminfo:file r_file_perms;
 
 # For app fuse.
-allow appdomain app_fuse_file:file { getattr read append write };
+allow appdomain app_fuse_file:file { getattr read append write map };
 
 pdx_client({ appdomain -isolated_app -ephemeral_app }, display_client)
 pdx_client({ appdomain -isolated_app -ephemeral_app }, display_manager)

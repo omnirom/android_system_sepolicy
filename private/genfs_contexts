@@ -241,6 +241,7 @@ genfscon tracefs /events/filemap/mm_filemap_delete_from_page_cache/      u:objec
 genfscon tracefs /events/kmem/rss_stat/                                  u:object_r:debugfs_tracing:s0
 genfscon tracefs /events/kmem/ion_heap_grow/                             u:object_r:debugfs_tracing:s0
 genfscon tracefs /events/kmem/ion_heap_shrink/                           u:object_r:debugfs_tracing:s0
+genfscon tracefs /events/mm_event/mm_event_record/                       u:object_r:debugfs_tracing:s0
 genfscon tracefs /events/oom/oom_score_adj_update/                       u:object_r:debugfs_tracing:s0
 genfscon tracefs /events/task/task_rename/                               u:object_r:debugfs_tracing:s0
 genfscon tracefs /events/task/task_newtask/                              u:object_r:debugfs_tracing:s0
@@ -284,12 +285,15 @@ genfscon debugfs /tracing/events/filemap/mm_filemap_delete_from_page_cache/     
 genfscon debugfs /tracing/events/kmem/rss_stat/                                          u:object_r:debugfs_tracing:s0
 genfscon debugfs /tracing/events/kmem/ion_heap_grow/                                     u:object_r:debugfs_tracing:s0
 genfscon debugfs /tracing/events/kmem/ion_heap_shrink/                                   u:object_r:debugfs_tracing:s0
+genfscon debugfs /tracing/events/mm_event/mm_event_record/                               u:object_r:debugfs_tracing:s0
 genfscon debugfs /tracing/events/oom/oom_score_adj_update/                               u:object_r:debugfs_tracing:s0
 genfscon debugfs /tracing/events/task/task_rename/                                       u:object_r:debugfs_tracing:s0
 genfscon debugfs /tracing/events/task/task_newtask/                                      u:object_r:debugfs_tracing:s0
 genfscon debugfs /tracing/events/ftrace/print/                                   u:object_r:debugfs_tracing:s0
 
 genfscon debugfs /kcov								 u:object_r:debugfs_kcov:s0
+
+genfscon securityfs / u:object_r:securityfs:s0
 
 genfscon binder /binder u:object_r:binder_device:s0
 genfscon binder /hwbinder u:object_r:hwbinder_device:s0

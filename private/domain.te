@@ -11,7 +11,7 @@ allow domain crash_dump:process sigchld;
 # necessary SELinux permissions.
 get_prop(domain, heapprofd_prop);
 # Allow heap profiling on debug builds.
-userdebug_or_eng(`can_profile_heap_userdebug_or_eng({
+userdebug_or_eng(`can_profile_heap_central({
   domain
   -bpfloader
   -init
@@ -101,6 +101,7 @@ compatible_property_only(`
     get_prop({coredomain appdomain shell}, userspace_reboot_config_prop)
     get_prop({coredomain shell}, userspace_reboot_exported_prop)
     get_prop({coredomain shell}, userspace_reboot_log_prop)
+    get_prop({coredomain shell}, userspace_reboot_test_prop)
     get_prop({domain -coredomain -appdomain}, vendor_default_prop)
 ')
 

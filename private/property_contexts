@@ -91,6 +91,7 @@ sys.boot.reason         u:object_r:system_boot_reason_prop:s0
 sys.boot.reason.last    u:object_r:last_boot_reason_prop:s0
 pm.                     u:object_r:pm_prop:s0
 test.sys.boot.reason    u:object_r:test_boot_reason_prop:s0
+test.userspace_reboot.requested u:object_r:userspace_reboot_test_prop:s0
 sys.lmk.                u:object_r:system_lmk_prop:s0
 sys.trace.              u:object_r:system_trace_prop:s0
 
@@ -246,3 +247,10 @@ persist.sys.userspace_reboot.log. u:object_r:userspace_reboot_log_prop:s0
 # by devices with video decoding pipelines long enough to overflow the default
 # history size.
 ro.lib_gui.frame_event_history_size u:object_r:bq_config_prop:s0
+
+# Properties to configure userspace reboot.
+init.userspace_reboot.is_supported u:object_r:userspace_reboot_config_prop:s0 exact bool
+init.userspace_reboot.sigkill.timeoutmillis u:object_r:userspace_reboot_config_prop:s0 exact int
+init.userspace_reboot.sigterm.timeoutmillis u:object_r:userspace_reboot_config_prop:s0 exact int
+init.userspace_reboot.userdata_remount.timeoutmillis u:object_r:userspace_reboot_config_prop:s0 exact int
+init.userspace_reboot.watchdog.timeoutmillis u:object_r:userspace_reboot_config_prop:s0 exact int

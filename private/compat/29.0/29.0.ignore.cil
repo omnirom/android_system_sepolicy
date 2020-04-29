@@ -71,6 +71,7 @@
     mirror_data_file
     light_service
     linkerconfig_file
+    media_variant_prop
     metadata_bootstat_file
     mnt_pass_through_file
     mock_ota_prop
@@ -80,6 +81,7 @@
     prereboot_data_file
     art_apex_dir
     rebootescrow_hal_prop
+    securityfs
     service_manager_service
     service_manager_vndservice
     simpleperf
@@ -103,6 +105,7 @@
     userspace_reboot_config_prop
     userspace_reboot_exported_prop
     userspace_reboot_log_prop
+    userspace_reboot_test_prop
     vehicle_hal_prop
     tv_tuner_resource_mgr_service
     vendor_apex_file

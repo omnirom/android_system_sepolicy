@@ -77,6 +77,7 @@ system_restricted_prop(module_sdkextensions_prop)
 system_restricted_prop(nnapi_ext_deny_product_prop)
 system_restricted_prop(restorecon_prop)
 system_restricted_prop(socket_hook_prop)
+system_restricted_prop(surfaceflinger_display_prop)
 system_restricted_prop(system_boot_reason_prop)
 system_restricted_prop(system_jvmti_agent_prop)
 system_restricted_prop(userspace_reboot_exported_prop)
@@ -609,4 +610,11 @@ neverallow {
   -vendor_init
 } {
   graphics_config_prop
+}:property_service set;
+
+neverallow {
+  -init
+  -surfaceflinger
+} {
+  surfaceflinger_display_prop
 }:property_service set;

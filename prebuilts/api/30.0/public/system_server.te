@@ -4,3 +4,5 @@
 #
 type system_server, domain;
 type system_server_tmpfs, file_type, mlstrustedobject;
+# Read ro.gfx.* properties
+get_prop(system_server, graphics_config_prop)

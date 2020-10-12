@@ -166,6 +166,7 @@ neverallow {
     -init
     -gsid
     -fastbootd
+    -update_engine
 } gsi_metadata_file_type:dir no_w_dir_perms;
 
 neverallow {

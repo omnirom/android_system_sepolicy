@@ -386,6 +386,7 @@ define(`dac_override_allowed', `{
   vold
   vold_prepare_subdirs
   zygote
+  update_engine
 }')
 neverallow ~dac_override_allowed self:global_capability_class_set dac_override;
 # Since the kernel checks dac_read_search before dac_override, domains that

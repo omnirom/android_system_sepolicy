@@ -180,6 +180,7 @@ neverallow {
     -init
     -gsid
     -fastbootd
+    -update_engine
 } { gsi_metadata_file_type -gsi_public_metadata_file }:file_class_set *;
 
 neverallow {

@@ -493,19 +493,20 @@ neverallow {
     domain
     with_asan(`-asan_extract')
     recovery_only(`userdebug_or_eng(`-fastbootd')')
+    -update_engine
 } {
     system_file_type
     vendor_file_type
     exec_type
 }:dir_file_class_set { create write setattr relabelfrom append unlink link rename };
 
-neverallow { domain -kernel with_asan(`-asan_extract') } { system_file_type vendor_file_type exec_type }:dir_file_class_set relabelto;
+neverallow { domain -update_engine -coredomain -kernel with_asan(`-asan_extract') } { system_file_type vendor_file_type exec_type }:dir_file_class_set relabelto;
 
 # Don't allow mounting on top of /system files or directories
 neverallow * exec_type:dir_file_class_set mounton;
 
 # Nothing should be writing to files in the rootfs.
-neverallow * rootfs:file { create write setattr relabelto append unlink link rename };
+neverallow { domain -recovery -update_engine } rootfs:file { create write setattr relabelto append unlink link rename };
 
 # Restrict context mounts to specific types marked with
 # the contextmount_type attribute.
@@ -642,6 +643,7 @@ neverallow vndservicemanager hwbinder_device:chr_file no_rw_file_perms;
 # system services cant add vendor services
 neverallow {
   coredomain
+  -update_engine
 } vendor_service:service_manager add;
 
 full_treble_only(`
@@ -1141,6 +1143,7 @@ neverallow {
   -toolbox # TODO(b/141108496) We want to remove toolbox
   -installd # for relabelfrom and unlink, check for this in explicit neverallow
   -vold_prepare_subdirs # For unlink
+  -update_engine
   with_asan(`-asan_extract')
 } system_data_file:file no_w_file_perms;
 # do not grant anything greater than r_file_perms and relabelfrom unlink

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a25766aa_9a29f67d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000026
+      },
+      "writtenOn": "2022-08-25T21:43:51Z",
+      "side": 1,
+      "message": "Files system/sepolicy/private/gsid.te and system/sepolicy/prebuilts/api/33.0/pri\nvate/gsid.te differ\n",
+      "revId": "71f86c74f1a2419484c9945ce641acee009531f4",
+      "serverId": "56841c99-7c94-43d4-bf0b-cb4707e66d55"
+    }
+  ]
+}

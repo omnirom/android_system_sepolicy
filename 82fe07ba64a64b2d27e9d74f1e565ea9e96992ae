@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74b2ccdc_50af63d2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002322
+      },
+      "writtenOn": "2022-08-27T18:20:30Z",
+      "side": 1,
+      "message": "E SELinux : avc:  denied  { find } for pid\u003d3491 uid\u003d10047 name\u003dandroid.os.UpdateEngineService scontext\u003du:r:platform_app:s0:c512,c768 tcontext\u003du:object_r:update_engine_service:s0 tclass\u003dservice_manager permissive\u003d0",
+      "revId": "82fe07ba64a64b2d27e9d74f1e565ea9e96992ae",
+      "serverId": "56841c99-7c94-43d4-bf0b-cb4707e66d55"
+    }
+  ]
+}

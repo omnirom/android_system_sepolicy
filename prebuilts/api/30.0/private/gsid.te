@@ -144,7 +144,6 @@ neverallow {
     -fastbootd
     -recovery
     -vold
-    -update_engine
 } gsi_metadata_file:dir *;
 
 neverallow {

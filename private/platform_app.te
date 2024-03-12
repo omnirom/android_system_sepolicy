@@ -48,6 +48,9 @@ neverallow { domain -init -dumpstate userdebug_or_eng(`-domain') } persist_wm_de
 userdebug_or_eng(`
   set_prop(platform_app, persist_sysui_builder_extras_prop)
 ')
+userdebug_or_eng(`
+  set_prop(platform_app, persist_sysui_ranking_update_prop)
+')
 
 # com.android.captiveportallogin reads /proc/vmstat
 allow platform_app {
@@ -112,6 +115,9 @@ get_prop(platform_app, keyguard_config_prop)
 
 # allow platform apps to read qemu.hw.mainkeys
 get_prop(platform_app, qemu_hw_prop)
+
+# allow platform apps to read sys.boot.reason.last
+get_prop(platform_app, last_boot_reason_prop)
 
 # allow platform apps to create symbolic link
 allow platform_app app_data_file:lnk_file create_file_perms;

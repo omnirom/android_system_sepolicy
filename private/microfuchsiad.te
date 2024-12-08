@@ -1,0 +1,18 @@
+is_flag_enabled(RELEASE_AVF_ENABLE_MICROFUCHSIA, `
+    type microfuchsiad, domain, coredomain;
+    type microfuchsiad_exec, system_file_type, exec_type, file_type;
+
+    # Host dynamic AIDL services
+    init_daemon_domain(microfuchsiad)
+    binder_use(microfuchsiad)
+    add_service(microfuchsiad, microfuchsia_service)
+
+    # Call back into system server
+    binder_call(microfuchsiad, system_server)
+
+    # Start a VM
+    virtualizationservice_use(microfuchsiad)
+
+    # Create pty devices
+    allow microfuchsiad devpts:chr_file { read write open getattr ioctl };
+')

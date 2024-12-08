@@ -1,4 +1,5 @@
 # otapreopt_chroot executable
+starting_at_board_api(202504, `type otapreopt_chroot, domain;')
 typeattribute otapreopt_chroot coredomain;
 type otapreopt_chroot_exec, exec_type, file_type, system_file_type;
 

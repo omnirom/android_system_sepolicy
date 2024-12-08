@@ -18,9 +18,14 @@ se_flags {
     name: "aosp_selinux_flags",
     flags: [
         "RELEASE_AVF_SUPPORT_CUSTOM_VM_WITH_PARAVIRTUALIZED_DEVICES",
+        "RELEASE_AVF_ENABLE_EARLY_VM",
         "RELEASE_AVF_ENABLE_DEVICE_ASSIGNMENT",
         "RELEASE_AVF_ENABLE_LLPVM_CHANGES",
         "RELEASE_AVF_ENABLE_NETWORK",
+        "RELEASE_AVF_ENABLE_MICROFUCHSIA",
+        "RELEASE_RANGING_STACK",
+        "RELEASE_READ_FROM_NEW_STORAGE",
+        "RELEASE_SUPERVISION_SERVICE",
         "RELEASE_HARDWARE_BLUETOOTH_RANGING_SERVICE",
         "RELEASE_UNLOCKED_STORAGE_API",
     ],
@@ -38,13 +43,6 @@ se_policy_conf_defaults {
     build_flags: ["all_selinux_flags"],
 }
 
-se_policy_conf_defaults {
-    name: "se_policy_conf_public_flags_defaults",
-    srcs: [":sepolicy_flagging_macros"],
-    build_flags: ["all_selinux_flags"],
-    board_api_level_guard: true,
-}
-
 contexts_defaults {
     name: "contexts_flags_defaults",
     srcs: [":sepolicy_flagging_macros"],
@@ -54,5 +52,5 @@ contexts_defaults {
 
 filegroup {
     name: "sepolicy_flagging_macros",
-    srcs: ["te_macros"],
+    srcs: ["flagging_macros"],
 }

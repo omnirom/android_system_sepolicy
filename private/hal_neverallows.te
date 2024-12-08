@@ -12,6 +12,7 @@ neverallow {
   # TODO(b/196225233): Remove hal_uwb_vendor_server
   -hal_uwb_vendor_server
   -hal_nlinterceptor_server
+  -hal_tv_tuner_server
 } self:global_capability_class_set { net_admin net_raw };
 
 # Unless a HAL's job is to communicate over the network, or control network
@@ -34,6 +35,7 @@ neverallow {
   -hal_uwb_vendor_server
   -hal_nlinterceptor_server
   -hal_bluetooth_server
+  -hal_tv_tuner_server
 } domain:{ udp_socket rawip_socket } *;
 
 neverallow {
@@ -47,6 +49,7 @@ neverallow {
   -hal_telephony_server
   -hal_nlinterceptor_server
   -hal_bluetooth_server
+  -hal_tv_tuner_server
 } {
   domain
   userdebug_or_eng(`-su')

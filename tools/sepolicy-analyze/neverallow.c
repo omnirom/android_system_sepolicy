@@ -382,7 +382,6 @@ static int check_neverallows(policydb_t *policydb, char *text, char *end)
     char *p, *start;
     int result;
 
-    int non_comment_len = 0, cur_non_comment_len = 0;
     char *cur_non_comment_text = calloc(1, (end - text) + 1);
     char *non_comment_text = cur_non_comment_text;
     if (!cur_non_comment_text)

@@ -1,6 +1,6 @@
 
 # Domain for derive_classpath
-type derive_classpath, domain, coredomain;
+type derive_classpath, domain, coredomain, artd_subprocess_type;
 type derive_classpath_exec, system_file_type, exec_type, file_type;
 init_daemon_domain(derive_classpath)
 

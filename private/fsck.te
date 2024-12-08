@@ -2,6 +2,9 @@ typeattribute fsck coredomain;
 
 init_daemon_domain(fsck)
 
+# fsck can run before apex is ready.
+use_bootstrap_libs(fsck)
+
 allow fsck metadata_block_device:blk_file rw_file_perms;
 
 # /dev/__null__ created by init prior to policy load,

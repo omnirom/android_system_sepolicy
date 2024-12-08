@@ -1,10 +1,12 @@
 typeattribute profman coredomain;
+typeattribute profman artd_subprocess_type;
 
 # Allow profman to read APKs and profile files next to them by FDs passed from
 # other programs. In addition, allow profman to acquire flocks on those files.
 allow profman {
   system_file
   apk_data_file
+  apk_tmp_file
   vendor_app_file
 }:file { getattr read map lock };
 
@@ -22,6 +24,7 @@ allow profman user_profile_data_file:file { getattr read write lock map };
 allow profman asec_apk_file:file { read map };
 allow profman apk_data_file:file { getattr read map };
 allow profman apk_data_file:dir { getattr read search };
+allow profman apk_tmp_file:dir { getattr read search };
 
 allow profman oemfs:file { read map };
 # Reading an APK opens a ZipArchive, which unpack to tmpfs.

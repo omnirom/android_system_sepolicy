@@ -33,6 +33,9 @@ userdebug_or_eng(`
   allow dumpstate dropbox_data_file:file r_file_perms;
 ')
 
+r_dir_file(dumpstate, aconfig_storage_metadata_file);
+r_dir_file(dumpstate, aconfig_test_mission_files);
+
 # Allow dumpstate to make binder calls to incidentd
 binder_call(dumpstate, incidentd)
 
@@ -257,6 +260,12 @@ allow dumpstate {
   hal_vr_server
   system_suspend_server
 }:process signal;
+
+# On userdebug, dumpstate may fork and execute a command as su. Make sure the
+# timeout logic is allowed to terminate the child process if necessary.
+userdebug_or_eng(`
+  allow dumpstate su:process { signal sigkill };
+')
 
 # Connect to tombstoned to intercept dumps.
 unix_socket_connect(dumpstate, tombstoned_intercept, tombstoned)
@@ -528,6 +537,7 @@ dontaudit dumpstate {
   linkerconfig_file
   mirror_data_file
   mnt_user_file
+  vm_data_file
 }:dir getattr;
 
 # Allow dumpstate to talk to bufferhubd over binder

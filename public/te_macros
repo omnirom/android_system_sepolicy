@@ -203,6 +203,34 @@ get_prop($1, hypervisor_prop)
 allow $1 virtualizationservice_data_file:file { getattr read };
 ')
 
+####################################
+# early_virtmgr_use(domain)
+# Allow domain to create and communicate with an early virtual machine using
+# early_virtmgr.
+define(`early_virtmgr_use', `
+# Transition to early_virtmgr when the client executes it.
+domain_auto_trans($1, early_virtmgr_exec, early_virtmgr)
+# Allow early_virtmgr to communicate over UDS with the client.
+allow { early_virtmgr crosvm } $1:unix_stream_socket { ioctl getattr read write };
+# Let the client pass file descriptors to early_virtmgr and on to crosvm.
+allow { early_virtmgr crosvm } $1:fd use;
+allow { early_virtmgr crosvm } $1_tmpfs:file rw_file_perms;
+# Let the client use file descriptors created by early_virtmgr.
+allow $1 early_virtmgr:fd use;
+# Allow piping console log to the client
+allow { early_virtmgr crosvm } $1:fifo_file { ioctl getattr read write };
+# Allow client to read/write vsock created by early_virtmgr to communicate with the VM
+# that it created. Notice that we do not grant permission to create a vsock;
+# the client can only connect to VMs that it owns.
+allow $1 early_virtmgr:vsock_socket { getattr getopt read write };
+# Allow client to inspect hypervisor capabilities
+get_prop($1, hypervisor_prop)
+# Allow early_virtmgr to read the path of the client using /proc/{PID}/exe
+allow early_virtmgr $1:dir search;
+allow early_virtmgr $1:file read;
+allow early_virtmgr $1:lnk_file read;
+')
+
 #####################################
 # app_domain(domain)
 # Allow a base set of permissions required for all apps.

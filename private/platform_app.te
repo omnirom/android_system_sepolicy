@@ -51,6 +51,7 @@ userdebug_or_eng(`
 userdebug_or_eng(`
   set_prop(platform_app, persist_sysui_ranking_update_prop)
 ')
+set_prop(platform_app, debug_tracing_desktop_mode_visible_tasks_prop)
 
 # com.android.captiveportallogin reads /proc/vmstat
 allow platform_app {

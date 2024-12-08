@@ -1,0 +1,75 @@
+is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `
+    # Domain for a child process that manages early VMs available before /data mount, on behalf of
+    # its parent.
+    type early_virtmgr, domain, coredomain;
+    type early_virtmgr_exec, system_file_type, exec_type, file_type;
+
+    use_bootstrap_libs(early_virtmgr)
+
+    # Let early_virtmgr create files and directories inside /mnt/vm/early.
+    allow early_virtmgr vm_data_file:dir create_dir_perms;
+    allow early_virtmgr vm_data_file:file create_file_perms;
+    allow early_virtmgr vm_data_file:sock_file create_file_perms;
+
+    # Allow early_virtmgr to communicate use, read and write over the adb connection.
+    allow early_virtmgr adbd:fd use;
+    allow early_virtmgr adbd:unix_stream_socket { getattr read write };
+
+    # Allow writing VM logs to the shell console
+    allow early_virtmgr devpts:chr_file { read write getattr ioctl };
+
+    # Let the early_virtmgr domain use Binder.
+    binder_use(early_virtmgr)
+
+    # When early_virtmgr execs a file with the crosvm_exec label, run it in the crosvm domain.
+    domain_auto_trans(early_virtmgr, crosvm_exec, crosvm)
+
+    # Let early_virtmgr kill crosvm.
+    allow early_virtmgr crosvm:process sigkill;
+
+    # Allow early_virtmgr to read apex-info-list.xml and access the APEX files listed there.
+    allow early_virtmgr apex_info_file:file r_file_perms;
+    allow early_virtmgr apex_data_file:dir search;
+
+    # Ignore harmless denials on /proc/self/fd
+    dontaudit early_virtmgr self:dir write;
+
+    # Let early_virtmgr to accept vsock connection from the guest VMs
+    allow early_virtmgr self:vsock_socket { create_socket_perms_no_ioctl listen accept };
+
+    # Allow early_virtmgr to inspect all hypervisor capabilities.
+    get_prop(early_virtmgr, hypervisor_prop)
+    get_prop(early_virtmgr, hypervisor_pvmfw_prop)
+    get_prop(early_virtmgr, hypervisor_restricted_prop)
+    get_prop(early_virtmgr, hypervisor_virtualizationmanager_prop)
+
+    # Allow early_virtmgr to read file system DT for VM reference DT and AVF debug policy
+    r_dir_file(early_virtmgr, proc_dt_avf)
+    r_dir_file(early_virtmgr, sysfs_dt_avf)
+
+    # early_virtmgr to be client of secretkeeper HAL. It ferries SecretManagement messages from pVM
+    # to HAL.
+    hal_client_domain(early_virtmgr, hal_secretkeeper);
+
+    # Allow reading files under /proc/[crosvm pid]/, for collecting CPU & memory usage inside VM.
+    r_dir_file(early_virtmgr, crosvm);
+
+    # Allow early_virtmgr to:
+    # 1) bind to a vsock port less than 1024, because early VMs use static CIDs less than 1024
+    # 2) call RLIMIT_MEMLOCK for itself
+    allow early_virtmgr self:global_capability_class_set { net_bind_service ipc_lock sys_resource };
+
+    # early_virtmgr may print messages to kmsg_debug_device.
+    allow early_virtmgr kmsg_debug_device:chr_file w_file_perms;
+
+    ###
+    ### Neverallow rules
+    ###
+
+    # Only crosvm and early_virtmgr can access vm_data_file
+    neverallow { domain -crosvm -early_virtmgr -init } vm_data_file:dir no_w_dir_perms;
+    neverallow { domain -crosvm -early_virtmgr } vm_data_file:file no_rw_file_perms;
+
+    # No other domains can accept vsock connection from the guest VMs
+    neverallow { domain -early_virtmgr } early_virtmgr:vsock_socket { accept bind create connect listen };
+')

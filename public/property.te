@@ -212,6 +212,9 @@ system_public_prop(adbd_config_prop)
 system_public_prop(audio_prop)
 system_public_prop(bluetooth_a2dp_offload_prop)
 system_public_prop(bluetooth_audio_hal_prop)
+starting_at_board_api(202504, `
+    system_public_prop(bluetooth_finder_prop)
+')
 system_public_prop(bluetooth_prop)
 system_public_prop(bpf_progs_loaded_prop)
 system_public_prop(charger_status_prop)
@@ -273,10 +276,13 @@ system_internal_prop(default_prop)
 vendor_internal_prop(rebootescrow_hal_prop)
 
 # Properties used in the default Face HAL implementations
-vendor_internal_prop(virtual_face_hal_prop)
+system_public_prop(virtual_face_hal_prop)
 
 # Properties used in the default Fingerprint HAL implementations
 vendor_internal_prop(virtual_fingerprint_hal_prop)
+starting_at_board_api(202504, `
+    system_public_prop(virtual_fingerprint_prop)
+')
 
 vendor_public_prop(persist_vendor_debug_wifi_prop)
 

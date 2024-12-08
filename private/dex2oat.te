@@ -1,5 +1,5 @@
 # dex2oat
-type dex2oat, domain, coredomain;
+type dex2oat, domain, coredomain, artd_subprocess_type;
 type dex2oat_exec, system_file_type, exec_type, file_type;
 
 userfaultfd_use(dex2oat)

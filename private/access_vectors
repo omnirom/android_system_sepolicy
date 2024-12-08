@@ -139,8 +139,8 @@ common cap2
 	block_suspend
 	audit_read
 	perfmon
-	checkpoint_restore
-	bpf
+	starting_at_board_api(202504, `checkpoint_restore')
+	starting_at_board_api(202504, `bpf')
 }
 
 #

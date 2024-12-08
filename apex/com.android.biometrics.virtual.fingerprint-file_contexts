@@ -1,0 +1,2 @@
+(/.*)?                  u:object_r:system_file:s0
+/bin/hw/android\.hardware\.biometrics\.fingerprint-service\.example u:object_r:virtual_fingerprint_exec:s0

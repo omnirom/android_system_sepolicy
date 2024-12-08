@@ -198,6 +198,14 @@ get_prop(shell, system_boot_reason_prop)
 
 # Allow shell to execute the remote key provisioning factory tool
 binder_call(shell, hal_keymint)
+# Allow shell to run the AVF RKP HAL during the execution of the remote key
+# provisioning factory tool.
+# TODO(b/351113293): Remove this once the AVF RKP HAL registration is moved to
+# a separate process.
+binder_call(shell, virtualizationservice)
+# Allow the shell to inspect whether AVF remote attestation is supported
+# through the system property.
+get_prop(shell, avf_virtualizationservice_prop)
 
 # Allow reading the outcome of perf_event_open LSM support test for CTS.
 get_prop(shell, init_perf_lsm_hooks_prop)
@@ -262,6 +270,7 @@ userdebug_or_eng(`set_prop(shell, persist_sysui_ranking_update_prop)')
 get_prop(shell, build_attestation_prop)
 
 # Allow shell to execute oatdump.
+# TODO (b/350628688): Remove this once it's safe to do so.
 allow shell oatdump_exec:file rx_file_perms;
 
 # Allow shell access to socket for test
@@ -359,6 +368,7 @@ allow shell {
   -virtual_touchpad_service
   -vold_service
   -default_android_service
+  -virtualization_service
 }:service_manager find;
 allow shell dumpstate:binder call;
 
@@ -468,6 +478,10 @@ allow shell sepolicy_file:file r_file_perms;
 # Allow shell to start up vendor shell
 allow shell vendor_shell_exec:file rx_file_perms;
 
+is_flag_enabled(RELEASE_AVF_SUPPORT_CUSTOM_VM_WITH_PARAVIRTUALIZED_DEVICES, `
+  allow shell custom_vm_setup_exec:file { entrypoint r_file_perms };
+')
+
 # Everything is labeled as rootfs in recovery mode. Allow shell to
 # execute them.
 recovery_only(`
@@ -484,6 +498,7 @@ neverallow shell {
   hal_keymint_service
   hal_secureclock_service
   hal_sharedsecret_service
+  virtualization_service
 }:service_manager find;
 
 # Do not allow shell to hard link to any files.

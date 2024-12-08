@@ -304,6 +304,7 @@ static void do_test_data_and_die_on_error(struct selinux_opt opts[], unsigned in
     }
 
     char line[1024];
+    bool non_matching_entries = false;
     while (fgets(line, sizeof(line), test_data)) {
         char *path;
         char *expected_type;
@@ -331,6 +332,7 @@ static void do_test_data_and_die_on_error(struct selinux_opt opts[], unsigned in
         if (strcmp(found_type, expected_type)) {
             fprintf(stderr, "Incorrect type for %s: resolved to %s, expected %s\n",
                     path, found_type, expected_type);
+            non_matching_entries = true;
         }
 
         free(found_context);
@@ -339,6 +341,10 @@ static void do_test_data_and_die_on_error(struct selinux_opt opts[], unsigned in
         free(expected_type);
     }
     fclose(test_data);
+
+    if (non_matching_entries) {
+        exit(1);
+    }
 
     // Prints the coverage of file_contexts on the test data. It includes
     // warnings for rules that have not been hit by any test example.

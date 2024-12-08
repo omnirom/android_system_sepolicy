@@ -5,12 +5,19 @@
 (typeattribute new_objects)
 (typeattributeset new_objects
   ( new_objects
+    bluetooth_finder_prop
     profcollectd_etr_prop
-    fs_bpf_lmkd_memevents_rb
-    fs_bpf_lmkd_memevents_prog
     fstype_prop
     binderfs_logs_transactions
     binderfs_logs_transaction_history
     proc_compaction_proactiveness
     proc_cgroups
+    ranging_service
+    supervision_service
+    sysfs_udc
+    app_function_service
+    virtual_fingerprint
+    virtual_fingerprint_exec
+    virtual_face
+    virtual_face_exec
   ))

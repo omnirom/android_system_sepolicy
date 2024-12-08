@@ -1,4 +1,33 @@
-// Automatically generated file, do not edit!
+// Copyright (C) 2024 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+se_policy_conf {
+    name: "202404_reqd_policy_mask.conf",
+    defaults: ["se_policy_conf_flags_defaults"],
+    srcs: reqd_mask_policy,
+    installable: false,
+    build_variant: "user",
+    board_api_level: "202404",
+}
+
+se_policy_cil {
+    name: "202404_reqd_policy_mask.cil",
+    src: ":202404_reqd_policy_mask.conf",
+    secilc_check: false,
+    installable: false,
+}
+
 se_policy_conf {
     name: "202404_plat_pub_policy.conf",
     defaults: ["se_policy_conf_flags_defaults"],
@@ -8,12 +37,13 @@ se_policy_conf {
     ],
     installable: false,
     build_variant: "user",
+    board_api_level: "202404",
 }
 
 se_policy_cil {
     name: "202404_plat_pub_policy.cil",
     src: ":202404_plat_pub_policy.conf",
-    filter_out: [":reqd_policy_mask.cil"],
+    filter_out: [":202404_reqd_policy_mask.cil"],
     secilc_check: false,
     installable: false,
 }
@@ -29,13 +59,22 @@ se_policy_conf {
     ],
     installable: false,
     build_variant: "user",
+    board_api_level: "202404",
 }
 
 se_policy_cil {
     name: "202404_product_pub_policy.cil",
     src: ":202404_product_pub_policy.conf",
-    filter_out: [":reqd_policy_mask.cil"],
+    filter_out: [":202404_reqd_policy_mask.cil"],
     secilc_check: false,
+    installable: false,
+}
+
+se_versioned_policy {
+    name: "202404_plat_pub_versioned.cil",
+    base: ":202404_product_pub_policy.cil",
+    target_policy: ":202404_product_pub_policy.cil",
+    version: "202404",
     installable: false,
 }
 
@@ -52,6 +91,7 @@ se_policy_conf {
     ],
     installable: false,
     build_variant: "user",
+    board_api_level: "202404",
 }
 
 se_policy_cil {

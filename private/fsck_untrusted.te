@@ -1,5 +1,7 @@
 typeattribute fsck_untrusted coredomain;
 
+use_bootstrap_libs(fsck)
+
 # Inherit and use pty created by android_fork_execvp_ext().
 allow fsck_untrusted devpts:chr_file { read write ioctl getattr };
 

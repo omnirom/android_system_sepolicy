@@ -26,8 +26,10 @@ android.hardware.automotive.remoteaccess.IRemoteAccess/default       u:object_r:
 android.hardware.automotive.vehicle.IVehicle/default                 u:object_r:hal_vehicle_service:s0
 android.hardware.biometrics.face.IFace/default                       u:object_r:hal_face_service:s0
 android.hardware.biometrics.face.IFace/virtual                       u:object_r:hal_face_service:s0
+android.hardware.biometrics.face.virtualhal.IVirtualHal/virtual      u:object_r:hal_face_service:s0
 android.hardware.biometrics.fingerprint.IFingerprint/default         u:object_r:hal_fingerprint_service:s0
 android.hardware.biometrics.fingerprint.IFingerprint/virtual         u:object_r:hal_fingerprint_service:s0
+android.hardware.biometrics.fingerprint.virtualhal.IVirtualHal/virtual u:object_r:hal_fingerprint_service:s0
 android.hardware.bluetooth.IBluetoothHci/default                     u:object_r:hal_bluetooth_service:s0
 android.hardware.bluetooth.finder.IBluetoothFinder/default           u:object_r:hal_bluetooth_service:s0
 is_flag_enabled(RELEASE_HARDWARE_BLUETOOTH_RANGING_SERVICE, `
@@ -172,9 +174,14 @@ is_flag_enabled(RELEASE_AVF_ENABLE_LLPVM_CHANGES, `
 ')
 is_flag_enabled(RELEASE_AVF_ENABLE_NETWORK, `
     android.system.virtualizationservice_internal.IVmnic u:object_r:vmnic_service:s0
+    android.system.vmtethering.IVmTethering              u:object_r:vm_tethering_service:s0
+')
+is_flag_enabled(RELEASE_AVF_ENABLE_MICROFUCHSIA, `
+    android.system.microfuchsiad              u:object_r:microfuchsia_service:s0
 ')
 ambient_context                           u:object_r:ambient_context_service:s0
 app_binding                               u:object_r:app_binding_service:s0
+app_function                              u:object_r:app_function_service:s0
 app_hibernation                           u:object_r:app_hibernation_service:s0
 app_integrity                             u:object_r:app_integrity_service:s0
 app_prediction                            u:object_r:app_prediction_service:s0
@@ -368,6 +375,7 @@ pinner                                    u:object_r:pinner_service:s0
 powerstats                                u:object_r:powerstats_service:s0
 power                                     u:object_r:power_service:s0
 profiling_service                         u:object_r:profiling_service:s0
+protolog_configuration                    u:object_r:protolog_configuration_service:s0
 print                                     u:object_r:print_service:s0
 processinfo                               u:object_r:processinfo_service:s0
 procstats                                 u:object_r:procstats_service:s0
@@ -375,6 +383,9 @@ profcollectd                              u:object_r:profcollectd_service:s0
 radio.phonesubinfo                        u:object_r:radio_service:s0
 radio.phone                               u:object_r:radio_service:s0
 radio.sms                                 u:object_r:radio_service:s0
+is_flag_enabled(RELEASE_RANGING_STACK, `
+    ranging                               u:object_r:ranging_service:s0
+')
 rcs                                       u:object_r:radio_service:s0
 reboot_readiness                          u:object_r:reboot_readiness_service:s0
 recovery                                  u:object_r:recovery_service:s0
@@ -425,6 +436,10 @@ storaged_pri                              u:object_r:storaged_service:s0
 storagestats                              u:object_r:storagestats_service:s0
 # sdk_sandbox here refers to the service name, not the domain name.
 sdk_sandbox                               u:object_r:sdk_sandbox_service:s0
+
+is_flag_enabled(RELEASE_SUPERVISION_SERVICE, `
+    supervision                               u:object_r:supervision_service:s0
+')
 SurfaceFlinger                            u:object_r:surfaceflinger_service:s0
 SurfaceFlingerAIDL                        u:object_r:surfaceflinger_service:s0
 suspend_control                           u:object_r:system_suspend_control_service:s0

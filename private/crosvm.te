@@ -20,10 +20,16 @@ neverallow { coredomain appdomain -crosvm -ueventd } vm_manager_device_type:chr_
 tmpfs_domain(crosvm)
 
 # Let crosvm receive file descriptors from VirtualizationService.
-allow crosvm virtualizationmanager:fd use;
+allow crosvm {
+  virtualizationmanager
+  is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `early_virtmgr')
+}:fd use;
 
 # Allow sending VirtualizationService the failure reason and console/log from the VM via pipe.
-allow crosvm virtualizationmanager:fifo_file write;
+allow crosvm {
+  virtualizationmanager
+  is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `early_virtmgr')
+}:fifo_file write;
 
 # Let crosvm read the composite disk images (virtualizationservice_data_file), APEXes
 # (staging_data_file), APKs (apk_data_file and shell_data_file where the latter is for test apks in
@@ -40,10 +46,14 @@ allow crosvm {
   apex_virt_data_file
   shell_data_file
   vendor_microdroid_file
+  is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `vm_data_file')
 }:file { getattr read ioctl lock };
 
 # Allow searching the directory where the composite disk images are.
-allow crosvm virtualizationservice_data_file:dir search;
+allow crosvm {
+    virtualizationservice_data_file
+    is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `vm_data_file')
+}:dir search;
 
 # When running a VM as root we get spurious capability denials.
 # Suppress them.
@@ -58,7 +68,10 @@ allow crosvm self:global_capability_class_set sys_nice;
 #   read, write, getattr: listener socket polling
 #   accept: listener socket accepting new connection
 # Note that the open permission is not given as the socket is passed by FD.
-allow crosvm virtualizationmanager:unix_stream_socket { accept read write getattr getopt };
+allow crosvm {
+  virtualizationmanager
+  is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `early_virtmgr')
+}:unix_stream_socket { accept read write getattr getopt };
 
 # Let crosvm open test artifacts under /data/local/tmp with file path. (e.g. custom pvmfw.img)
 userdebug_or_eng(`
@@ -74,6 +87,7 @@ allow crosvm {
   privapp_data_file
   apex_compos_data_file
   apex_virt_data_file
+  is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `vm_data_file')
 }:file write;
 
 # Allow crosvm to pipe console log to shell or app which could be the owner of a VM.
@@ -116,7 +130,10 @@ allow crosvm shell_data_file:file write;
 # crosvm tries to read serial device, including the write-only pipe from virtualizationmanager (to
 # forward console/log to the host logcat).
 # crosvm only needs write permission, so dontaudit read
-dontaudit crosvm virtualizationmanager:fifo_file { read getattr };
+dontaudit crosvm {
+  virtualizationmanager
+  is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `early_virtmgr')
+}:fifo_file { read getattr };
 
 # Required for crosvm to start gdb-server to enable debugging of guest kernel.
 allow crosvm self:tcp_socket { bind create read setopt write accept listen };
@@ -129,17 +146,19 @@ allow crosvm vfio_device:chr_file rw_file_perms;
 allow crosvm vfio_device:dir r_dir_perms;
 
 # Allow crosvm to access VM DTBO via a file created by virtualizationmanager.
-allow crosvm virtualizationmanager:fd use;
 allow crosvm virtualizationservice_data_file:file read;
 
 is_flag_enabled(RELEASE_AVF_ENABLE_NETWORK, `
     # Allow crosvm to deal with file descriptors of TAP interfaces.
     allow crosvm tun_device:chr_file rw_file_perms;
-    allowxperm crosvm tun_device:chr_file ioctl { TUNGETIFF TUNSETVNETHDRSZ };
+    allowxperm crosvm tun_device:chr_file ioctl { TUNGETIFF TUNSETOFFLOAD TUNSETVNETHDRSZ };
     allow crosvm self:udp_socket create_socket_perms;
     allowxperm crosvm self:udp_socket ioctl SIOCGIFMTU;
     allow crosvm vmnic:fd use;
 ')
+
+# Early VMs may print messages to kmsg_debug_device.
+allow crosvm kmsg_debug_device:chr_file w_file_perms;
 
 # Don't allow crosvm to open files that it doesn't own.
 # This is important because a malicious application could try to start a VM with a composite disk
@@ -153,6 +172,7 @@ neverallow crosvm {
   app_data_file
   privapp_data_file
   is_flag_enabled(RELEASE_UNLOCKED_STORAGE_API, `storage_area_content_file')
+  is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `vm_data_file')
   userdebug_or_eng(`-shell_data_file')
 }:file open;
 
@@ -188,4 +208,6 @@ neverallow {
   domain
   -crosvm
   -virtualizationmanager
+
+  is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `-early_virtmgr')
 } crosvm_exec:file no_x_file_perms;

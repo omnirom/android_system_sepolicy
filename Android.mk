@@ -189,6 +189,11 @@ LOCAL_REQUIRED_MODULES += \
     selinux_policy_nonsystem \
     selinux_policy_system \
 
+# Runs checkfc against merged service_contexts files
+LOCAL_REQUIRED_MODULES += \
+    merged_service_contexts_test \
+    merged_hwservice_contexts_test
+
 include $(BUILD_PHONY_PACKAGE)
 
 # selinux_policy is a main goal and triggers lots of tests.
@@ -251,55 +256,6 @@ endif  # with_asan
 ifeq ($(RELEASE_BOARD_API_LEVEL_FROZEN),true)
 LOCAL_REQUIRED_MODULES += \
     se_freeze_test
-endif
-
-include $(BUILD_PHONY_PACKAGE)
-
-#################################
-
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := selinux_policy_system_ext
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 legacy_unencumbered
-LOCAL_LICENSE_CONDITIONS := notice unencumbered
-LOCAL_NOTICE_FILE := $(LOCAL_PATH)/NOTICE
-# Include precompiled policy, unless told otherwise.
-ifneq ($(PRODUCT_PRECOMPILED_SEPOLICY),false)
-ifdef HAS_SYSTEM_EXT_SEPOLICY
-LOCAL_REQUIRED_MODULES += system_ext_sepolicy_and_mapping.sha256
-endif
-endif
-
-ifdef HAS_SYSTEM_EXT_SEPOLICY
-LOCAL_REQUIRED_MODULES += system_ext_sepolicy.cil
-endif
-
-ifdef HAS_SYSTEM_EXT_PUBLIC_SEPOLICY
-LOCAL_REQUIRED_MODULES += \
-    system_ext_mapping_file
-
-system_ext_compat_files := $(call build_policy, $(sepolicy_compat_files), $(SYSTEM_EXT_PRIVATE_POLICY))
-
-LOCAL_REQUIRED_MODULES += $(addprefix system_ext_, $(notdir $(system_ext_compat_files)))
-
-endif
-
-ifdef HAS_SYSTEM_EXT_SEPOLICY_DIR
-LOCAL_REQUIRED_MODULES += \
-    system_ext_file_contexts \
-    system_ext_file_contexts_test \
-    system_ext_keystore2_key_contexts \
-    system_ext_hwservice_contexts \
-    system_ext_hwservice_contexts_test \
-    system_ext_property_contexts \
-    system_ext_property_contexts_test \
-    system_ext_seapp_contexts \
-    system_ext_service_contexts \
-    system_ext_service_contexts_test \
-    system_ext_mac_permissions.xml \
-    system_ext_bug_map \
-    $(addprefix system_ext_,$(addsuffix .compat.cil,$(PLATFORM_SEPOLICY_COMPAT_VERSIONS))) \
-
 endif
 
 include $(BUILD_PHONY_PACKAGE)

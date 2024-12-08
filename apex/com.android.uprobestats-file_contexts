@@ -1,0 +1,3 @@
+(/.*)?                         u:object_r:system_file:s0
+/bin/uprobestats               u:object_r:uprobestats_exec:s0
+

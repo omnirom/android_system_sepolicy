@@ -1,0 +1,23 @@
+####################################
+# is_flag_enabled(flag, rules)
+# SELinux rules which apply only if given feature is turned on
+define(`is_flag_enabled', `ifelse(target_flag_$1, `true', `$2')')
+
+####################################
+# is_flag_disabled(flag, rules)
+# SELinux rules which apply only if given feature is turned off
+define(`is_flag_disabled', `ifelse(target_flag_$1, `true', , `$2')')
+
+####################################
+# starting_at_board_api(api_level, rules_if_api_level)
+#
+# This macro conditionally exposes SELinux rules ensuring they are available
+# only when the board API level is at or above the specified 'api_level'.
+define(`starting_at_board_api', `ifelse(eval(target_board_api_level >= $1), 1, `$2')')
+
+####################################
+# until_board_api(api_level, rules_if_lower_api_level)
+#
+# This macro conditionally exposes SELinux rules ensuring they are available
+# only when the board API level is below the specified 'api_level'.
+define(`until_board_api', `ifelse(eval(target_board_api_level < $1), 1, `$2')')

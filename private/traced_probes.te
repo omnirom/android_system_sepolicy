@@ -111,6 +111,10 @@ unix_socket_send(traced_probes, statsdw, statsd)
 binder_call(traced_probes, statsd)
 allow traced_probes stats_service:service_manager find;
 
+# Allow reading the system property representing number of desktop windows to
+# set the initial value for the counter in traces.
+get_prop(traced_probes, debug_tracing_desktop_mode_visible_tasks_prop)
+
 ###
 ### Neverallow rules
 ###

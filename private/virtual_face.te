@@ -1,0 +1,6 @@
+# biometric virtual face sensor
+type virtual_face, domain;
+type virtual_face_exec, system_file_type, exec_type, file_type;
+hal_server_domain(virtual_face, hal_face)
+typeattribute virtual_face coredomain;
+init_daemon_domain(virtual_face)

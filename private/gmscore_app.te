@@ -112,11 +112,6 @@ allow gmscore_app radio_service:service_manager find;
 allow gmscore_app recovery_service:service_manager find;
 allow gmscore_app stats_service:service_manager find;
 
-# Used by Finsky / Android "Verify Apps" functionality when
-# running "adb install foo.apk".
-allow gmscore_app shell_data_file:file r_file_perms;
-allow gmscore_app shell_data_file:dir r_dir_perms;
-
 # Write to /cache.
 allow gmscore_app { cache_file cache_recovery_file }:dir create_dir_perms;
 allow gmscore_app { cache_file cache_recovery_file }:file create_file_perms;
@@ -160,6 +155,9 @@ get_prop(gmscore_app, remote_prov_prop)
 # policies.
 get_prop(gmscore_app, quick_start_prop)
 neverallow { domain -init -dumpstate -vendor_init -gmscore_app } quick_start_prop:file no_rw_file_perms;
+
+# Allow GmsCore to read Bluetotoh Power Off Finder property
+get_prop(gmscore_app, bluetooth_finder_prop)
 
 # Do not allow getting permission-protected network information from sysfs.
 neverallow gmscore_app sysfs_net:file *;

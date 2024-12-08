@@ -50,8 +50,8 @@ def check_fuzzer_exists(context_file, bindings):
        if service_name not in bindings:
          sys.exit("\nerror: Service '{0}' is being added, but we have no fuzzer on file for it. "
                   "Fuzzers are listed at $ANDROID_BUILD_TOP/system/sepolicy/build/soong/service_fuzzer_bindings.go \n\n"
-                  "NOTE: automatic service fuzzers are currently not supported in Java (b/232439254) "
-                  "and Rust (b/164122727). In this case, please ignore this for now and add an entry for your"
+                  "NOTE: automatic service fuzzers are currently not supported in Java (b/287102710.)"
+                  "In this case, please ignore this for now and add an entry for your"
                   "new service in service_fuzzer_bindings.go \n\n"
                   "If you are writing a new service, it may be subject to attack from other "
                   "potentially malicious processes. A fuzzer can be written automatically "

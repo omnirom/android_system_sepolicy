@@ -44,6 +44,10 @@ def TestSystemTypeViolations(pol):
         "/system/product/vendor_overlay/",
         "/system/system_ext/overlay/",
         "/system_ext/overlay/",
+
+        # adb_keys_file hasn't been a system_file_type
+        "/product/etc/security/adb_keys",
+        "/system/product/etc/security/adb_keys",
     ]
 
     return pol.AssertPathTypesHaveAttr(partitions, exceptions, "system_file_type")
@@ -182,6 +186,7 @@ def TestIsolatedAttributeConsistency(test_policy):
         # access given from technical_debt.cil
         "codec2_config_prop" : ["file"],
         "device_config_nnapi_native_prop":["file"],
+        "gpu_device": ["dir"],
         "hal_allocator_default":["binder", "fd"],
         "hal_codec2": ["binder", "fd"],
         "hal_codec2_hwservice":["hwservice_manager"],
@@ -206,6 +211,7 @@ def TestIsolatedAttributeConsistency(test_policy):
         "media_variant_prop":["file"],
         "nnapi_ext_deny_product_prop":["file"],
         "servicemanager":["fd"],
+        "sysfs_gpu": ["file"],
         "toolbox_exec": ["file"],
         # extra types being granted to isolated_compute_app
         "isolated_compute_allowed":["service_manager", "chr_file"],

@@ -46,6 +46,10 @@ type selinuxContextsProperties struct {
 
 	// Make this module available when building for recovery
 	Recovery_available *bool
+
+	// Board api level of policy files. Set "current" for RELEASE_BOARD_API_LEVEL, or a direct
+	// version string (e.g. "202404"). Defaults to "current"
+	Board_api_level *string
 }
 
 type seappProperties struct {
@@ -231,6 +235,14 @@ func (m *selinuxContextsModule) ImageMutatorBegin(ctx android.BaseModuleContext)
 	}
 }
 
+func (m *selinuxContextsModule) VendorVariantNeeded(ctx android.BaseModuleContext) bool {
+	return false
+}
+
+func (m *selinuxContextsModule) ProductVariantNeeded(ctx android.BaseModuleContext) bool {
+	return false
+}
+
 func (m *selinuxContextsModule) CoreVariantNeeded(ctx android.BaseModuleContext) bool {
 	return !m.ModuleBase.InstallInRecovery()
 }
@@ -280,6 +292,7 @@ func (m *selinuxContextsModule) buildGeneralContexts(ctx android.ModuleContext, 
 		Tool(ctx.Config().PrebuiltBuildTool(ctx, "m4")).
 		Text("--fatal-warnings -s").
 		FlagForEachArg("-D", ctx.DeviceConfig().SepolicyM4Defs()).
+		Flag(boardApiLevelToM4Macro(ctx, m.properties.Board_api_level)).
 		Flags(flagsToM4Macros(flags)).
 		Inputs(inputsWithNewline).
 		FlagWithOutput("> ", builtContext)
@@ -704,6 +717,14 @@ func (m *contextsTestModule) AndroidMkEntries() []android.AndroidMkEntries {
 // contextsTestModule implements ImageInterface to be able to include recovery_available contexts
 // modules as its sources.
 func (m *contextsTestModule) ImageMutatorBegin(ctx android.BaseModuleContext) {
+}
+
+func (m *contextsTestModule) VendorVariantNeeded(ctx android.BaseModuleContext) bool {
+	return false
+}
+
+func (m *contextsTestModule) ProductVariantNeeded(ctx android.BaseModuleContext) bool {
+	return false
 }
 
 func (m *contextsTestModule) CoreVariantNeeded(ctx android.BaseModuleContext) bool {

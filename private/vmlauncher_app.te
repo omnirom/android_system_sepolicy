@@ -2,6 +2,7 @@ type vmlauncher_app, domain;
 typeattribute vmlauncher_app coredomain;
 
 app_domain(vmlauncher_app)
+net_domain(vmlauncher_app)
 
 allow vmlauncher_app app_api_service:service_manager find;
 allow vmlauncher_app system_api_service:service_manager find;

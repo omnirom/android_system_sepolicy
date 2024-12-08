@@ -19,9 +19,9 @@ allow lmkd self:perf_event { cpu kernel open write };
 allow lmkd fs_bpf:file read;
 allow lmkd bpfloader:bpf { map_read map_write prog_run };
 
-# Needed for polling directly from the bpf ring buffer's fd
-allow lmkd fs_bpf_lmkd_memevents_rb:file { read write };
-allow lmkd fs_bpf_lmkd_memevents_prog:file read;
+# Needed to interact with memevents-eBPF and receive notifications for memory events
+allow lmkd fs_bpf_memevents:file { read write };
+allow lmkd fs_bpf_memevents:dir search;
 
 allow lmkd self:global_capability_class_set { dac_override dac_read_search sys_resource kill };
 
@@ -85,9 +85,6 @@ allow lmkd lmkd_socket:sock_file write;
 
 # Allow lmkd to write to statsd.
 unix_socket_send(lmkd, statsdw, statsd)
-
-# Allow lmkd to create io_uring
-allow lmkd self:anon_inode { create map read write };
 
 ### neverallow rules
 

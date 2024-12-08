@@ -15,12 +15,12 @@ allow domain self:process {
     setsched
     getsession
     getpgid
-    setpgid
     getcap
     setcap
     getattr
     setrlimit
 };
+allow { domain -artd_subprocess_type } self:process setpgid;
 allow domain self:fd use;
 allow domain proc:dir r_dir_perms;
 allow domain proc_net_type:dir search;
@@ -84,6 +84,10 @@ allow domain ashmem_libcutils_device:chr_file rw_file_perms;
 # /dev/binder can be accessed by ... everyone! :)
 allow { domain -hwservicemanager -vndservicemanager } binder_device:chr_file rw_file_perms;
 get_prop({domain -hwservicemanager -vndservicemanager }, servicemanager_prop)
+# Checking for the existance of the hwservicemanager binary is done in the client API
+# isHwServiceManagerInstalled
+dontaudit domain hwservicemanager_exec:file r_file_perms;
+
 
 # Restrict binder ioctls to an allowlist. Additional ioctl commands may be
 # added to individual domains, but this sets safe defaults for all processes.
@@ -342,6 +346,10 @@ allow domain apex_mnt_dir:lnk_file r_file_perms;
 allow domain sysfs_pgsize_migration:dir search;
 allow domain sysfs_pgsize_migration:file r_file_perms;
 
+# Linker is executed from the context of the process requesting the dynamic linking,
+# so this prop must be "world-readable".
+get_prop(domain, bionic_linker_16kb_app_compat_prop)
+
 # Allow everyone to read media server-configurable flags, so that libstagefright can be
 # configured using server-configurable flags
 get_prop(domain, device_config_media_native_prop)
@@ -493,7 +501,7 @@ get_prop(domain, socket_hook_prop)
 get_prop(domain, surfaceflinger_prop)
 get_prop(domain, telephony_status_prop)
 get_prop(domain, timezone_prop)
-get_prop({domain -untrusted_app_all -isolated_app_all -ephemeral_app },  userdebug_or_eng_prop)
+get_prop({domain -untrusted_app_all -isolated_app_all -ephemeral_app -app_zygote },  userdebug_or_eng_prop)
 get_prop(domain, vendor_socket_hook_prop)
 get_prop(domain, vndk_prop)
 get_prop(domain, vold_status_prop)
@@ -570,13 +578,15 @@ allow {
   -hal_omx_server
 } {shell_exec toolbox_exec}:file rx_file_perms;
 
-# Allow all to read from flag value boot snapshot storage files and general pb files
-# The boot snapshot of storage files serves flag read traffic for all processes, thus
-# needs to be readable by everybody.
-r_dir_file(domain, aconfig_storage_metadata_file);
+# Allow all processes to read aconfig flag storage files. The format is hidden behind
+# code-generated APIs, but since the libraries are executed in the context of the caller,
+# all processes need access to the underlying files.
+is_flag_enabled(RELEASE_READ_FROM_NEW_STORAGE, `
+  r_dir_file(domain, aconfig_storage_metadata_file);
+  r_dir_file(domain, aconfig_test_mission_files);
+')
 
 r_dir_file({ coredomain appdomain }, system_aconfig_storage_file);
-r_dir_file({ coredomain appdomain }, aconfig_test_mission_files);
 
 # processes needs to access storage file stored at /metadata/aconfig/boot, require search
 # permission on /metadata dir
@@ -1634,7 +1644,6 @@ neverallow {
   -appdomain
   -app_zygote
   -artd # compile secondary dex files
-  -dexoptanalyzer
   -installd
   -profman
   -rs # spawned by appdomain, so carryover the exception above
@@ -2239,3 +2248,6 @@ neverallow { domain -dexopt_chroot_setup -init -zygote } proc_type:{ file dir } 
 # Only init/vendor are allowed to write sysfs_pgsize_migration;
 # ueventd needs write access to all sysfs files.
 neverallow { domain -init -vendor_init -ueventd } sysfs_pgsize_migration:file no_w_file_perms;
+
+# We need to be able to rely on vsock labels, so disallow changing them.
+neverallow domain *:vsock_socket { relabelfrom relabelto };

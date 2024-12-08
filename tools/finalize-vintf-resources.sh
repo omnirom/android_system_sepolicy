@@ -30,6 +30,22 @@ cp -r "$top/system/sepolicy/private/" "$prebuilt_dir"
 cat > "$prebuilt_dir/Android.bp" <<EOF
 // Automatically generated file, do not edit!
 se_policy_conf {
+    name: "${ver}_reqd_policy_mask.conf",
+    defaults: ["se_policy_conf_flags_defaults"],
+    srcs: reqd_mask_policy,
+    installable: false,
+    build_variant: "user",
+    board_api_level: "${ver}",
+}
+
+se_policy_cil {
+    name: "${ver}_reqd_policy_mask.cil",
+    src: ":${ver}_reqd_policy_mask.conf",
+    secilc_check: false,
+    installable: false,
+}
+
+se_policy_conf {
     name: "${ver}_plat_pub_policy.conf",
     defaults: ["se_policy_conf_flags_defaults"],
     srcs: [
@@ -38,12 +54,13 @@ se_policy_conf {
     ],
     installable: false,
     build_variant: "user",
+    board_api_level: "${ver}",
 }
 
 se_policy_cil {
     name: "${ver}_plat_pub_policy.cil",
     src: ":${ver}_plat_pub_policy.conf",
-    filter_out: [":reqd_policy_mask.cil"],
+    filter_out: [":${ver}_reqd_policy_mask.cil"],
     secilc_check: false,
     installable: false,
 }
@@ -59,13 +76,22 @@ se_policy_conf {
     ],
     installable: false,
     build_variant: "user",
+    board_api_level: "${ver}",
 }
 
 se_policy_cil {
     name: "${ver}_product_pub_policy.cil",
     src: ":${ver}_product_pub_policy.conf",
-    filter_out: [":reqd_policy_mask.cil"],
+    filter_out: [":${ver}_reqd_policy_mask.cil"],
     secilc_check: false,
+    installable: false,
+}
+
+se_versioned_policy {
+    name: "${ver}_plat_pub_versioned.cil",
+    base: ":${ver}_product_pub_policy.cil",
+    target_policy: ":${ver}_product_pub_policy.cil",
+    version: "${ver}",
     installable: false,
 }
 

@@ -1,5 +1,4 @@
 adamshih@google.com
-alanstokes@google.com
 bowgotsai@google.com
 inseob@google.com
 jbires@google.com
@@ -7,3 +6,5 @@ jeffv@google.com
 jiyong@google.com
 smoreland@google.com
 tweek@google.com
+
+per-file service_fuzzer_bindings.go = waghpawan@google.com

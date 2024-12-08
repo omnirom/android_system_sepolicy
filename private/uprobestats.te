@@ -16,7 +16,7 @@ allow uprobestats sysfs_uprobe:file { open read };
 allow uprobestats sysfs_uprobe:dir { search };
 
 # Allow uprobestats to popen oatdump.
-allow uprobestats oatdump_exec:file rx_file_perms;
+allow uprobestats system_file:file rx_file_perms;
 
 # Allow uprobestats to write atoms to statsd
 unix_socket_send(uprobestats, statsdw, statsd)

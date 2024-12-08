@@ -107,5 +107,5 @@ get_prop(update_engine_common, build_bootimage_prop)
 
 # Allow to read/write/create OTA metadata files for snapshot status and COW file status.
 allow update_engine_common metadata_file:dir search;
-allow update_engine_common ota_metadata_file:dir rw_dir_perms;
+allow update_engine_common ota_metadata_file:dir { rw_dir_perms rmdir };
 allow update_engine_common ota_metadata_file:file create_file_perms;

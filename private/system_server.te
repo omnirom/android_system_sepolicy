@@ -774,6 +774,7 @@ userdebug_or_eng(`set_prop(system_server, system_user_mode_emulation_prop)')
 set_prop(system_server, ctl_default_prop)
 set_prop(system_server, ctl_bugreport_prop)
 set_prop(system_server, ctl_gsid_prop)
+set_prop(system_server, ctl_artd_pre_reboot_prop)
 
 # cppreopt property
 set_prop(system_server, cppreopt_prop)
@@ -899,6 +900,9 @@ get_prop(system_server, traced_oome_heap_session_count_prop)
 # Allow the sensor service (running in the system service) to read sensor
 # configuration properties
 get_prop(system_server, sensors_config_prop)
+
+# Allow system server to determine if system services are enabled
+get_prop(system_server, system_service_enable_prop)
 
 # Create a socket for connections from debuggerd.
 allow system_server system_ndebug_socket:sock_file create_file_perms;
@@ -1233,6 +1237,10 @@ allow system_server self:key_socket create;
 # calls if (fd.isSocket$()) if (isLingerSocket(fd)) ...
 dontaudit system_server self:key_socket getopt;
 
+# Needed to interact with memevents-eBPF and receive notifications for memory events
+allow system_server fs_bpf_memevents:dir search;
+allow system_server fs_bpf_memevents:file { read write };
+
 # Allow system_server to start clatd in its own domain and kill it.
 domain_auto_trans(system_server, clatd_exec, clatd)
 allow system_server clatd:process { sigkill signal };
@@ -1261,6 +1269,9 @@ get_prop(system_server,system_jvmti_agent_prop)
 # UsbDeviceManager uses /dev/usb-ffs
 allow system_server functionfs:dir search;
 allow system_server functionfs:file rw_file_perms;
+# To resolve arbitrary sysfs paths from /sys/class/udc/* symlinks.
+allow system_server sysfs_type:dir search;
+r_dir_file(system_server, sysfs_udc)
 
 # system_server contains time / time zone detection logic so reads the associated properties.
 get_prop(system_server, time_prop)
@@ -1539,10 +1550,6 @@ allow system_server proc_pressure_mem:file rw_file_perms;
 # Read /proc/pressure/cpu and /proc/pressure/io
 allow system_server { proc_pressure_cpu proc_pressure_io }:file r_file_perms;
 
-# dexoptanalyzer is currently used only for secondary dex files which
-# system_server should never access.
-neverallow system_server dexoptanalyzer_exec:file no_x_file_perms;
-
 # No ptracing others
 neverallow system_server { domain -system_server }:process ptrace;
 
@@ -1558,10 +1565,6 @@ neverallow {
   -system_server
 } password_slot_metadata_file:notdevfile_class_set ~{ relabelto getattr };
 neverallow { domain -init -system_server } password_slot_metadata_file:notdevfile_class_set *;
-
-# Only system_server/init should access /metadata/userspacereboot.
-neverallow { domain -init -system_server } userspace_reboot_metadata_file:dir *;
-neverallow { domain -init -system_server } userspace_reboot_metadata_file:file no_rw_file_perms;
 
 # Only system server should access /metadata/aconfig
 neverallow { domain -init -system_server -aconfigd } aconfig_storage_flags_metadata_file:dir *;

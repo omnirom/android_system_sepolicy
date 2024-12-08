@@ -1,0 +1,11 @@
+type ferrochrome_app, domain;
+typeattribute ferrochrome_app coredomain;
+
+app_domain(ferrochrome_app)
+
+allow ferrochrome_app app_api_service:service_manager find;
+allow ferrochrome_app system_api_service:service_manager find;
+
+# TODO(b/348113995): after remove sysprop usage, we can use just (priv_)app.te
+set_prop(ferrochrome_app, debug_prop);
+get_prop(ferrochrome_app, debug_prop);

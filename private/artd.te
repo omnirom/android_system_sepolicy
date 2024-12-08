@@ -4,6 +4,9 @@ typeattribute artd mlstrustedsubject;
 type artd_exec, system_file_type, exec_type, file_type;
 type artd_tmpfs, file_type;
 
+# All types of artd subprocesses, which artd can kill.
+attribute artd_subprocess_type;
+
 # Allow artd to publish a binder service and make binder calls.
 binder_use(artd)
 add_service(artd, artd_service)
@@ -37,6 +40,8 @@ userfaultfd_use(artd)
 allow artd mnt_expand_file:dir { getattr search };
 allow artd apk_data_file:dir { rw_dir_perms create setattr relabelfrom };
 allow artd apk_data_file:file r_file_perms;
+allow artd apk_tmp_file:dir { rw_dir_perms create setattr relabelfrom };
+allow artd apk_tmp_file:file r_file_perms;
 
 # Read access to vendor APKs ({/vendor,/odm}/{app,priv-app}/...).
 r_dir_file(artd, vendor_app_file)
@@ -131,7 +136,7 @@ domain_auto_trans(artd, profman_exec, profman)
 domain_auto_trans(artd, dex2oat_exec, dex2oat)
 
 # Allow sending sigkill to subprocesses.
-allow artd { profman dex2oat }:process sigkill;
+allow artd artd_subprocess_type:process sigkill;
 
 # Allow reading process info (/proc/<pid>/...).
 # This is needed for getting CPU time and wall time spent on subprocesses.
@@ -159,9 +164,6 @@ allow artd self:global_capability_class_set sys_admin;
 domain_auto_trans(artd, derive_classpath_exec, derive_classpath)
 domain_auto_trans(artd, odrefresh_exec, odrefresh)
 
-# Allow sending sigkill to subprocesses.
-allow artd { derive_classpath odrefresh }:process sigkill;
-
 # Allow accessing Pre-reboot Dexopt files.
 allow artd pre_reboot_dexopt_file:dir { getattr search };
 
@@ -185,3 +187,15 @@ allow artd { apex_art_data_file odrefresh_data_file pre_reboot_dexopt_artd_file 
 # Never allow running other binaries without a domain transition.
 # The exception for art_exec_exec is explained above.
 neverallow artd ~{art_exec_exec}:file execute_no_trans;
+
+# Make sure artd_subprocess_type is complete, in a sense that it includes all
+# types of artd subprocesses.
+neverallow artd ~{artd_subprocess_type crash_dump}:process transition;
+
+# artd uses process groups to manage subprocesses and kill them. To ensure
+# successful kill, we need to prevent subprocesses from changing their
+# process groups or transitioning to other domains.
+# Transitioning crash_dump is allowed because it is transient and is only used
+# upon crashes.
+neverallow artd_subprocess_type self:process setpgid;
+neverallow artd_subprocess_type ~{artd_subprocess_type crash_dump}:process transition;

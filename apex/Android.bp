@@ -286,3 +286,31 @@ filegroup {
         "com.android.telephonymodules-file_contexts",
     ],
 }
+
+filegroup {
+    name: "com.android.configinfrastructure-file_contexts",
+    srcs: [
+        "com.android.configinfrastructure-file_contexts",
+    ],
+}
+
+filegroup {
+    name: "com.android.biometrics.virtual.fingerprint-file_contexts",
+    srcs: [
+        "com.android.biometrics.virtual.fingerprint-file_contexts",
+    ],
+}
+
+filegroup {
+    name: "com.android.uprobestats-file_contexts",
+    srcs: [
+        "com.android.uprobestats-file_contexts",
+    ],
+}
+
+filegroup {
+    name: "com.android.biometrics.virtual.face-file_contexts",
+    srcs: [
+        "com.android.biometrics.virtual.face-file_contexts",
+    ],
+}

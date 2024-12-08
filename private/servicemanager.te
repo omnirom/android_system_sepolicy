@@ -44,6 +44,8 @@ selinux_check_access(servicemanager)
 
 allow servicemanager kmsg_device:chr_file rw_file_perms;
 
+perfetto_producer(servicemanager)
+
 recovery_only(`
   # Read VINTF files.
   r_dir_file(servicemanager, rootfs)

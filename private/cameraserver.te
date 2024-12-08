@@ -14,7 +14,7 @@ binder_call(cameraserver, appdomain)
 binder_service(cameraserver)
 
 hal_client_domain(cameraserver, hal_camera)
-
+allow cameraserver hal_camera_server:process signal;
 hal_client_domain(cameraserver, hal_graphics_allocator)
 
 allow cameraserver ion_device:chr_file rw_file_perms;

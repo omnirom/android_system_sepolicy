@@ -121,9 +121,6 @@
 # levelFrom=app or levelFrom=all is only supported for _app UIDs.
 # level may be used to specify a fixed level for any UID.
 #
-# For backwards compatibility levelFromUid=true is equivalent to levelFrom=app
-# and levelFromUid=false is equivalent to levelFrom=none.
-#
 #
 # Neverallow Assertions
 # Additional compile time assertion checks for the rules in this file can be
@@ -226,3 +223,7 @@ user=_app minTargetSdkVersion=28 fromRunAs=true domain=runas_app levelFrom=all
 user=_app fromRunAs=true domain=runas_app levelFrom=user
 user=_app isPrivApp=true name=com.android.virtualization.vmlauncher domain=vmlauncher_app type=privapp_data_file levelFrom=all
 user=_app isPrivApp=true name=com.google.android.virtualization.vmlauncher domain=vmlauncher_app type=privapp_data_file levelFrom=all
+user=_app isPrivApp=true name=com.android.virtualization.terminal domain=vmlauncher_app type=privapp_data_file levelFrom=all
+user=_app isPrivApp=true name=com.google.android.virtualization.terminal domain=vmlauncher_app type=privapp_data_file levelFrom=all
+user=_app isPrivApp=true name=com.android.virtualization.linuxinstaller domain=ferrochrome_app type=privapp_data_file levelFrom=all
+user=_app isPrivApp=true name=com.android.virtualization.ferrochrome domain=ferrochrome_app type=privapp_data_file levelFrom=all

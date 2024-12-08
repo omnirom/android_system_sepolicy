@@ -136,46 +136,6 @@ type compatTestModule struct {
 	compatTestTimestamp android.ModuleOutPath
 }
 
-func (f *compatTestModule) createPlatPubVersionedModule(ctx android.LoadHookContext, ver string) {
-	confName := fmt.Sprintf("pub_policy_%s.conf", ver)
-	cilName := fmt.Sprintf("pub_policy_%s.cil", ver)
-	platPubVersionedName := fmt.Sprintf("plat_pub_versioned_%s.cil", ver)
-
-	ctx.CreateModule(policyConfFactory, &nameProperties{
-		Name: proptools.StringPtr(confName),
-	}, &policyConfProperties{
-		Srcs: []string{
-			fmt.Sprintf(":se_build_files{.plat_public_%s}", ver),
-			fmt.Sprintf(":se_build_files{.system_ext_public_%s}", ver),
-			fmt.Sprintf(":se_build_files{.product_public_%s}", ver),
-			":se_build_files{.reqd_mask}",
-		},
-		Installable: proptools.BoolPtr(false),
-	}, &struct {
-		Defaults []string
-	}{
-		Defaults: f.properties.Defaults,
-	})
-
-	ctx.CreateModule(policyCilFactory, &nameProperties{
-		Name: proptools.StringPtr(cilName),
-	}, &policyCilProperties{
-		Src:          proptools.StringPtr(":" + confName),
-		Filter_out:   []string{":reqd_policy_mask.cil"},
-		Secilc_check: proptools.BoolPtr(false),
-		Installable:  proptools.BoolPtr(false),
-	})
-
-	ctx.CreateModule(versionedPolicyFactory, &nameProperties{
-		Name: proptools.StringPtr(platPubVersionedName),
-	}, &versionedPolicyProperties{
-		Base:          proptools.StringPtr(":" + cilName),
-		Target_policy: proptools.StringPtr(":" + cilName),
-		Version:       proptools.StringPtr(ver),
-		Installable:   proptools.BoolPtr(false),
-	})
-}
-
 func (f *compatTestModule) createCompatTestModule(ctx android.LoadHookContext, ver string) {
 	srcs := []string{
 		":plat_sepolicy.cil",
@@ -195,7 +155,7 @@ func (f *compatTestModule) createCompatTestModule(ctx android.LoadHookContext, v
 			":odm_sepolicy.cil",
 		)
 	} else {
-		srcs = append(srcs, fmt.Sprintf(":plat_pub_versioned_%s.cil", ver))
+		srcs = append(srcs, fmt.Sprintf(":%s_plat_pub_versioned.cil", ver))
 	}
 
 	compatTestName := fmt.Sprintf("%s_compat_test", ver)
@@ -210,7 +170,6 @@ func (f *compatTestModule) createCompatTestModule(ctx android.LoadHookContext, v
 
 func (f *compatTestModule) loadHook(ctx android.LoadHookContext) {
 	for _, ver := range ctx.DeviceConfig().PlatformSepolicyCompatVersions() {
-		f.createPlatPubVersionedModule(ctx, ver)
 		f.createCompatTestModule(ctx, ver)
 	}
 }

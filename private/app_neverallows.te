@@ -45,6 +45,10 @@ neverallow { all_untrusted_apps -mediaprovider } property_socket:sock_file write
 neverallow { all_untrusted_apps -mediaprovider } init:unix_stream_socket connectto;
 neverallow { all_untrusted_apps -mediaprovider } property_type:property_service set;
 
+# Do not allow untrusted apps to modify temporarily staged APKs.
+neverallow all_untrusted_apps { apk_tmp_file apk_private_tmp_file }:{ devfile_class_set dir fifo_file lnk_file sock_file } *;
+neverallow all_untrusted_apps { apk_tmp_file apk_private_tmp_file }:file ~{ getattr read map };
+
 # net.dns properties are not a public API. Disallow untrusted apps from reading this property.
 neverallow { all_untrusted_apps } net_dns_prop:file read;
 

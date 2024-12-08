@@ -1,5 +1,5 @@
 # odrefresh
-type odrefresh, domain, coredomain;
+type odrefresh, domain, coredomain, artd_subprocess_type;
 type odrefresh_exec, system_file_type, exec_type, file_type;
 
 # Allow odrefresh to create files and directories for on device signing.
@@ -23,12 +23,6 @@ domain_auto_trans(odrefresh, dex2oat_exec, dex2oat)
 
 # Allow odrefresh to kill dex2oat if compilation times out.
 allow odrefresh dex2oat:process sigkill;
-
-# Run dexoptanalyzer in its own sandbox.
-domain_auto_trans(odrefresh, dexoptanalyzer_exec, dexoptanalyzer)
-
-# Allow odrefresh to kill dexoptanalyzer if analysis times out.
-allow odrefresh dexoptanalyzer:process sigkill;
 
 # Use devpts and fd from odsign (which exec()'s odrefresh)
 allow odrefresh odsign_devpts:chr_file { read write };

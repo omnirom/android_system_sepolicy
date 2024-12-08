@@ -16,6 +16,7 @@ package selinux
 
 import (
 	"github.com/google/blueprint"
+	"github.com/google/blueprint/proptools"
 
 	"android/soong/android"
 )
@@ -49,4 +50,13 @@ func flagsToM4Macros(flags map[string]string) []string {
 		flagMacros = append(flagMacros, "-D target_flag_"+flag+"="+flags[flag])
 	}
 	return flagMacros
+}
+
+// boardApiLevel returns the M4 argument containing the target board API level.
+func boardApiLevelToM4Macro(ctx android.ModuleContext, apiLevel *string) string {
+	level := proptools.StringDefault(apiLevel, "current")
+	if level == "current" {
+		level = ctx.Config().VendorApiLevel()
+	}
+	return "-D target_board_api_level=" + level
 }

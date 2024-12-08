@@ -9,9 +9,6 @@ allow installd shell_exec:file rx_file_perms;
 # Run dex2oat in its own sandbox.
 domain_auto_trans(installd, dex2oat_exec, dex2oat)
 
-# Run dexoptanalyzer in its own sandbox.
-domain_auto_trans(installd, dexoptanalyzer_exec, dexoptanalyzer)
-
 # Run profman in its own sandbox.
 domain_auto_trans(installd, profman_exec, profman)
 
@@ -43,11 +40,6 @@ get_prop(installd, odsign_prop)
 # Allow installd to delete files in /data/staging
 allow installd staging_data_file:file unlink;
 allow installd staging_data_file:dir { open read add_name remove_name rename rmdir search write getattr };
-
-allow installd { dex2oat dexoptanalyzer }:process signal;
-
-# installd kills subprocesses if they time out.
-allow installd { dex2oat dexoptanalyzer profman }:process sigkill;
 
 # Allow installd manage dirs in /data/misc_ce/0/sdksandbox
 allow installd sdk_sandbox_system_data_file:dir { create_dir_perms relabelfrom };

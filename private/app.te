@@ -167,6 +167,8 @@ use_keystore({ appdomain -isolated_app_all -ephemeral_app -sdk_sandbox_all })
 
 use_credstore({ appdomain -isolated_app_all -ephemeral_app -sdk_sandbox_all })
 
+allow { appdomain -isolated_app_all -ephemeral_app -sdk_sandbox_all } persistent_data_block_service:service_manager find;
+
 # For app fuse.
 pdx_client({ appdomain -isolated_app_all -ephemeral_app -sdk_sandbox_all }, display_client)
 pdx_client({ appdomain -isolated_app_all -ephemeral_app -sdk_sandbox_all }, display_manager)
@@ -488,6 +490,8 @@ allow appdomain app_fuse_file:file { getattr read append write map };
 allow appdomain runas_exec:file getattr;
 # Others are either allowed elsewhere or not desired.
 
+get_prop(appdomain, high_barometer_quality_prop)
+
 # Connect to adbd and use a socket transferred from it.
 # This is used for e.g. adb backup/restore.
 allow appdomain adbd:unix_stream_socket connectto;
@@ -638,12 +642,6 @@ neverallow appdomain
 neverallow { appdomain -platform_app }
     apk_tmp_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
-
-neverallow { appdomain -untrusted_app_all -platform_app -priv_app -isolated_app_all }
-    { apk_tmp_file apk_private_tmp_file }:dir_file_class_set *;
-
-neverallow { untrusted_app_all isolated_app_all } { apk_tmp_file apk_private_tmp_file }:{ devfile_class_set dir fifo_file lnk_file sock_file } *;
-neverallow { untrusted_app_all isolated_app_all } { apk_tmp_file apk_private_tmp_file }:file ~{ getattr read };
 
 # Access to factory files.
 neverallow appdomain efs_file:dir_file_class_set write;

@@ -88,16 +88,7 @@ se_build_files {
     srcs: ["technical_debt.cil"],
 }
 
-soong_config_module_type {
-    name: "se_phony",
-    module_type: "phony",
-    config_namespace: "ANDROID",
-    bool_variables: ["PRODUCT_PRECOMPILED_SEPOLICY"],
-    list_variables: ["PLATFORM_SEPOLICY_COMPAT_VERSIONS"],
-    properties: ["required"],
-}
-
-se_phony {
+phony {
     // Currently used only for aosp_cf_system_x86_64
     // TODO(b/329208946): migrate selinux_policy_system to Soong
     name: "selinux_policy_system_soong",
@@ -113,18 +104,28 @@ se_phony {
         "plat_sepolicy.cil",
         "plat_service_contexts",
         "secilc",
-    ],
-    soong_config_variables: {
-        PLATFORM_SEPOLICY_COMPAT_VERSIONS: {
-            required: [
-                "plat_%s.cil",
-                "%s.compat.cil",
-            ],
-        },
-        PRODUCT_PRECOMPILED_SEPOLICY: {
-            required: ["plat_sepolicy_and_mapping.sha256"],
-        },
-    },
+        "plat_29.0.cil",
+        "29.0.compat.cil",
+        "plat_30.0.cil",
+        "30.0.compat.cil",
+        "plat_31.0.cil",
+        "31.0.compat.cil",
+        "plat_32.0.cil",
+        "32.0.compat.cil",
+        "plat_33.0.cil",
+        "33.0.compat.cil",
+        "plat_34.0.cil",
+        "34.0.compat.cil",
+    ] + select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
+        "202404": [],
+        default: [
+            "plat_202404.cil",
+            "202404.compat.cil",
+        ],
+    }) + select(soong_config_variable("ANDROID", "PRODUCT_PRECOMPILED_SEPOLICY"), {
+        true: ["plat_sepolicy_and_mapping.sha256"],
+        default: [],
+    }),
 }
 
 reqd_mask_policy = [":se_build_files{.reqd_mask}"]
@@ -145,7 +146,7 @@ product_private_policy = [":se_build_files{.product_private}"]
 // policy and subsequent removal of CIL policy that should not be exported.
 se_policy_conf {
     name: "reqd_policy_mask.conf",
-    defaults: ["se_policy_conf_public_flags_defaults"],
+    defaults: ["se_policy_conf_flags_defaults"],
     srcs: reqd_mask_policy,
     installable: false,
 }
@@ -181,7 +182,7 @@ se_policy_cil {
 //
 se_policy_conf {
     name: "pub_policy.conf",
-    defaults: ["se_policy_conf_public_flags_defaults"],
+    defaults: ["se_policy_conf_flags_defaults"],
     srcs: plat_public_policy +
         system_ext_public_policy +
         product_public_policy +
@@ -201,7 +202,7 @@ se_policy_cil {
 
 se_policy_conf {
     name: "system_ext_pub_policy.conf",
-    defaults: ["se_policy_conf_public_flags_defaults"],
+    defaults: ["se_policy_conf_flags_defaults"],
     srcs: plat_public_policy +
         system_ext_public_policy +
         reqd_mask_policy,
@@ -220,7 +221,7 @@ se_policy_cil {
 
 se_policy_conf {
     name: "plat_pub_policy.conf",
-    defaults: ["se_policy_conf_public_flags_defaults"],
+    defaults: ["se_policy_conf_flags_defaults"],
     srcs: plat_public_policy +
         reqd_mask_policy,
     installable: false,
@@ -409,7 +410,7 @@ se_versioned_policy {
 // policy and the platform public policy files in order to use checkpolicy.
 se_policy_conf {
     name: "vendor_sepolicy.conf",
-    defaults: ["se_policy_conf_public_flags_defaults"],
+    defaults: ["se_policy_conf_flags_defaults"],
     srcs: plat_public_policy +
         system_ext_public_policy +
         product_public_policy +
@@ -451,7 +452,7 @@ se_versioned_policy {
 // policy and the platform public policy files in order to use checkpolicy.
 se_policy_conf {
     name: "odm_sepolicy.conf",
-    defaults: ["se_policy_conf_public_flags_defaults"],
+    defaults: ["se_policy_conf_flags_defaults"],
     srcs: plat_public_policy +
         system_ext_public_policy +
         product_public_policy +
@@ -792,7 +793,7 @@ se_policy_binary {
 
 se_policy_conf {
     name: "base_plat_pub_policy.conf",
-    defaults: ["se_policy_conf_public_flags_defaults"],
+    defaults: ["se_policy_conf_flags_defaults"],
     srcs: plat_public_policy +
         reqd_mask_policy,
     build_variant: "user",
@@ -812,7 +813,7 @@ se_policy_cil {
 
 se_policy_conf {
     name: "base_product_pub_policy.conf",
-    defaults: ["se_policy_conf_public_flags_defaults"],
+    defaults: ["se_policy_conf_flags_defaults"],
     srcs: plat_public_policy +
         system_ext_public_policy +
         product_public_policy +
@@ -951,4 +952,56 @@ dev_type_test_genrule {
             },
         },
     },
+}
+
+phony {
+    name: "selinux_policy_system_ext",
+    required: [
+        //"ifdef HAS_SYSTEM_EXT_PUBLIC_SEPOLICY" check included in system_ext_pub_policy.cil
+        "system_ext_mapping_file",
+        //"ifdef HAS_SYSTEM_EXT_SEPOLICY" check included in .cil
+        "system_ext_sepolicy.cil",
+    ] + [
+        //"ifdef HAS_SYSTEM_EXT_SEPOLICY" check included in .cil
+        "system_ext_29.0.cil",
+        "system_ext_30.0.cil",
+        "system_ext_31.0.cil",
+        "system_ext_32.0.cil",
+        "system_ext_33.0.cil",
+        "system_ext_34.0.cil",
+    ] + select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
+        "202404": [],
+        default: [
+            "system_ext_202404.cil",
+        ],
+    }) +
+    select(soong_config_variable("ANDROID", "PRODUCT_PRECOMPILED_SEPOLICY"), {
+        true: ["system_ext_sepolicy_and_mapping.sha256"],
+        default: [],
+    }) + [
+        "system_ext_file_contexts",
+        "system_ext_file_contexts_test",
+        "system_ext_keystore2_key_contexts",
+        "system_ext_hwservice_contexts",
+        "system_ext_hwservice_contexts_test",
+        "system_ext_property_contexts",
+        "system_ext_property_contexts_test",
+        "system_ext_seapp_contexts",
+        "system_ext_service_contexts",
+        "system_ext_service_contexts_test",
+        "system_ext_mac_permissions.xml",
+        "system_ext_bug_map",
+        // $(addprefix system_ext_,$(addsuffix .compat.cil,$(PLATFORM_SEPOLICY_COMPAT_VERSIONS))) \
+        "system_ext_29.0.compat.cil",
+        "system_ext_30.0.compat.cil",
+        "system_ext_31.0.compat.cil",
+        "system_ext_32.0.compat.cil",
+        "system_ext_33.0.compat.cil",
+        "system_ext_34.0.compat.cil",
+    ] + select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
+        "202404": [],
+        default: [
+            "system_ext_202404.compat.cil",
+        ],
+    }),
 }

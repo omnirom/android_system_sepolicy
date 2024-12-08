@@ -9,6 +9,7 @@ type fs_bpf_netd_readonly, fs_type, bpffs_type;
 type fs_bpf_netd_shared, fs_type, bpffs_type;
 type fs_bpf_loader, fs_type, bpffs_type;
 type fs_bpf_uprobestats, fs_type, bpffs_type;
+type fs_bpf_memevents, fs_type, bpffs_type;
 
 # /data/misc/storaged
 type storaged_data_file, file_type, data_file_type, core_data_file_type;
@@ -38,6 +39,7 @@ type system_perfetto_config_file, file_type, system_file_type;
 type uprobestats_configs_data_file, file_type, data_file_type, core_data_file_type;
 
 # /apex/com.android.art/bin/oatdump
+# TODO (b/350628688): Remove this once it's safe to do so.
 type oatdump_exec, system_file_type, exec_type, file_type;
 
 # /data/misc_{ce/de}/<user>/sdksandbox root data directory for sdk sandbox processes
@@ -115,6 +117,9 @@ type odsign_metrics_file, file_type, data_file_type, core_data_file_type;
 # The type needs to be mlstrustedobject to allow for being accessed from
 # virtualizationmanager, which runs at a more constrained MLS level.
 type virtualizationservice_data_file, file_type, data_file_type, core_data_file_type, mlstrustedobject;
+
+# /mnt/vm
+type vm_data_file, file_type, core_data_file_type;
 
 # /data/system/environ
 type environ_system_data_file, file_type, data_file_type, core_data_file_type;
@@ -209,3 +214,30 @@ type storage_area_content_file, file_type, data_file_type, core_data_file_type, 
 
 # /data/misc_ce/userId/storage_area_keys
 type storage_area_key_file, file_type, data_file_type, core_data_file_type;
+
+
+# Types added in 202504 in public/file.te
+until_board_api(202504, `
+    type binderfs_logs_transactions, fs_type;
+    type binderfs_logs_transaction_history, fs_type;
+')
+
+until_board_api(202504, `
+    type proc_cgroups, fs_type, proc_type;
+')
+
+until_board_api(202504, `
+    type sysfs_udc, fs_type, sysfs_type;
+')
+
+until_board_api(202504, `
+    type fs_bpf_lmkd_memevents_rb, fs_type, bpffs_type;
+    type fs_bpf_lmkd_memevents_prog, fs_type, bpffs_type;
+')
+
+until_board_api(202504, `
+    # boot otas for 16KB developer option
+    type vendor_boot_ota_file, vendor_file_type, file_type;
+')
+## END Types added in 202504 in public/file.te
+

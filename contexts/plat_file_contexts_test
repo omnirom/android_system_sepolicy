@@ -3,7 +3,7 @@
 # It can be passed to checkfc to confirm that the regular expressions in
 # file_contexts are matching the intended paths.
 /                                                                 rootfs
-/adb_keys                                                         adb_keys_file
+/adb_keys                                                         system_file
 /build.prop                                                       rootfs
 /default.prop                                                     rootfs
 /fstab.persist                                                    rootfs
@@ -37,6 +37,7 @@
 /sys                                                              sysfs
 /apex                                                             apex_mnt_dir
 /bootstrap-apex                                                   apex_mnt_dir
+/mnt/vm                                                           vm_data_file
 
 /postinstall                                                      postinstall_mnt_dir
 /postinstall/apex                                                 postinstall_apex_mnt_dir
@@ -416,7 +417,6 @@
 /system/bin/cppreopts.sh                                          cppreopts_exec
 /system/bin/preloads_copy.sh                                      preloads_copy_exec
 /system/bin/preopt2cachename                                      preopt2cachename_exec
-/system/bin/viewcompiler                                          viewcompiler_exec
 /system/bin/sgdisk                                                sgdisk_exec
 /system/bin/blkid                                                 blkid_exec
 /system/bin/flags_health_check                                    flags_health_check_exec
@@ -723,6 +723,9 @@
 /system/product/lib64                                             system_lib_file
 /system/product/lib64/does_not_exist                              system_lib_file
 
+/product/etc/security/adb_keys                                    adb_keys_file
+/system/product/etc/security/adb_keys                             adb_keys_file
+
 /system_ext                                                       system_file
 /system_ext/does_not_exist                                        system_file
 /system/system_ext                                                system_file
@@ -773,6 +776,9 @@
 /system_ext/bin/canhalconfigurator-aidl                           canhalconfigurator_exec
 /system/system_ext/bin/canhalconfigurator                         canhalconfigurator_exec
 /system/system_ext/bin/canhalconfigurator-aidl                    canhalconfigurator_exec
+
+/system_ext/bin/custom_vm_setup                                   custom_vm_setup_exec
+/system/system_ext/bin/custom_vm_setup                            custom_vm_setup_exec
 
 /system_ext/lib                                                   system_lib_file
 /system_ext/lib/does_not_exist                                    system_lib_file
@@ -1266,8 +1272,6 @@
 /metadata/bootstat/test                                           metadata_bootstat_file
 /metadata/staged-install                                          staged_install_file
 /metadata/staged-install/test                                     staged_install_file
-/metadata/userspacereboot                                         userspace_reboot_metadata_file
-/metadata/userspacereboot/test                                    userspace_reboot_metadata_file
 /metadata/watchdog                                                watchdog_metadata_file
 /metadata/watchdog/test                                           watchdog_metadata_file
 /metadata/repair-mode                                             repair_mode_metadata_file
@@ -1298,6 +1302,11 @@
 
 /mnt/product                                                      mnt_product_file
 /mnt/product/test                                                 mnt_product_file
+
+
+/mnt/scratch_ota_metadata_super                                   ota_metadata_file
+/mnt/scratch_ota_metadata_super/ota                               ota_metadata_file
+/mnt/scratch_ota_metadata_super/ota/snapshots                     ota_metadata_file
 
 /system/bin/check_dynamic_partitions                              postinstall_exec
 /product/bin/check_dynamic_partitions                             postinstall_exec

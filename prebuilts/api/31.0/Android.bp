@@ -13,25 +13,44 @@
 // limitations under the License.
 
 se_policy_conf {
+    name: "31.0_reqd_policy_mask.conf",
+    defaults: ["se_policy_conf_flags_defaults"],
+    srcs: reqd_mask_policy,
+    installable: false,
+    build_variant: "user",
+    board_api_level: "31",
+}
+
+se_policy_cil {
+    name: "31.0_reqd_policy_mask.cil",
+    src: ":31.0_reqd_policy_mask.conf",
+    secilc_check: false,
+    installable: false,
+}
+
+se_policy_conf {
     name: "31.0_plat_pub_policy.conf",
+    defaults: ["se_policy_conf_flags_defaults"],
     srcs: [
         ":se_build_files{.plat_public_31.0}",
         ":se_build_files{.reqd_mask}",
     ],
     installable: false,
     build_variant: "user",
+    board_api_level: "31",
 }
 
 se_policy_cil {
     name: "31.0_plat_pub_policy.cil",
     src: ":31.0_plat_pub_policy.conf",
-    filter_out: [":reqd_policy_mask.cil"],
+    filter_out: [":31.0_reqd_policy_mask.cil"],
     secilc_check: false,
     installable: false,
 }
 
 se_policy_conf {
     name: "31.0_product_pub_policy.conf",
+    defaults: ["se_policy_conf_flags_defaults"],
     srcs: [
         ":se_build_files{.plat_public_31.0}",
         ":se_build_files{.system_ext_public_31.0}",
@@ -40,18 +59,28 @@ se_policy_conf {
     ],
     installable: false,
     build_variant: "user",
+    board_api_level: "31",
 }
 
 se_policy_cil {
     name: "31.0_product_pub_policy.cil",
     src: ":31.0_product_pub_policy.conf",
-    filter_out: [":reqd_policy_mask.cil"],
+    filter_out: [":31.0_reqd_policy_mask.cil"],
     secilc_check: false,
+    installable: false,
+}
+
+se_versioned_policy {
+    name: "31.0_plat_pub_versioned.cil",
+    base: ":31.0_product_pub_policy.cil",
+    target_policy: ":31.0_product_pub_policy.cil",
+    version: "31.0",
     installable: false,
 }
 
 se_policy_conf {
     name: "31.0_plat_policy.conf",
+    defaults: ["se_policy_conf_flags_defaults"],
     srcs: [
         ":se_build_files{.plat_public_31.0}",
         ":se_build_files{.plat_private_31.0}",
@@ -62,6 +91,7 @@ se_policy_conf {
     ],
     installable: false,
     build_variant: "user",
+    board_api_level: "31",
 }
 
 se_policy_cil {

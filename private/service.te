@@ -1,26 +1,36 @@
-type adaptive_auth_service,         system_server_service, service_manager_type;
-type ambient_context_service,       app_api_service, system_server_service, service_manager_type;
-type attention_service,             system_server_service, service_manager_type;
-type bg_install_control_service,    system_api_service, system_server_service, service_manager_type;
-type compos_service,                service_manager_type;
-type communal_service,              app_api_service, system_server_service, service_manager_type;
-type dynamic_system_service,        system_api_service, system_server_service, service_manager_type;
-type feature_flags_service,         app_api_service, system_server_service, service_manager_type;
-type gsi_service,                   service_manager_type;
-type incidentcompanion_service,     app_api_service, system_api_service, system_server_service, service_manager_type;
-type logcat_service,                system_server_service, service_manager_type;
-type logd_service,                  service_manager_type;
-type mediatuner_service,            app_api_service, service_manager_type;
+type adaptive_auth_service,          system_server_service, service_manager_type;
+type ambient_context_service,        app_api_service, system_server_service, service_manager_type;
+
+# These types will be public starting at board api 202504
+until_board_api(202504, `
+    type app_function_service, app_api_service, system_server_service, service_manager_type;
+')
+type attention_service,              system_server_service, service_manager_type;
+type bg_install_control_service,     system_api_service, system_server_service, service_manager_type;
+type compos_service,                 service_manager_type;
+type communal_service,               app_api_service, system_server_service, service_manager_type;
+type dynamic_system_service,         system_api_service, system_server_service, service_manager_type;
+type feature_flags_service,          app_api_service, system_server_service, service_manager_type;
+type gsi_service,                    service_manager_type;
+type incidentcompanion_service,      app_api_service, system_api_service, system_server_service, service_manager_type;
+type logcat_service,                 system_server_service, service_manager_type;
+type logd_service,                   service_manager_type;
+type mediatuner_service,             app_api_service, service_manager_type;
 type on_device_intelligence_service, app_api_service, system_server_service, service_manager_type, isolated_compute_allowed_service;
-type profcollectd_service,          service_manager_type;
-type resolver_service,              system_server_service, service_manager_type;
-type rkpd_registrar_service,        service_manager_type;
-type rkpd_refresh_service,          service_manager_type;
-type safety_center_service,         app_api_service, system_api_service, system_server_service, service_manager_type;
-type stats_service,                 service_manager_type;
-type statsbootstrap_service,        system_server_service, service_manager_type;
-type statscompanion_service,        system_server_service, service_manager_type;
-type statsmanager_service,          system_api_service, system_server_service, service_manager_type;
+type profcollectd_service,           service_manager_type;
+type protolog_configuration_service, app_api_service, system_api_service, system_server_service, service_manager_type;
+type resolver_service,               system_server_service, service_manager_type;
+type rkpd_registrar_service,         service_manager_type;
+type rkpd_refresh_service,           service_manager_type;
+type safety_center_service,          app_api_service, system_api_service, system_server_service, service_manager_type;
+type stats_service,                  service_manager_type;
+type statsbootstrap_service,         system_server_service, service_manager_type;
+type statscompanion_service,         system_server_service, service_manager_type;
+type statsmanager_service,           system_api_service, system_server_service, service_manager_type;
+
+is_flag_enabled(RELEASE_SUPERVISION_SERVICE, `
+    type supervision_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
+')
 type tracingproxy_service,          system_server_service, service_manager_type;
 type transparency_service,          system_server_service, service_manager_type;
 
@@ -31,7 +41,11 @@ is_flag_enabled(RELEASE_AVF_ENABLE_LLPVM_CHANGES, `
     type virtualization_maintenance_service, service_manager_type;
 ')
 is_flag_enabled(RELEASE_AVF_ENABLE_NETWORK, `
-    type vmnic_service, service_manager_type;
+    type vm_tethering_service, system_server_service, service_manager_type;
+    type vmnic_service,        service_manager_type;
+')
+is_flag_enabled(RELEASE_AVF_ENABLE_MICROFUCHSIA, `
+    type microfuchsia_service,          service_manager_type;
 ')
 
 type uce_service,                   service_manager_type;

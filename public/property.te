@@ -276,7 +276,10 @@ system_internal_prop(default_prop)
 vendor_internal_prop(rebootescrow_hal_prop)
 
 # Properties used in the default Face HAL implementations
-system_public_prop(virtual_face_hal_prop)
+vendor_internal_prop(virtual_face_hal_prop)
+starting_at_board_api(202504, `
+    system_public_prop(virtual_face_prop)
+')
 
 # Properties used in the default Fingerprint HAL implementations
 vendor_internal_prop(virtual_fingerprint_hal_prop)

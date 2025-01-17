@@ -84,6 +84,7 @@ system_restricted_prop(page_size_prop)
 until_board_api(202504, `
     system_public_prop(bluetooth_finder_prop)
     system_public_prop(virtual_fingerprint_prop)
+    system_public_prop(virtual_face_prop)
 ')
 
 # These types will be public starting at board api 202504

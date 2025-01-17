@@ -2724,7 +2724,7 @@
 (typeattributeset virtual_camera_service_202404 (virtual_camera_service))
 (typeattributeset virtual_device_native_service_202404 (virtual_device_native_service))
 (typeattributeset virtual_device_service_202404 (virtual_device_service))
-(typeattributeset virtual_face_hal_prop_202404 (virtual_face_hal_prop))
+(typeattributeset virtual_face_hal_prop_202404 (virtual_face_hal_prop virtual_face_prop))
 (typeattributeset virtual_fingerprint_hal_prop_202404 (virtual_fingerprint_hal_prop virtual_fingerprint_prop))
 (typeattributeset virtual_touchpad_202404 (virtual_touchpad))
 (typeattributeset virtual_touchpad_exec_202404 (virtual_touchpad_exec))

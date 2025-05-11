@@ -106,6 +106,7 @@ userdebug_or_eng(`
   typeattribute su hal_ir_client;
   typeattribute su hal_keymaster_client;
   typeattribute su hal_light_client;
+  typeattribute su hal_mediaquality_client;
   typeattribute su hal_memtrack_client;
   typeattribute su hal_neuralnetworks_client;
   typeattribute su hal_nfc_client;

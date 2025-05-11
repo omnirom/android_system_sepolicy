@@ -1,0 +1,24 @@
+type prefetch, coredomain, domain;
+type prefetch_exec, exec_type, file_type, system_file_type;
+
+init_daemon_domain(prefetch)
+
+# Allow prefetch to start recording by enabling tracing event under
+# /sys/kernel/tracing/events/filemap/mm_filemap_add_to_page_cache
+allow prefetch debugfs_tracing_instances:dir create_dir_perms;
+allow prefetch debugfs_tracing_instances:file rw_file_perms;
+
+# Allow to read/write/create/delete to storage prefetch record files
+allow prefetch metadata_file:dir search;
+allow prefetch prefetch_metadata_file:dir rw_dir_perms;
+allow prefetch prefetch_metadata_file:file create_file_perms;
+
+get_prop(prefetch, prefetch_boot_prop);
+set_prop(prefetch, prefetch_service_prop);
+
+# Disallow other domains controlling prefetch service.
+neverallow {
+  domain
+  -init
+  -shell
+} ctl_prefetch_prop:property_service set;

@@ -19,6 +19,7 @@
     hal_secretkeeper_service
     hal_codec2_service
     hal_macsec_service
+    hal_mediaquality_service
     hal_remotelyprovisionedcomponent_avf_service
     hal_threadnetwork_service
     hidl_memory_prop
@@ -52,4 +53,5 @@
     aconfigd_socket
     enable_16k_pages_prop
     proc_cgroups
+    media_quality_service
   ))

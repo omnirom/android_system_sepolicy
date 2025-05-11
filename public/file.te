@@ -100,9 +100,6 @@ type cgroup, fs_type, mlstrustedobject;
 type cgroup_v2, fs_type;
 type sysfs, fs_type, sysfs_type, mlstrustedobject;
 type sysfs_android_usb, fs_type, sysfs_type;
-starting_at_board_api(202504, `
-    type sysfs_udc, fs_type, sysfs_type;
-')
 type sysfs_uio, sysfs_type, fs_type;
 type sysfs_batteryinfo, fs_type, sysfs_type;
 type sysfs_bluetooth_writable, fs_type, sysfs_type, mlstrustedobject;
@@ -224,16 +221,22 @@ type system_security_cacerts_file, system_file_type, file_type;
 type tcpdump_exec, system_file_type, exec_type, file_type;
 # Default type for zoneinfo files in /system/usr/share/zoneinfo/*.
 type system_zoneinfo_file, system_file_type, file_type;
-# Cgroups description file under /system/etc/cgroups.json
+# Cgroups description file under /system/etc/cgroups.json or
+# API file under /system/etc/task_profiles/cgroups_*.json
 type cgroup_desc_file, system_file_type, file_type;
-# Cgroups description file under /system/etc/task_profiles/cgroups_*.json
-type cgroup_desc_api_file, system_file_type, file_type;
+until_board_api(202504, `
+    # Cgroups description file under /system/etc/task_profiles/cgroups_*.json
+    type cgroup_desc_api_file, system_file_type, file_type;
+')
 # Vendor cgroups description file under /vendor/etc/cgroups.json
 type vendor_cgroup_desc_file, vendor_file_type, file_type;
-# Task profiles file under /system/etc/task_profiles.json
+# Task profiles file under /system/etc/task_profiles.json or
+# API file under /system/etc/task_profiles/task_profiles_*.json
 type task_profiles_file, system_file_type, file_type;
-# Task profiles file under /system/etc/task_profiles/task_profiles_*.json
-type task_profiles_api_file, system_file_type, file_type;
+until_board_api(202504, `
+    # Task profiles file under /system/etc/task_profiles/task_profiles_*.json
+    type task_profiles_api_file, system_file_type, file_type;
+')
 # Vendor task profiles file under /vendor/etc/task_profiles.json
 type vendor_task_profiles_file, vendor_file_type, file_type;
 # Type for /system/apex/com.android.art
@@ -643,6 +646,11 @@ with_asan(`type asanwrapper_exec, exec_type, file_type;')
 
 # Deprecated in SDK version 28
 type audiohal_data_file, file_type, data_file_type, core_data_file_type;
+
+starting_at_board_api(202504, `
+    type sysfs_udc, fs_type, sysfs_type;
+    type tee_service_contexts_file, system_file_type, file_type;
+')
 
 # system/sepolicy/public is for vendor-facing type and attribute definitions.
 # DO NOT ADD allow, neverallow, or dontaudit statements here.

@@ -206,6 +206,9 @@ system_vendor_config_prop(tuner_config_prop)
 system_vendor_config_prop(usb_uvc_enabled_prop)
 system_vendor_config_prop(setupwizard_mode_prop)
 system_vendor_config_prop(pm_archiving_enabled_prop)
+starting_at_board_api(202504, `
+    system_vendor_config_prop(trusty_security_vm_sys_vendor_prop)
+')
 
 # Properties with no restrictions
 system_public_prop(adbd_config_prop)

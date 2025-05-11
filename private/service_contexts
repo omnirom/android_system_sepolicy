@@ -3,6 +3,7 @@ android.frameworks.location.altitude.IAltitudeService/default        u:object_r:
 android.frameworks.stats.IStats/default                              u:object_r:fwk_stats_service:s0
 android.frameworks.sensorservice.ISensorManager/default              u:object_r:fwk_sensor_service:s0
 android.frameworks.vibrator.IVibratorControlService/default          u:object_r:fwk_vibrator_control_service:s0
+android.frameworks.devicestate.IDeviceStateService/default           u:object_r:fwk_devicestate_service:s0
 android.hardware.audio.core.IConfig/default                          u:object_r:hal_audio_service:s0
 # 'default' IModule is equivalent to 'primary' in HIDL
 android.hardware.audio.core.IModule/default                          u:object_r:hal_audio_service:s0
@@ -37,6 +38,7 @@ is_flag_enabled(RELEASE_HARDWARE_BLUETOOTH_RANGING_SERVICE, `
 ')
 android.hardware.bluetooth.lmp_event.IBluetoothLmpEvent/default      u:object_r:hal_bluetooth_service:s0
 android.hardware.bluetooth.audio.IBluetoothAudioProviderFactory/default u:object_r:hal_audio_service:s0
+android.hardware.bluetooth.socket.IBluetoothSocket/default           u:object_r:hal_bluetooth_service:s0
 android.hardware.broadcastradio.IBroadcastRadio/amfm                 u:object_r:hal_broadcastradio_service:s0
 android.hardware.broadcastradio.IBroadcastRadio/dab                  u:object_r:hal_broadcastradio_service:s0
 # The instance here is internal/0 following naming convention for ICameraProvider.
@@ -115,6 +117,7 @@ android.hardware.threadnetwork.IThreadChip/chip0                     u:object_r:
 android.hardware.tv.hdmi.cec.IHdmiCec/default                        u:object_r:hal_tv_hdmi_cec_service:s0
 android.hardware.tv.hdmi.connection.IHdmiConnection/default          u:object_r:hal_tv_hdmi_connection_service:s0
 android.hardware.tv.hdmi.earc.IEArc/default                          u:object_r:hal_tv_hdmi_earc_service:s0
+android.hardware.tv.mediaquality.IMediaQuality/default               u:object_r:hal_mediaquality_service:s0
 android.hardware.tv.tuner.ITuner/default                             u:object_r:hal_tv_tuner_service:s0
 android.hardware.tv.input.ITvInput/default                           u:object_r:hal_tv_input_service:s0
 android.hardware.usb.IUsb/default                                    u:object_r:hal_usb_service:s0
@@ -143,9 +146,11 @@ accessibility                             u:object_r:accessibility_service:s0
 account                                   u:object_r:account_service:s0
 activity                                  u:object_r:activity_service:s0
 activity_task                             u:object_r:activity_task_service:s0
-adaptive_auth                             u:object_r:adaptive_auth_service:s0
 adb                                       u:object_r:adb_service:s0
 adservices_manager                        u:object_r:adservices_manager_service:s0
+starting_at_board_api(202504, `
+    advanced_protection                       u:object_r:advanced_protection_service:s0
+')
 aidl_lazy_test_1                          u:object_r:aidl_lazy_test_service:s0
 aidl_lazy_test_2                          u:object_r:aidl_lazy_test_service:s0
 aidl_lazy_test_quit                       u:object_r:aidl_lazy_test_service:s0
@@ -183,6 +188,9 @@ ambient_context                           u:object_r:ambient_context_service:s0
 app_binding                               u:object_r:app_binding_service:s0
 app_function                              u:object_r:app_function_service:s0
 app_hibernation                           u:object_r:app_hibernation_service:s0
+starting_at_board_api(202504, `
+    dynamic_instrumentation               u:object_r:dynamic_instrumentation_service:s0
+')
 app_integrity                             u:object_r:app_integrity_service:s0
 app_prediction                            u:object_r:app_prediction_service:s0
 app_search                                u:object_r:app_search_service:s0
@@ -199,6 +207,7 @@ assetatlas                                u:object_r:assetatlas_service:s0
 attention                                 u:object_r:attention_service:s0
 audio                                     u:object_r:audio_service:s0
 auth                                      u:object_r:auth_service:s0
+authentication_policy                     u:object_r:authentication_policy_service:s0
 autofill                                  u:object_r:autofill_service:s0
 background_install_control                u:object_r:bg_install_control_service:s0
 backup                                    u:object_r:backup_service:s0
@@ -271,6 +280,9 @@ feature_flags                             u:object_r:feature_flags_service:s0
 file_integrity                            u:object_r:file_integrity_service:s0
 fingerprint                               u:object_r:fingerprint_service:s0
 font                                      u:object_r:font_service:s0
+starting_at_board_api(202504, `
+    forensic                                  u:object_r:forensic_service:s0
+')
 android.hardware.fingerprint.IFingerprintDaemon u:object_r:fingerprintd_service:s0
 game                                      u:object_r:game_service:s0
 gfxinfo                                   u:object_r:gfxinfo_service:s0
@@ -290,6 +302,9 @@ inputflinger                              u:object_r:inputflinger_service:s0
 input_method                              u:object_r:input_method_service:s0
 input                                     u:object_r:input_service:s0
 installd                                  u:object_r:installd_service:s0
+starting_at_board_api(202504, `
+    intrusion_detection                   u:object_r:intrusion_detection_service:s0
+')
 iphonesubinfo_msim                        u:object_r:radio_service:s0
 iphonesubinfo2                            u:object_r:radio_service:s0
 iphonesubinfo                             u:object_r:radio_service:s0
@@ -334,12 +349,14 @@ media.tuner                               u:object_r:mediatuner_service:s0
 media_communication                       u:object_r:media_communication_service:s0
 media_metrics                             u:object_r:media_metrics_service:s0
 media_projection                          u:object_r:media_projection_service:s0
+media_quality                             u:object_r:media_quality_service:s0
 media_resource_monitor                    u:object_r:media_session_service:s0
 media_router                              u:object_r:media_router_service:s0
 media_session                             u:object_r:media_session_service:s0
 meminfo                                   u:object_r:meminfo_service:s0
 memtrack.proxy                            u:object_r:memtrackproxy_service:s0
 midi                                      u:object_r:midi_service:s0
+mmd                                       u:object_r:mmd_service:s0
 mount                                     u:object_r:mount_service:s0
 music_recognition                         u:object_r:music_recognition_service:s0
 nearby                                    u:object_r:nearby_service:s0
@@ -396,6 +413,7 @@ resources                                 u:object_r:resources_manager_service:s
 restrictions                              u:object_r:restrictions_service:s0
 rkpd.registrar                            u:object_r:rkpd_registrar_service:s0
 rkpd.refresh                              u:object_r:rkpd_refresh_service:s0
+rkp_cert_processor.service                u:object_r:rkp_cert_processor_service:s0
 role                                      u:object_r:role_service:s0
 rollback                                  u:object_r:rollback_service:s0
 rttmanager                                u:object_r:rttmanager_service:s0
@@ -462,6 +480,7 @@ time_zone_detector                        u:object_r:timezonedetector_service:s0
 thermalservice                            u:object_r:thermal_service:s0
 thread_network                            u:object_r:threadnetwork_service:s0
 tracing.proxy                             u:object_r:tracingproxy_service:s0
+tradeinmode                               u:object_r:tradeinmode_service:s0
 translation                               u:object_r:translation_service:s0
 transparency                              u:object_r:transparency_service:s0
 trust                                     u:object_r:trust_service:s0
@@ -498,5 +517,9 @@ wifi                                      u:object_r:wifi_service:s0
 wifinl80211                               u:object_r:wifinl80211_service:s0
 wifiaware                                 u:object_r:wifiaware_service:s0
 wifirtt                                   u:object_r:rttmanager_service:s0
+starting_at_board_api(202504, `
+   wifi_usd                                  u:object_r:wifi_usd_service:s0
+')
+wifi_mainline_supplicant                  u:object_r:wifi_mainline_supplicant_service:s0
 window                                    u:object_r:window_service:s0
 *                                         u:object_r:default_android_service:s0

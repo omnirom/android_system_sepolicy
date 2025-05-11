@@ -424,10 +424,11 @@ allow domain cgroup_v2:dir search;
 allow { domain -appdomain -rs } cgroup_v2:dir w_dir_perms;
 allow { domain -appdomain -rs } cgroup_v2:file w_file_perms;
 
+allow domain cgroup_desc_file:file r_file_perms;
 allow domain cgroup_rc_file:dir search;
 allow domain cgroup_rc_file:file r_file_perms;
 allow domain task_profiles_file:file r_file_perms;
-allow domain task_profiles_api_file:file r_file_perms;
+allow domain vendor_cgroup_desc_file:file r_file_perms;
 allow domain vendor_task_profiles_file:file r_file_perms;
 
 # Allow all domains to read sys.use_memfd to determine
@@ -583,7 +584,6 @@ allow {
 # all processes need access to the underlying files.
 is_flag_enabled(RELEASE_READ_FROM_NEW_STORAGE, `
   r_dir_file(domain, aconfig_storage_metadata_file);
-  r_dir_file(domain, aconfig_test_mission_files);
 ')
 
 r_dir_file({ coredomain appdomain }, system_aconfig_storage_file);
@@ -818,6 +818,7 @@ neverallow { domain -init } userdebug_or_eng_prop:property_service set;
 neverallow {
   domain
   -adbd
+  -adbd_tradeinmode
   -dumpstate
   -fastbootd
   -hal_camera_server
@@ -863,6 +864,7 @@ neverallow {
   userdebug_or_eng(`-fsck')
   userdebug_or_eng(`-init')
   -recovery
+  userdebug_or_eng(`-remount')
   -update_engine
 } system_block_device:blk_file { write append };
 
@@ -1162,6 +1164,7 @@ full_treble_only(`
     } {
         system_file_type
         -system_lib_file
+        -system_bootstrap_lib_file
         -system_linker_exec
         -crash_dump_exec
         -netutils_wrapper_exec
@@ -1232,6 +1235,7 @@ full_treble_only(`
     -vendor_init
   } {
     system_file_type
+    -cgroup_desc_file
     -crash_dump_exec
     -file_contexts_file
     -netutils_wrapper_exec
@@ -1239,6 +1243,7 @@ full_treble_only(`
     -system_event_log_tags_file
     -system_group_file
     -system_lib_file
+    -system_bootstrap_lib_file
     with_asan(`-system_asan_options_file')
     -system_linker_exec
     -system_linker_config_file
@@ -1246,7 +1251,6 @@ full_treble_only(`
     -system_seccomp_policy_file
     -system_security_cacerts_file
     -system_zoneinfo_file
-    -task_profiles_api_file
     -task_profiles_file
     userdebug_or_eng(`-tcpdump_exec')
     # Vendor components still can invoke shell commands via /system/bin/sh
@@ -1366,10 +1370,17 @@ neverallow {
 } shell:process { transition dyntransition };
 
 # Only domains spawned from zygote, runas and simpleperf_app_runner may have
-# the appdomain attribute. simpleperf is excluded as a domain transitioned to
-# when running an app-scoped profiling session.
+# the appdomain attribute.
+#
+# simpleperf is excluded as a domain transitioned to when running an app-scoped
+# profiling session.
+#
+# tradeinmode is excluded; it is only run when adbd is in trade-in mode,
+# transitioned from the limited adbd_tradeinmode context. It is a wrapper
+# around "am" to avoid exposing the shell context when adbd is in trade-in
+# mode.
 neverallow { domain -simpleperf_app_runner -runas -app_zygote -webview_zygote -zygote } {
-  appdomain -shell -simpleperf userdebug_or_eng(`-su')
+  appdomain -shell -simpleperf userdebug_or_eng(`-su') -tradeinmode
 }:process { transition dyntransition };
 
 # Minimize read access to shell- or app-writable symlinks.
@@ -1755,6 +1766,7 @@ is_flag_enabled(RELEASE_UNLOCKED_STORAGE_API, `
 # that these files cannot be accessed by other domains to ensure that the files
 # do not change between system_server staging the files and apexd processing
 # the files.
+# The update_provider can also stage files before apexd processes them.
 neverallow {
   domain
   -init
@@ -1763,6 +1775,7 @@ neverallow {
   -installd
   -priv_app
   -virtualizationmanager
+  -update_provider # WARNING: USING THIS ATTRIBUTE WILL CAUSE CTS TO FAIL!
 } staging_data_file:dir *;
 neverallow {
   domain
@@ -1777,12 +1790,19 @@ neverallow {
   -shell
   -virtualizationmanager
   -crosvm
+  -update_provider # WARNING: USING THIS ATTRIBUTE WILL CAUSE CTS TO FAIL!
 } staging_data_file:file *;
-neverallow { domain -init -system_server -installd} staging_data_file:dir no_w_dir_perms;
-# apexd needs the link and unlink permissions, so list every `no_w_file_perms`
-# except for `link` and `unlink`.
-neverallow { domain -init -system_server } staging_data_file:file
-  { append create relabelfrom rename setattr write no_x_file_perms };
+# WARNING: USING THE update_provider ATTRIBUTE WILL CAUSE CTS TO FAIL!
+neverallow { domain -init -system_server -installd -update_provider } staging_data_file:dir no_w_dir_perms;
+# apexd needs the link/unlink/rename permissions
+# WARNING: USING THE update_provider ATTRIBUTE WILL CAUSE CTS TO FAIL!
+neverallow { domain -init -system_server -installd -apexd -update_provider } staging_data_file:file {
+  no_w_file_perms no_x_file_perms
+};
+neverallow apexd staging_data_file:file {
+  append create relabelfrom setattr write # no_w_file_perms -link -unlink -rename
+  no_x_file_perms
+};
 
 neverallow {
     domain
@@ -1814,6 +1834,7 @@ neverallow {
     file_type
     -system_file_type
     -system_lib_file
+    -system_bootstrap_lib_file
     -system_linker_exec
     -vendor_file_type
     -exec_type
@@ -2064,6 +2085,7 @@ full_treble_only(`
     -vendor_apex_file
     -vendor_apex_metadata_file
     -vendor_boot_ota_file
+    -vendor_cgroup_desc_file
     -vendor_configs_file
     -vendor_microdroid_file
     -vendor_service_contexts_file
@@ -2159,7 +2181,6 @@ neverallow {
   -artd
   -dumpstate
   -installd
-  userdebug_or_eng(`-aconfigd')
   userdebug_or_eng(`-uncrypt')
   userdebug_or_eng(`-virtualizationmanager')
   userdebug_or_eng(`-virtualizationservice')
@@ -2207,7 +2228,6 @@ neverallow {
   -installd
   -simpleperf_app_runner
   -system_server # why?
-  userdebug_or_eng(`-aconfigd')
   userdebug_or_eng(`-uncrypt')
   userdebug_or_eng(`-virtualizationmanager')
   userdebug_or_eng(`-crosvm')
@@ -2237,10 +2257,6 @@ neverallow { domain -init } kcmdlinectrl:process { dyntransition transition };
 
 # For now, don't allow processes other than gmscore to access /data/misc_ce/<userid>/checkin
 neverallow { domain -gmscore_app -init -vold_prepare_subdirs } checkin_data_file:{dir file} *;
-
-# Do not allow write access to aconfig flag value files except init and aconfigd
-neverallow { domain -init -aconfigd -system_server } aconfig_storage_metadata_file:dir no_w_dir_perms;
-neverallow { domain -init -aconfigd -system_server } aconfig_storage_metadata_file:file no_w_file_perms;
 
 neverallow { domain -dexopt_chroot_setup -init } proc:{ file dir } mounton;
 neverallow { domain -dexopt_chroot_setup -init -zygote } proc_type:{ file dir } mounton;

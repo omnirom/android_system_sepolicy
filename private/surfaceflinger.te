@@ -85,9 +85,14 @@ perfetto_producer(surfaceflinger)
 # Use socket supplied by adbd, for cmd gpu vkjson etc.
 allow surfaceflinger adbd:unix_stream_socket { read write getattr };
 
-# Allow reading and writing to sockets used for BLAST buffer releases
+# Allow reading and writing to sockets used for BLAST buffer releases.
+# SurfaceFlinger never reads from these sockets but needs read permissions in order to receive
+# the file descriptors over binder. There's no mechanism to mark a socket as write-only.
+# shutdown is used to close the read-end of the sockets that are sent to SurfaceFlinger. See
+# b/353597444
 allow surfaceflinger { appdomain -isolated_app_all -ephemeral_app -sdk_sandbox_all }:unix_stream_socket { read write };
 allow surfaceflinger bootanim:unix_stream_socket { read write };
+allow surfaceflinger automotive_display_service:unix_stream_socket { read write };
 
 # Allow a dumpstate triggered screenshot
 binder_call(surfaceflinger, dumpstate)
@@ -135,6 +140,8 @@ allow surfaceflinger stats_service:service_manager find;
 allow surfaceflinger statsmanager_service:service_manager find;
 # TODO(146461633): remove this once native pullers talk to StatsManagerService
 binder_call(surfaceflinger, statsd);
+# Allow pushing atoms to the stats bootstrap atom service
+allow surfaceflinger statsbootstrap_service:service_manager find;
 
 # Allow to use files supplied by hal_evs
 allow surfaceflinger hal_evs:fd use;
@@ -142,10 +149,6 @@ allow surfaceflinger hal_evs:fd use;
 # Allow to use release fence fds supplied by hal_camera
 allow surfaceflinger hal_camera:fd use;
 
-# Allow pushing jank event atoms to statsd
-userdebug_or_eng(`
-    unix_socket_send(surfaceflinger, statsdw, statsd)
-')
 
 # Surfaceflinger should not be reading default vendor-defined properties.
 dontaudit surfaceflinger vendor_default_prop:file read;

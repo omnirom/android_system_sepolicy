@@ -53,6 +53,9 @@ allow traced  {
   userdebug_or_eng(`system_server_tmpfs')
 }:file { getattr map read write };
 
+# Allow traced to detect if a process is frozen (b/381089063).
+allow traced cgroup_v2:file r_file_perms;
+
 # Allow setting debug properties which guard initialization of the Perfetto SDK
 # in SurfaceFlinger and HWUI's copy of Skia.
 # Required for the android.sdk_sysprop_guard data source.

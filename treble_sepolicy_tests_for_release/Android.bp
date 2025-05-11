@@ -1,0 +1,448 @@
+// Copyright (C) 2024 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: [
+        "Android-Apache-2.0",
+        "system_sepolicy_license",
+    ],
+}
+
+//////////////////////////////////
+// Tests for Treble compatibility of current platform policy and vendor policy of
+// given release version.
+//////////////////////////////////
+java_genrule {
+    name: "29.0_mapping.combined.cil",
+    srcs: [
+        ":plat_29.0.cil",
+        ":29.0.ignore.cil",
+    ],
+    out: ["29.0_mapping.combined.cil"],
+    cmd: "cat $(location :plat_29.0.cil) $(location :29.0.ignore.cil) > $(out)",
+}
+
+java_genrule {
+    name: "treble_sepolicy_tests_29.0",
+    srcs: [
+        ":29.0_plat_policy.cil",
+        ":29.0_mapping.combined.cil",
+        ":29.0_plat_pub_policy.cil",
+    ],
+    tools: ["treble_sepolicy_tests"],
+    out: ["treble_sepolicy_tests_29.0"],
+    cmd: "$(location treble_sepolicy_tests) " +
+        "-b $(location :29.0_plat_pub_policy.cil) " +
+        "-m $(location :29.0_mapping.combined.cil) " +
+        "-o $(location :29.0_plat_policy.cil) && " +
+        "touch $(out)",
+}
+
+java_genrule {
+    name: "30.0_mapping.combined.cil",
+    srcs: [
+        ":plat_30.0.cil",
+        ":30.0.ignore.cil",
+    ] + select(soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"), {
+        true: [
+            ":system_ext_30.0.cil",
+            ":system_ext_30.0.ignore.cil",
+        ],
+        default: [],
+    }) + select(soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"), {
+        true: [
+            ":product_30.0.cil",
+            ":product_30.0.ignore.cil",
+        ],
+        default: [],
+    }),
+    out: ["30.0_mapping.combined.cil"],
+    cmd: "cat $(location :plat_30.0.cil) " +
+        "$(location :30.0.ignore.cil) " +
+        select(soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"), {
+            true: "$(location :system_ext_30.0.cil) " +
+                "$(location :system_ext_30.0.ignore.cil) ",
+            default: "",
+        }) +
+        select(soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"), {
+            true: "$(location :product_30.0.cil) " +
+                "$(location :product_30.0.ignore.cil) ",
+            default: "",
+        }) +
+        "> $(out)",
+}
+
+java_genrule {
+    name: "treble_sepolicy_tests_30.0",
+    srcs: [
+        ":30.0_plat_policy.cil",
+        ":30.0_mapping.combined.cil",
+    ] + select((
+        soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"),
+        soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"),
+    ), {
+        (false, false): [":30.0_plat_pub_policy.cil"],
+        (default, default): [":30.0_product_pub_policy.cil"],
+    }),
+    tools: ["treble_sepolicy_tests"],
+    out: ["treble_sepolicy_tests_30.0"],
+    cmd: select((
+        soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"),
+        soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"),
+    ), {
+        (false, false): "$(location treble_sepolicy_tests) " +
+            "-b $(location :30.0_plat_pub_policy.cil) " +
+            "-m $(location :30.0_mapping.combined.cil) " +
+            "-o $(location :30.0_plat_policy.cil) && " +
+            "touch $(out)",
+        (default, default): "$(location treble_sepolicy_tests) " +
+            "-b $(location :30.0_product_pub_policy.cil) " +
+            "-m $(location :30.0_mapping.combined.cil) " +
+            "-o $(location :30.0_plat_policy.cil) && " +
+            "touch $(out)",
+    }),
+}
+
+java_genrule {
+    name: "31.0_mapping.combined.cil",
+    srcs: [
+        ":plat_31.0.cil",
+        ":31.0.ignore.cil",
+    ] + select(soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"), {
+        true: [
+            ":system_ext_31.0.cil",
+            ":system_ext_31.0.ignore.cil",
+        ],
+        default: [],
+    }) + select(soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"), {
+        true: [
+            ":product_31.0.cil",
+            ":product_31.0.ignore.cil",
+        ],
+        default: [],
+    }),
+    out: ["31.0_mapping.combined.cil"],
+    cmd: "cat $(location :plat_31.0.cil) " +
+        "$(location :31.0.ignore.cil) " +
+        select(soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"), {
+            true: "$(location :system_ext_31.0.cil) " +
+                "$(location :system_ext_31.0.ignore.cil) ",
+            default: "",
+        }) +
+        select(soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"), {
+            true: "$(location :product_31.0.cil) " +
+                "$(location :product_31.0.ignore.cil) ",
+            default: "",
+        }) +
+        "> $(out)",
+}
+
+java_genrule {
+    name: "treble_sepolicy_tests_31.0",
+    srcs: [
+        ":31.0_plat_policy.cil",
+        ":31.0_mapping.combined.cil",
+    ] + select((
+        soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"),
+        soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"),
+    ), {
+        (false, false): [":31.0_plat_pub_policy.cil"],
+        (default, default): [":31.0_product_pub_policy.cil"],
+    }),
+    tools: ["treble_sepolicy_tests"],
+    out: ["treble_sepolicy_tests_31.0"],
+    cmd: select((
+        soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"),
+        soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"),
+    ), {
+        (false, false): "$(location treble_sepolicy_tests) " +
+            "-b $(location :31.0_plat_pub_policy.cil) " +
+            "-m $(location :31.0_mapping.combined.cil) " +
+            "-o $(location :31.0_plat_policy.cil) && " +
+            "touch $(out)",
+        (default, default): "$(location treble_sepolicy_tests) " +
+            "-b $(location :31.0_product_pub_policy.cil) " +
+            "-m $(location :31.0_mapping.combined.cil) " +
+            "-o $(location :31.0_plat_policy.cil) && " +
+            "touch $(out)",
+    }),
+}
+
+java_genrule {
+    name: "32.0_mapping.combined.cil",
+    srcs: [
+        ":plat_32.0.cil",
+        ":32.0.ignore.cil",
+    ] + select(soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"), {
+        true: [
+            ":system_ext_32.0.cil",
+            ":system_ext_32.0.ignore.cil",
+        ],
+        default: [],
+    }) + select(soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"), {
+        true: [
+            ":product_32.0.cil",
+            ":product_32.0.ignore.cil",
+        ],
+        default: [],
+    }),
+    out: ["32.0_mapping.combined.cil"],
+    cmd: "cat $(location :plat_32.0.cil) " +
+        "$(location :32.0.ignore.cil) " +
+        select(soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"), {
+            true: "$(location :system_ext_32.0.cil) " +
+                "$(location :system_ext_32.0.ignore.cil) ",
+            default: "",
+        }) +
+        select(soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"), {
+            true: "$(location :product_32.0.cil) " +
+                "$(location :product_32.0.ignore.cil) ",
+            default: "",
+        }) +
+        "> $(out)",
+}
+
+java_genrule {
+    name: "treble_sepolicy_tests_32.0",
+    srcs: [
+        ":32.0_plat_policy.cil",
+        ":32.0_mapping.combined.cil",
+    ] + select((
+        soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"),
+        soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"),
+    ), {
+        (false, false): [":32.0_plat_pub_policy.cil"],
+        (default, default): [":32.0_product_pub_policy.cil"],
+    }),
+    tools: ["treble_sepolicy_tests"],
+    out: ["treble_sepolicy_tests_32.0"],
+    cmd: select((
+        soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"),
+        soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"),
+    ), {
+        (false, false): "$(location treble_sepolicy_tests) " +
+            "-b $(location :32.0_plat_pub_policy.cil) " +
+            "-m $(location :32.0_mapping.combined.cil) " +
+            "-o $(location :32.0_plat_policy.cil) && " +
+            "touch $(out)",
+        (default, default): "$(location treble_sepolicy_tests) " +
+            "-b $(location :32.0_product_pub_policy.cil) " +
+            "-m $(location :32.0_mapping.combined.cil) " +
+            "-o $(location :32.0_plat_policy.cil) && " +
+            "touch $(out)",
+    }),
+}
+
+java_genrule {
+    name: "33.0_mapping.combined.cil",
+    srcs: [
+        ":plat_33.0.cil",
+        ":33.0.ignore.cil",
+    ] + select(soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"), {
+        true: [
+            ":system_ext_33.0.cil",
+            ":system_ext_33.0.ignore.cil",
+        ],
+        default: [],
+    }) + select(soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"), {
+        true: [
+            ":product_33.0.cil",
+            ":product_33.0.ignore.cil",
+        ],
+        default: [],
+    }),
+    out: ["33.0_mapping.combined.cil"],
+    cmd: "cat $(location :plat_33.0.cil) " +
+        "$(location :33.0.ignore.cil) " +
+        select(soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"), {
+            true: "$(location :system_ext_33.0.cil) " +
+                "$(location :system_ext_33.0.ignore.cil) ",
+            default: "",
+        }) +
+        select(soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"), {
+            true: "$(location :product_33.0.cil) " +
+                "$(location :product_33.0.ignore.cil) ",
+            default: "",
+        }) +
+        "> $(out)",
+}
+
+java_genrule {
+    name: "treble_sepolicy_tests_33.0",
+    srcs: [
+        ":33.0_plat_policy.cil",
+        ":33.0_mapping.combined.cil",
+    ] + select((
+        soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"),
+        soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"),
+    ), {
+        (false, false): [":33.0_plat_pub_policy.cil"],
+        (default, default): [":33.0_product_pub_policy.cil"],
+    }),
+    tools: ["treble_sepolicy_tests"],
+    out: ["treble_sepolicy_tests_33.0"],
+    cmd: select((
+        soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"),
+        soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"),
+    ), {
+        (false, false): "$(location treble_sepolicy_tests) " +
+            "-b $(location :33.0_plat_pub_policy.cil) " +
+            "-m $(location :33.0_mapping.combined.cil) " +
+            "-o $(location :33.0_plat_policy.cil) && " +
+            "touch $(out)",
+        (default, default): "$(location treble_sepolicy_tests) " +
+            "-b $(location :33.0_product_pub_policy.cil) " +
+            "-m $(location :33.0_mapping.combined.cil) " +
+            "-o $(location :33.0_plat_policy.cil) && " +
+            "touch $(out)",
+    }),
+}
+
+java_genrule {
+    name: "34.0_mapping.combined.cil",
+    srcs: [
+        ":plat_34.0.cil",
+        ":34.0.ignore.cil",
+    ] + select(soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"), {
+        true: [
+            ":system_ext_34.0.cil",
+            ":system_ext_34.0.ignore.cil",
+        ],
+        default: [],
+    }) + select(soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"), {
+        true: [
+            ":product_34.0.cil",
+            ":product_34.0.ignore.cil",
+        ],
+        default: [],
+    }),
+    out: ["34.0_mapping.combined.cil"],
+    cmd: "cat $(location :plat_34.0.cil) " +
+        "$(location :34.0.ignore.cil) " +
+        select(soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"), {
+            true: "$(location :system_ext_34.0.cil) " +
+                "$(location :system_ext_34.0.ignore.cil) ",
+            default: "",
+        }) +
+        select(soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"), {
+            true: "$(location :product_34.0.cil) " +
+                "$(location :product_34.0.ignore.cil) ",
+            default: "",
+        }) +
+        "> $(out)",
+}
+
+java_genrule {
+    name: "treble_sepolicy_tests_34.0",
+    srcs: [
+        ":34.0_plat_policy.cil",
+        ":34.0_mapping.combined.cil",
+    ] + select((
+        soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"),
+        soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"),
+    ), {
+        (false, false): [":34.0_plat_pub_policy.cil"],
+        (default, default): [":34.0_product_pub_policy.cil"],
+    }),
+    tools: ["treble_sepolicy_tests"],
+    out: ["treble_sepolicy_tests_34.0"],
+    cmd: select((
+        soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"),
+        soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"),
+    ), {
+        (false, false): "$(location treble_sepolicy_tests) " +
+            "-b $(location :34.0_plat_pub_policy.cil) " +
+            "-m $(location :34.0_mapping.combined.cil) " +
+            "-o $(location :34.0_plat_policy.cil) && " +
+            "touch $(out)",
+        (default, default): "$(location treble_sepolicy_tests) " +
+            "-b $(location :34.0_product_pub_policy.cil) " +
+            "-m $(location :34.0_mapping.combined.cil) " +
+            "-o $(location :34.0_plat_policy.cil) && " +
+            "touch $(out)",
+    }),
+}
+
+java_genrule {
+    name: "202404_mapping.combined.cil",
+    srcs: select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
+        "202404": [
+        ],
+        default: [
+            ":plat_202404.cil",
+            ":202404.ignore.cil",
+        ],
+    }) + select((
+        soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"),
+        soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"),
+    ), {
+        ("202404", true): [],
+        ("202404", default): [],
+        (default, true): [
+            ":system_ext_202404.cil",
+            ":system_ext_202404.ignore.cil",
+        ],
+        (default, default): [],
+    }) + select((
+        soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"),
+        soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"),
+    ), {
+        ("202404", true): [],
+        ("202404", default): [],
+        (default, true): [
+            ":product_202404.cil",
+            ":product_202404.ignore.cil",
+        ],
+        (default, default): [],
+    }),
+    out: ["202404_mapping.combined.cil"],
+    cmd: select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
+        "202404": "touch $(out)",
+        default: "cat $(in) > $(out)",
+    }),
+}
+
+java_genrule {
+    name: "treble_sepolicy_tests_202404",
+    srcs: [
+        ":202404_plat_policy.cil",
+        ":202404_mapping.combined.cil",
+    ] + select((
+        soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"),
+        soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"),
+    ), {
+        (false, false): [":202404_plat_pub_policy.cil"],
+        (default, default): [":202404_product_pub_policy.cil"],
+    }),
+    tools: ["treble_sepolicy_tests"],
+    out: ["treble_sepolicy_tests_202404"],
+    cmd: select((
+        soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"),
+        soong_config_variable("ANDROID", "HAS_BOARD_SYSTEM_EXT_PREBUILT_DIR"),
+        soong_config_variable("ANDROID", "HAS_BOARD_PRODUCT_PREBUILT_DIR"),
+    ), {
+        ("202404", false, false): "touch $(out)",
+        ("202404", default, default): "touch $(out)",
+        (default, false, false): "$(location treble_sepolicy_tests) " +
+            "-b $(location :202404_plat_pub_policy.cil) " +
+            "-m $(location :202404_mapping.combined.cil) " +
+            "-o $(location :202404_plat_policy.cil) && " +
+            "touch $(out)",
+        (default, default, default): "$(location treble_sepolicy_tests) " +
+            "-b $(location :202404_product_pub_policy.cil) " +
+            "-m $(location :202404_mapping.combined.cil) " +
+            "-o $(location :202404_plat_policy.cil) && " +
+            "touch $(out)",
+    }),
+}

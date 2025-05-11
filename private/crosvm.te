@@ -115,6 +115,15 @@ is_flag_enabled(RELEASE_AVF_SUPPORT_CUSTOM_VM_WITH_PARAVIRTUALIZED_DEVICES, `
   # Allow crosvm to play sound.
   binder_call(crosvm, audioserver)
   allow crosvm audioserver_service:service_manager find;
+
+  # Allow crosvm to mount fuse path in guest VM through virtiofs
+  allow crosvm fuse:file create_file_perms;
+  allow crosvm fuse:dir create_dir_perms;
+  allow crosvm mnt_user_file:dir search;
+
+  # Allow crosvm to create unix socket for vhost-user-fs
+  allow crosvm virtualizationservice_data_file:dir { add_name write remove_name };
+  allow crosvm virtualizationservice_data_file:sock_file { create write unlink };
 ')
 
 # crosvm tries to use netlink sockets as part its APCI implementation, but we don't need it for AVF (b/228077254)
@@ -184,11 +193,12 @@ full_treble_only(`
     -vendor_vm_data_file
     # These types are not required for crosvm, but the access is granted to globally in domain.te
     # thus should be exempted here.
+    -vendor_cgroup_desc_file
     -vendor_configs_file
     -vendor_microdroid_file
     -vndk_sp_file
     -vendor_task_profiles_file
-    is_flag_enabled(RELEASE_AVF_SUPPORT_CUSTOM_VM_WITH_PARAVIRTUALIZED_DEVICES, `-same_process_hal_file')
+    -same_process_hal_file
   }:file *;
 ')
 
@@ -204,10 +214,12 @@ neverallow crosvm {
 }:file read;
 
 # Only virtualizationmanager can run crosvm
+# Allow vmlauncher app to launch crosvm for virtiofs
 neverallow {
   domain
   -crosvm
   -virtualizationmanager
+  -vmlauncher_app
 
   is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `-early_virtmgr')
 } crosvm_exec:file no_x_file_perms;

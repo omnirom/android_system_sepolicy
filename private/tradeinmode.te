@@ -1,0 +1,31 @@
+### trade-in mode
+
+type tradeinmode, domain, coredomain;
+type tradeinmode_exec, exec_type, file_type, system_file_type;
+
+allow tradeinmode adbd_tradeinmode:fd use;
+allow tradeinmode adbd_tradeinmode:unix_stream_socket { read write ioctl };
+
+# Allow running from normal shell.
+allow tradeinmode { adbd shell }:fd use;
+allow tradeinmode adbd:unix_stream_socket { read write ioctl };
+
+allow tradeinmode devpts:chr_file rw_file_perms;
+
+# Allow executing am/content without a domain transition.
+allow tradeinmode system_file:file rx_file_perms;
+allow tradeinmode zygote_exec:file rx_file_perms;
+allow tradeinmode apex_info_file:file r_file_perms;
+
+allow tradeinmode activity_service:service_manager find;
+
+get_prop(tradeinmode, odsign_prop)
+get_prop(tradeinmode, build_attestation_prop)
+get_prop(tradeinmode, adbd_tradeinmode_prop)
+
+# Needed to start activities through "am".
+binder_call(tradeinmode, system_server)
+binder_call(tradeinmode, servicemanager)
+
+# Needed to run "content".
+binder_call(tradeinmode, platform_app)

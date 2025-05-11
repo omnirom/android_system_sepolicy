@@ -136,6 +136,9 @@ allow priv_app incidentd:fifo_file { read write };
 # Allow priv_apps to check whether Dynamic System Update is enabled
 get_prop(priv_app, dynamic_system_prop)
 
+# Allow privileged apps to read trade in mode property
+get_prop(priv_app, adbd_tradeinmode_prop)
+
 # suppress denials for non-API accesses.
 dontaudit priv_app exec_type:file getattr;
 dontaudit priv_app device:dir read;

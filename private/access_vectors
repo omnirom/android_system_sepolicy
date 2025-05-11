@@ -807,3 +807,8 @@ class user_namespace
 {
 	create
 }
+
+class tee_service
+{
+	use
+}

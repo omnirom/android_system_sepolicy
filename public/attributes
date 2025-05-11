@@ -366,6 +366,9 @@ hal_attribute(keymint);
 hal_attribute(light);
 hal_attribute(lowpan);
 hal_attribute(macsec);
+starting_at_board_api(202504, `
+    hal_attribute(mediaquality);
+')
 hal_attribute(memtrack);
 hal_attribute(neuralnetworks);
 hal_attribute(nfc);
@@ -449,3 +452,8 @@ attribute charger_type;
 
 # All types of ART properties.
 attribute dalvik_config_prop_type;
+
+# All tee services that can be accessed by VMs
+starting_at_board_api(202504, `
+    attribute tee_service_type;
+')

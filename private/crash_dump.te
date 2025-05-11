@@ -19,13 +19,7 @@ allow crash_dump {
 }:process { ptrace signal sigchld sigstop sigkill };
 
 userdebug_or_eng(`
-  allow crash_dump {
-    apexd
-    keystore
-    llkd
-    logd
-    vold
-  }:process { ptrace signal sigchld sigstop sigkill };
+  allow crash_dump { apexd llkd logd vold }:process { ptrace signal sigchld sigstop sigkill };
 ')
 
 # Read ART APEX data directory
@@ -135,7 +129,6 @@ neverallow crash_dump {
   init
   kernel
   keystore
-  userdebug_or_eng(`-keystore')
   llkd
   userdebug_or_eng(`-llkd')
   logd

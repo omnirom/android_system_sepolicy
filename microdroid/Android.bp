@@ -212,7 +212,7 @@ sepolicy_vers {
 }
 
 // sepolicy sha256 for vendor
-genrule {
+java_genrule {
     name: "microdroid_plat_sepolicy_and_mapping.sha256_gen",
     srcs: [
         ":microdroid_plat_sepolicy.cil",

@@ -8,3 +8,7 @@
 
 type microdroid_app, domain, coredomain, microdroid_payload;
 type microdroid_app_exec, exec_type, file_type, system_file_type;
+
+# Let microdroid_manager kernel-log.
+allow microdroid_app kmsg_device:chr_file w_file_perms;
+allow microdroid_app kmsg_debug_device:chr_file w_file_perms;

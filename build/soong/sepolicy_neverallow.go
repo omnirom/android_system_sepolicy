@@ -57,7 +57,7 @@ var sepolicyAnalyzeTag = dependencyTag{name: "sepolicy_analyze"}
 func neverallowTestFactory() android.Module {
 	n := &neverallowTestModule{}
 	n.AddProperties(&n.properties)
-	android.InitAndroidModule(n)
+	android.InitAndroidArchModule(n, android.DeviceSupported, android.MultilibCommon)
 	android.AddLoadHook(n, func(ctx android.LoadHookContext) {
 		n.loadHook(ctx)
 	})

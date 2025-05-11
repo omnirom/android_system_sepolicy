@@ -156,7 +156,10 @@ type system_font_fallback_file, system_file_type, file_type;
 type sysfs_uprobe, fs_type, sysfs_type;
 
 # Type for aconfig daemon socket
-type aconfigd_socket, file_type, coredomain_socket;
+type aconfigd_socket, file_type, coredomain_socket, mlstrustedobject;
+
+# Type for aconfig mainline daemon socket
+type aconfigd_mainline_socket, file_type, coredomain_socket,  mlstrustedobject;
 
 # Type for /(system|system_ext|product)/etc/aconfig
 type system_aconfig_storage_file, system_file_type, file_type;
@@ -164,10 +167,11 @@ type system_aconfig_storage_file, system_file_type, file_type;
 # Type for /vendor/etc/aconfig
 type vendor_aconfig_storage_file, vendor_file_type, file_type;
 
-type aconfig_test_mission_files, file_type;
-
 # /data/misc/connectivityblobdb
 type connectivityblob_data_file, file_type, data_file_type, core_data_file_type;
+
+# /data/misc/wifi/mainline_supplicant
+type mainline_supplicant_data_file, file_type, data_file_type, core_data_file_type;
 
 # Type for /mnt/pre_reboot_dexopt
 type pre_reboot_dexopt_file, file_type;
@@ -181,6 +185,9 @@ type apk_metadata_file, file_type, data_file_type, core_data_file_type;
 
 # Type for /sys/kernel/mm/pgsize_migration/enabled
 type sysfs_pgsize_migration, fs_type, sysfs_type;
+
+# /sys/firmware/acpi/tables
+type sysfs_firmware_acpi_tables, fs_type, sysfs_type;
 
 # Allow files to be created in their appropriate filesystems.
 allow fs_type self:filesystem associate;
@@ -215,6 +222,11 @@ type storage_area_content_file, file_type, data_file_type, core_data_file_type, 
 # /data/misc_ce/userId/storage_area_keys
 type storage_area_key_file, file_type, data_file_type, core_data_file_type;
 
+# /metadata/tradeinmode files
+type tradeinmode_metadata_file, file_type;
+
+# /metadata/prefetch files
+type prefetch_metadata_file, file_type;
 
 # Types added in 202504 in public/file.te
 until_board_api(202504, `
@@ -239,5 +251,10 @@ until_board_api(202504, `
     # boot otas for 16KB developer option
     type vendor_boot_ota_file, vendor_file_type, file_type;
 ')
+
+until_board_api(202504, `
+    type tee_service_contexts_file, system_file_type, file_type;
+')
+
 ## END Types added in 202504 in public/file.te
 

@@ -159,7 +159,7 @@ allow { appdomain -isolated_app_all -ephemeral_app -sdk_sandbox_all } usbaccesso
 control_logd({ appdomain -ephemeral_app -sdk_sandbox_all })
 
 # application inherit logd write socket (urge is to deprecate this long term)
-allow { appdomain -isolated_app_all -ephemeral_app -sdk_sandbox_all } keystore:keystore2_key { delete use get_info rebind update };
+allow { appdomain -isolated_app_all -ephemeral_app -sdk_sandbox_all } keystore:keystore2_key { delete use get_info grant rebind update };
 
 allow { appdomain -isolated_app_all -ephemeral_app -sdk_sandbox_all } keystore_maintenance_service:service_manager find;
 

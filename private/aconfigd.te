@@ -1,14 +1,8 @@
 # aconfigd -- manager for aconfig flags
-type aconfigd, domain;
+type aconfigd, domain, coredomain, mlstrustedsubject;
 type aconfigd_exec, exec_type, file_type, system_file_type;
 
-typeattribute aconfigd coredomain;
-
 init_daemon_domain(aconfigd)
-
-# only init is allowed to enter the aconfigd domain
-neverallow { domain -init } aconfigd:process transition;
-neverallow * aconfigd:process dyntransition;
 
 allow aconfigd metadata_file:dir search;
 
@@ -22,17 +16,9 @@ allow aconfigd {
     aconfig_storage_flags_metadata_file
 }:file create_file_perms;
 
-allow aconfigd aconfigd_socket:unix_stream_socket { accept listen getattr read write };
-allow aconfigd aconfigd_socket:sock_file rw_file_perms;
-
-# allow aconfigd to access shell_data_file for atest
-userdebug_or_eng(`
-    allow aconfigd shell_data_file:dir search;
-    allow aconfigd shell_data_file:file { getattr read open map };
-')
-
-# allow aconfigd to log to the kernel.
-allow aconfigd kmsg_device:chr_file w_file_perms;
+# allow aconfigd to log to the kernel dmesg via a file descriptor
+# passed from init to aconfigd
+allow aconfigd kmsg_device:chr_file write;
 
 # allow aconfigd to read vendor partition storage files
 allow aconfigd vendor_aconfig_storage_file:file r_file_perms;
@@ -41,3 +27,44 @@ allow aconfigd vendor_aconfig_storage_file:dir r_dir_perms;
 # allow aconfigd to read /apex dir
 allow aconfigd apex_mnt_dir:dir r_dir_perms;
 allow aconfigd apex_mnt_dir:file r_file_perms;
+dontaudit aconfigd apex_info_file:file r_file_perms;
+
+###
+### Neverallow assertions
+###
+
+# only init is allowed to enter the aconfigd domain
+neverallow { domain -init } aconfigd:process transition;
+neverallow * aconfigd:process dyntransition;
+
+# Do not allow write access to boot/map storage files except, aconfigd and aconfigd_mainline.
+# These files are meant to serve flag reads for all processes. They are created by aconfigd (for
+# platform storage files) and aconfigd_mainline (mainline storage files) processes.
+neverallow {
+  domain
+  -init
+  -aconfigd
+  -aconfigd_mainline
+} aconfig_storage_metadata_file:dir no_w_dir_perms;
+neverallow {
+  domain
+  -init
+  -aconfigd
+  -aconfigd_mainline
+} aconfig_storage_metadata_file:file no_w_file_perms;
+
+# Only aconfigd and aconfigd_mainline can access persist storage files
+# These files are meant to serve as persist flag value storage, only aconfigd and
+# aconfigd_mainline process should manage them. Other processes should have zero access.
+neverallow {
+  domain
+  -init
+  -aconfigd
+  -aconfigd_mainline
+} aconfig_storage_flags_metadata_file:dir *;
+neverallow {
+  domain
+  -init
+  -aconfigd
+  -aconfigd_mainline
+} aconfig_storage_flags_metadata_file:file no_rw_file_perms;

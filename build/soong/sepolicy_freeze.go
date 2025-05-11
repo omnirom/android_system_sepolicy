@@ -25,15 +25,15 @@ var prebuiltCilTag = dependencyTag{name: "prebuilt_cil"}
 
 func init() {
 	ctx := android.InitRegistrationContext
-	ctx.RegisterParallelSingletonModuleType("se_freeze_test", freezeTestFactory)
+	ctx.RegisterModuleType("se_freeze_test", freezeTestFactory)
 }
 
 // se_freeze_test compares the plat sepolicy with the prebuilt sepolicy.  Additional directories can
 // be specified via Makefile variables: SEPOLICY_FREEZE_TEST_EXTRA_DIRS and
 // SEPOLICY_FREEZE_TEST_EXTRA_PREBUILT_DIRS.
-func freezeTestFactory() android.SingletonModule {
+func freezeTestFactory() android.Module {
 	f := &freezeTestModule{}
-	android.InitAndroidModule(f)
+	android.InitAndroidArchModule(f, android.DeviceSupported, android.MultilibCommon)
 	android.AddLoadHook(f, func(ctx android.LoadHookContext) {
 		f.loadHook(ctx)
 	})
@@ -41,7 +41,7 @@ func freezeTestFactory() android.SingletonModule {
 }
 
 type freezeTestModule struct {
-	android.SingletonModuleBase
+	android.ModuleBase
 	freezeTestTimestamp android.ModuleOutPath
 }
 
@@ -82,10 +82,6 @@ func (f *freezeTestModule) DepsMutator(ctx android.BottomUpMutatorContext) {
 	ctx.AddDependency(f, prebuiltCilTag, f.prebuiltCilModuleName(ctx))
 }
 
-func (f *freezeTestModule) GenerateSingletonBuildActions(ctx android.SingletonContext) {
-	// does nothing; se_freeze_test is a singeton because two freeze test modules don't make sense.
-}
-
 func (f *freezeTestModule) outputFileOfDep(ctx android.ModuleContext, depTag dependencyTag) android.Path {
 	deps := ctx.GetDirectDepsWithTag(depTag)
 	if len(deps) != 1 {
@@ -104,6 +100,11 @@ func (f *freezeTestModule) outputFileOfDep(ctx android.ModuleContext, depTag dep
 }
 
 func (f *freezeTestModule) GenerateAndroidBuildActions(ctx android.ModuleContext) {
+	if ctx.ModuleName() != "se_freeze_test" || ctx.ModuleDir() != "system/sepolicy" {
+		// two freeze test modules don't make sense.
+		ctx.ModuleErrorf("There can only be 1 se_freeze_test module named se_freeze_test in system/sepolicy")
+	}
+
 	f.freezeTestTimestamp = android.PathForModuleOut(ctx, "freeze_test")
 
 	if !f.shouldRunTest(ctx) {

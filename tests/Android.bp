@@ -83,6 +83,8 @@ python_binary_host {
     libs: ["pysepolwrap"],
     data: [
         ":libsepolwrap",
+    ],
+    device_common_data: [
         ":precompiled_sepolicy",
     ],
 }
@@ -96,6 +98,8 @@ python_test_host {
     libs: ["pysepolwrap"],
     data: [
         ":libsepolwrap",
+    ],
+    device_common_data: [
         ":precompiled_sepolicy",
     ],
     test_options: {

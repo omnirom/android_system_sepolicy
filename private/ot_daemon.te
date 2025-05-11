@@ -26,6 +26,9 @@ allow ot_daemon tun_device:chr_file {read write};
 # Allow OT daemon to read/write on the socket created by System Server
 allow ot_daemon system_server:rawip_socket rw_socket_perms_no_ioctl;
 
+# Allow OT daemon to read/write on the UDP sockets created by system server
+allow ot_daemon system_server:udp_socket rw_socket_perms;
+
 hal_client_domain(ot_daemon, hal_threadnetwork)
 
 # Only ot_daemon can publish the binder service

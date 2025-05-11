@@ -183,6 +183,7 @@ full_treble_only(`
     -shell
     -system_server
     -traceur_app
+    -prefetch
     userdebug_or_eng(`-profcollectd')
     userdebug_or_eng(`-simpleperf_boot')
   } debugfs_tracing:file no_rw_file_perms;
@@ -220,6 +221,7 @@ full_treble_only(`
   neverallow {
     coredomain
     -adbd
+    -adbd_tradeinmode
     -init
     -mediaprovider
     -system_server

@@ -1,1 +1,2 @@
 (/.*)?                u:object_r:system_file:s0
+/bin/wpa_supplicant_mainline       u:object_r:wifi_mainline_supplicant_exec:s0

@@ -42,6 +42,9 @@ perfetto_producer(shell)
 
 domain_auto_trans(shell, vendor_shell_exec, vendor_shell)
 
+# Allow shell to execute tradeinmode for testing.
+domain_auto_trans(shell, tradeinmode_exec, tradeinmode)
+
 # Allow shell binaries to exec the perfetto cmdline util and have that
 # transition into its own domain, so that it behaves consistently to
 # when exec()-d by statsd.
@@ -107,6 +110,12 @@ set_prop(shell, rollback_test_prop)
 
 # Allow shell to set RKP properties for testing purposes
 set_prop(shell, remote_prov_prop)
+
+# Allow shell to enable 16 KB backcompat globally.
+set_prop(shell, bionic_linker_16kb_app_compat_prop)
+
+# Allow shell to disable compat in package manager
+set_prop(shell, pm_16kb_app_compat_prop)
 
 # Allow shell to get encryption policy of /data/local/tmp/, for CTS
 allowxperm shell shell_data_file:dir ioctl {
@@ -177,6 +186,8 @@ set_prop(shell, traced_perf_enabled_prop)
 # Allow shell to start/stop gsid via ctl.start|stop|restart gsid.
 set_prop(shell, ctl_gsid_prop)
 set_prop(shell, ctl_snapuserd_prop)
+# Allow shell to start/stop prefetch
+set_prop(shell, ctl_prefetch_prop)
 # Allow shell to enable Dynamic System Update
 set_prop(shell, dynamic_system_prop)
 # Allow shell to mock an OTA using persist.pm.mock-upgrade
@@ -272,12 +283,6 @@ get_prop(shell, build_attestation_prop)
 # Allow shell to execute oatdump.
 # TODO (b/350628688): Remove this once it's safe to do so.
 allow shell oatdump_exec:file rx_file_perms;
-
-# Allow shell access to socket for test
-userdebug_or_eng(`
-    allow shell aconfigd_socket:sock_file write;
-    allow shell aconfigd:unix_stream_socket connectto;
-')
 
 # Create and use network sockets.
 net_domain(shell)
@@ -403,7 +408,6 @@ allow shell sysfs_net:dir r_dir_perms;
 
 r_dir_file(shell, cgroup)
 allow shell cgroup_desc_file:file r_file_perms;
-allow shell cgroup_desc_api_file:file r_file_perms;
 allow shell vendor_cgroup_desc_file:file r_file_perms;
 r_dir_file(shell, cgroup_v2)
 allow shell domain:dir { search open read getattr };
@@ -479,8 +483,11 @@ allow shell sepolicy_file:file r_file_perms;
 allow shell vendor_shell_exec:file rx_file_perms;
 
 is_flag_enabled(RELEASE_AVF_SUPPORT_CUSTOM_VM_WITH_PARAVIRTUALIZED_DEVICES, `
-  allow shell custom_vm_setup_exec:file { entrypoint r_file_perms };
+  allow shell linux_vm_setup_exec:file { entrypoint r_file_perms };
 ')
+
+allow shell tee_service_contexts_file:file r_file_perms;
+allow shell test_pkvm_tee_service:tee_service use;
 
 # Everything is labeled as rootfs in recovery mode. Allow shell to
 # execute them.

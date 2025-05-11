@@ -95,6 +95,8 @@ allow apexd staging_data_file:dir r_dir_perms;
 allow apexd staging_data_file:file { r_file_perms link };
 # # Allow relabeling file created in /data/apex/decompressed
 allow apexd staging_data_file:file relabelto;
+# Allow renaming files in /data/apex/decompressed (from .ota.apex to .decompressed.apex)
+allow apexd staging_data_file:file rename;
 
 # allow apexd to read files from /vendor/apex
 r_dir_file(apexd, vendor_apex_file)
@@ -189,6 +191,9 @@ set_prop(apexd, apex_ready_prop)
 
 # Allow apexd to write to statsd.
 unix_socket_send(apexd, statsdw, statsd)
+# Allow apexd to call
+allow apexd statsbootstrap_service:service_manager find;
+binder_call(apexd, system_server) # system_server serves statsbootstrap_service
 
 ###
 ### Neverallow rules
@@ -221,7 +226,11 @@ neverallow { domain -apexd } apex_info_file:file no_w_file_perms;
 neverallow { domain -apexd -init -otapreopt_chroot } apex_mnt_dir:filesystem { mount unmount };
 neverallow { domain -apexd -dexopt_chroot_setup -init -otapreopt_chroot } apex_mnt_dir:dir mounton;
 
-neverallow { domain -init -apexd -system_server -update_engine } apex_service:service_manager find;
-neverallow { domain -init -apexd -system_server -servicemanager -update_engine } apexd:binder call;
+# The update_provider performs APEX updates. To do this, it needs to be able to find apex_service
+# and make binder calls to apexd.
+# WARNING: USING THE update_provider ATTRIBUTE WILL CAUSE CTS TO FAIL!
+neverallow { domain -init -apexd -system_server -update_engine -update_provider } apex_service:service_manager find;
+# WARNING: USING THE update_provider ATTRIBUTE WILL CAUSE CTS TO FAIL!
+neverallow { domain -init -apexd -system_server -servicemanager -update_engine -update_provider } apexd:binder call;
 
 neverallow { domain userdebug_or_eng(`-crash_dump') } apexd:process ptrace;

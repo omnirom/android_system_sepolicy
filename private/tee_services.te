@@ -1,0 +1,6 @@
+# Specify tee_services in this file.
+# Please keep the names in the alphabetical order and comment each new entry.
+
+# An example tee_service that can be used to test end-to-end integration of custom
+# smcs filtering feature on a device with pkvm hypervisor.
+type test_pkvm_tee_service, tee_service_type;

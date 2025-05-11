@@ -14,10 +14,16 @@
     proc_cgroups
     ranging_service
     supervision_service
-    sysfs_udc
     app_function_service
     virtual_fingerprint
     virtual_fingerprint_exec
     virtual_face
     virtual_face_exec
+    hal_mediaquality_service
+    media_quality_service
+    advanced_protection_service
+    sysfs_firmware_acpi_tables
+    dynamic_instrumentation_service
+    intrusion_detection_service
+    wifi_mainline_supplicant_service
   ))

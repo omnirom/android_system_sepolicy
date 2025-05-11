@@ -41,6 +41,12 @@ allow statsd uprobestats_configs_data_file:file create_file_perms;
 
 # Allow statsd to trigger uprobestats via property.
 set_prop(statsd, uprobestats_start_with_config_prop);
+
+# Allow statsd to use io_uring
+io_uring_use(statsd)
+
+# Allow statsd to start the uprobestats service.
+set_prop(statsd, ctl_uprobestats_prop)
 binder_use(statsd)
 
 # Allow statsd to scan through /proc/pid for all processes.

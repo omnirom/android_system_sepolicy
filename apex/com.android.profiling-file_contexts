@@ -1,0 +1,2 @@
+(/.*)?               u:object_r:system_file:s0
+/bin/trace_redactor  u:object_r:trace_redactor_exec:s0

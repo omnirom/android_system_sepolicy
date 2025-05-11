@@ -2,13 +2,17 @@
 
 typeattribute adbd coredomain;
 typeattribute adbd mlstrustedsubject;
+typeattribute adbd adbd_common;
 
 init_daemon_domain(adbd)
 
 domain_auto_trans(adbd, shell_exec, shell)
 
+# Allow adb to setcon() to tradeinmode.
+allow adbd self:process setcurrent;
+allow adbd adbd_tradeinmode:process dyntransition;
+
 userdebug_or_eng(`
-  allow adbd self:process setcurrent;
   allow adbd su:process dyntransition;
 ')
 
@@ -40,18 +44,8 @@ allow adbd self:global_capability_class_set setpcap;
 # ignore spurious denials for adbd when disk space is low.
 dontaudit adbd self:global_capability_class_set sys_resource;
 
-# adbd probes for vsock support. Do not generate denials when
-# this occurs. (b/123569840)
-dontaudit adbd self:{ socket vsock_socket } create;
-
-# Allow adbd inside vm to forward vm's vsock.
-allow adbd self:vsock_socket { create_socket_perms_no_ioctl listen accept };
-
 # Create and use network sockets.
 net_domain(adbd)
-# Connect to mdnsd via mdnsd socket.
-unix_socket_connect(adbd, mdnsd, mdnsd)
-
 # Access /dev/usb-ffs/adb/ep0
 allow adbd functionfs:dir search;
 allow adbd functionfs:file rw_file_perms;
@@ -59,13 +53,6 @@ allowxperm adbd functionfs:file ioctl {
   FUNCTIONFS_ENDPOINT_DESC
   FUNCTIONFS_CLEAR_HALT
 };
-
-# Use a pseudo tty.
-allow adbd devpts:chr_file rw_file_perms;
-
-# adb push/pull /data/local/tmp.
-allow adbd shell_data_file:dir create_dir_perms;
-allow adbd shell_data_file:file create_file_perms;
 
 # adb pull /data/local/traces/*
 allow adbd trace_data_file:dir r_dir_perms;
@@ -95,25 +82,10 @@ set_prop(adbd, shell_prop)
 set_prop(adbd, powerctl_prop)
 get_prop(adbd, ffs_config_prop)
 set_prop(adbd, ffs_control_prop)
-
-# Set service.adb.tcp.port, service.adb.tls.port, persist.adb.wifi.* properties
-set_prop(adbd, adbd_prop)
-set_prop(adbd, adbd_config_prop)
+set_prop(adbd, adbd_tradeinmode_prop)
 
 # Allow adbd start/stop mdnsd via ctl.start
 set_prop(adbd, ctl_mdnsd_prop)
-
-# Access device logging gating property
-get_prop(adbd, device_logging_prop)
-
-# Read device's serial number from system properties
-get_prop(adbd, serialno_prop)
-
-# Read whether or not Test Harness Mode is enabled
-get_prop(adbd, test_harness_prop)
-
-# Read persist.adb.tls_server.enable property
-get_prop(adbd, system_adbd_prop)
 
 # Read device's overlayfs related properties and files
 userdebug_or_eng(`
@@ -215,6 +187,10 @@ allow adbd perfetto_configs_data_file:file create_file_perms;
 allow adbd shell:unix_stream_socket { read write shutdown };
 allow adbd shell:fd use;
 
+# adb push/pull /data/local/tmp.
+allow adbd shell_data_file:dir create_dir_perms;
+allow adbd shell_data_file:file create_file_perms;
+
 # Allow pull /vendor/apex files for CTS tests
 r_dir_file(adbd, vendor_apex_file)
 
@@ -239,10 +215,15 @@ allow adbd shell_test_data_file:lnk_file create_file_perms;
 ###
 
 # No transitions from adbd to non-shell, non-crash_dump domains. adbd only ever
-# transitions to the shell domain (except when it crashes). In particular, we
-# never want to see a transition from adbd to su (aka "adb root")
-neverallow adbd { domain -crash_dump -shell }:process transition;
-neverallow adbd { domain userdebug_or_eng(`-su') recovery_only(`-shell') }:process dyntransition;
+# transitions to the shell or tradeinmode domain (except when it crashes). In
+# particular, we never want to see a transition from adbd to su (aka "adb root")
+neverallow adbd { domain -crash_dump -shell -adbd_tradeinmode }:process transition;
+neverallow adbd {
+    domain
+    userdebug_or_eng(`-su')
+    recovery_only(`-shell')
+    -adbd_tradeinmode
+}:process dyntransition;
 
 # Only init is allowed to enter the adbd domain via exec()
 neverallow { domain -init } adbd:process transition;

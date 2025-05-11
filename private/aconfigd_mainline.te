@@ -1,0 +1,38 @@
+# aconfigd_mainline -- manager for mainline aconfig flags
+type aconfigd_mainline, domain, coredomain, mlstrustedsubject;
+type aconfigd_mainline_exec, exec_type, file_type, system_file_type;
+
+init_daemon_domain(aconfigd_mainline)
+
+# allow aconfigd_mainline to search /metadata dir as it needs to access files under
+# /metadata/aconfig dir
+allow aconfigd_mainline metadata_file:dir search;
+
+# aconfigd_mainline should be able to create storage files under /metadata/aconfig dir
+allow aconfigd_mainline {
+    aconfig_storage_metadata_file
+    aconfig_storage_flags_metadata_file
+}:dir create_dir_perms;
+
+allow aconfigd_mainline {
+    aconfig_storage_metadata_file
+    aconfig_storage_flags_metadata_file
+}:file create_file_perms;
+
+# allow aconfigd_mainline to log to the kernel.
+allow aconfigd_mainline kmsg_device:chr_file write;
+
+# allow aconfigd_mainline to read /apex dir, aconfigd_mainline need to loop thru all
+# dirs under /apex to find all currently mounted mainline modules and get their
+# storage files
+allow aconfigd_mainline apex_mnt_dir:dir r_dir_perms;
+allow aconfigd_mainline apex_mnt_dir:file r_file_perms;
+dontaudit aconfigd_mainline apex_info_file:file r_file_perms;
+
+###
+### Neverallow assertions
+###
+
+# only init is allowed to enter the aconfigd_mainline domain
+neverallow { domain -init } aconfigd_mainline:process transition;
+neverallow * aconfigd_mainline:process dyntransition;

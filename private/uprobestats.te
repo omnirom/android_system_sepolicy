@@ -24,6 +24,9 @@ unix_socket_send(uprobestats, statsdw, statsd)
 # For registration with system server as a process observer.
 binder_use(uprobestats)
 allow uprobestats activity_service:service_manager find;
+starting_at_board_api(202504, `
+    allow uprobestats dynamic_instrumentation_service:service_manager find;
+')
 binder_call(uprobestats, system_server);
 
 # Allow uprobestats to talk to native package manager

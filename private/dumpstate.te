@@ -34,7 +34,6 @@ userdebug_or_eng(`
 ')
 
 r_dir_file(dumpstate, aconfig_storage_metadata_file);
-r_dir_file(dumpstate, aconfig_test_mission_files);
 
 # Allow dumpstate to make binder calls to incidentd
 binder_call(dumpstate, incidentd)

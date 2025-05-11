@@ -11,7 +11,23 @@ attribute mlsvendorcompat;
 attribute system_and_vendor_property_type;
 expandattribute system_and_vendor_property_type false;
 
+# HALs
+until_board_api(202504, `
+    hal_attribute(mediaquality);
+')
+
 # All SDK sandbox domains
 attribute sdk_sandbox_all;
 # The SDK sandbox domains for the current SDK level.
 attribute sdk_sandbox_current;
+# Common to adbd and adbd_tradeinmode.
+attribute adbd_common;
+
+# Provides access to platform update services.
+# WARNING: USING THE update_provider ATTRIBUTE WILL CAUSE CTS TO FAIL!
+attribute update_provider;
+expandattribute update_provider false;
+
+until_board_api(202504, `
+    attribute tee_service_type;
+')

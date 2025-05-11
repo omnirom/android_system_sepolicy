@@ -66,12 +66,18 @@ type activity_service, app_api_service, ephemeral_app_api_service, system_server
 type activity_task_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type adb_service, system_api_service, system_server_service, service_manager_type;
 type adservices_manager_service, system_api_service, system_server_service, service_manager_type;
+starting_at_board_api(202504, `
+    type advanced_protection_service, app_api_service, system_server_service, service_manager_type;
+')
 type alarm_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type app_binding_service, system_server_service, service_manager_type;
 starting_at_board_api(202504, `
     type app_function_service, app_api_service, system_server_service, service_manager_type;
 ')
 type app_hibernation_service, app_api_service, system_api_service, system_server_service, service_manager_type;
+starting_at_board_api(202504, `
+    type dynamic_instrumentation_service, app_api_service, system_server_service, service_manager_type;
+')
 type app_integrity_service, system_api_service, system_server_service, service_manager_type;
 type app_prediction_service, app_api_service, system_server_service, service_manager_type;
 type app_search_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
@@ -141,6 +147,9 @@ type bugreport_service, app_api_service, system_server_service, service_manager_
 type platform_compat_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type face_service, app_api_service, system_server_service, service_manager_type;
 type fingerprint_service, app_api_service, system_server_service, service_manager_type;
+starting_at_board_api(202504, `
+    type forensic_service, app_api_service, system_api_service, system_server_service, service_manager_type;
+')
 type fwk_altitude_service, system_server_service, service_manager_type;
 type fwk_stats_service, app_api_service, system_server_service, service_manager_type;
 type fwk_sensor_service, system_server_service, service_manager_type;
@@ -159,6 +168,9 @@ type imms_service, app_api_service, ephemeral_app_api_service, system_server_ser
 type incremental_service, system_server_service, service_manager_type;
 type input_method_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type input_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
+starting_at_board_api(202504, `
+    type intrusion_detection_service, app_api_service, system_api_service, system_server_service, service_manager_type;
+')
 type ipsec_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type iris_service, app_api_service, system_server_service, service_manager_type;
 type jobscheduler_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
@@ -173,6 +185,9 @@ type looper_stats_service, system_server_service, service_manager_type;
 type media_communication_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type media_metrics_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type media_projection_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
+starting_at_board_api(202504, `
+    type media_quality_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
+')
 type media_router_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type media_session_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type meminfo_service, system_api_service, system_server_service, service_manager_type;
@@ -283,6 +298,9 @@ type wifiscanner_service, app_api_service, system_server_service, service_manage
 type wifi_service, app_api_service, system_server_service, service_manager_type;
 type wifinl80211_service, service_manager_type;
 type wifiaware_service, app_api_service, system_server_service, service_manager_type;
+starting_at_board_api(202504, `
+   type wifi_usd_service, app_api_service, system_server_service, service_manager_type;
+')
 type window_service, system_api_service, system_server_service, service_manager_type;
 type inputflinger_service, system_api_service, system_server_service, service_manager_type;
 type tethering_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
@@ -324,6 +342,9 @@ type hal_ivn_service, protected_service, hal_service_type, service_manager_type;
 type hal_keymint_service, protected_service, hal_service_type, service_manager_type;
 type hal_light_service, protected_service, hal_service_type, service_manager_type;
 type hal_macsec_service, protected_service, hal_service_type, service_manager_type;
+starting_at_board_api(202504, `
+    type hal_mediaquality_service, protected_service, hal_service_type, service_manager_type;
+')
 type hal_memtrack_service, protected_service, hal_service_type, service_manager_type;
 type hal_neuralnetworks_service, hal_service_type, service_manager_type;
 type hal_nfc_service, protected_service, hal_service_type, service_manager_type;

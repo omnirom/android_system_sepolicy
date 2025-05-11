@@ -364,6 +364,8 @@ allow vold mnt_vendor_file:dir search;
 
 dontaudit vold self:global_capability_class_set sys_resource;
 
+dontaudit vold self:capability sys_rawio;
+
 # Allow ReadDefaultFstab().
 read_fstab(vold)
 

@@ -1,0 +1,13 @@
+# Tee services contexts.
+#
+# This file defines all tee services available to VMs.
+# This file is read by virtmngr.
+#
+# Format:
+# <tee_service_name> <label>
+#
+# <tee_service_name> must be a string
+
+# Example tee service that can be used for end-to-end integration of
+# custom smcs filtering on devices with pkvm hypervisor.
+test_pkvm_tee_service u:object_r:test_pkvm_tee_service:s0

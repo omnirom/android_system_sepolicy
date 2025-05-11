@@ -135,3 +135,10 @@ is_flag_enabled(RELEASE_AVF_ENABLE_NETWORK, `
     allow virtualizationmanager tun_device:chr_file rw_file_perms;
     allow virtualizationmanager vmnic:fd use;
 ')
+
+# virtualizationmanager reads tee_service_contexts_file to determine if VM is allowed
+# to access requested tee services
+allow virtualizationmanager tee_service_contexts_file:file r_file_perms;
+# virtualizationmanager uses libselinux to check if VM is allowed to access requested
+# tee services.
+selinux_check_access(virtualizationmanager)

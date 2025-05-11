@@ -65,6 +65,7 @@
 /vendor_seapp_contexts                                            seapp_contexts_file
 /plat_seapp_contexts                                              seapp_contexts_file
 /sepolicy                                                         sepolicy_file
+/plat_tee_service_contexts                                        tee_service_contexts_file
 /plat_service_contexts                                            service_contexts_file
 /plat_hwservice_contexts                                          hwservice_contexts_file
 /plat_keystore2_key_contexts                                      keystore2_key_contexts_file
@@ -189,7 +190,8 @@
 /dev/socket                                                       socket_device
 /dev/socket/does_not_exist                                        socket_device
 /dev/socket/adbd                                                  adbd_socket
-/dev/socket/aconfigd                                              aconfigd_socket
+/dev/socket/aconfigd_mainline                                     aconfigd_mainline_socket
+/dev/socket/aconfigd_system                                       aconfigd_socket
 /dev/socket/dnsproxyd                                             dnsproxyd_socket
 /dev/socket/dumpstate                                             dumpstate_socket
 /dev/socket/fwmarkd                                               fwmarkd_socket
@@ -323,6 +325,7 @@
 /system/bin/sload_f2fs                                            e2fs_exec
 /system/bin/make_f2fs                                             e2fs_exec
 /system/bin/fsck_msdos                                            fsck_exec
+/system/bin/prefetch                                              prefetch_exec
 /system/bin/tcpdump                                               tcpdump_exec
 /system/bin/tune2fs                                               fsck_exec
 /system/bin/resize2fs                                             fsck_exec
@@ -396,6 +399,7 @@
 /system/bin/bootstrap/linkerconfig                                linkerconfig_exec
 /system/bin/llkd                                                  llkd_exec
 /system/bin/lmkd                                                  lmkd_exec
+/system/bin/mmd                                                   mmd_exec
 /system/bin/usbd                                                  usbd_exec
 /system/bin/inputflinger                                          inputflinger_exec
 /system/bin/logd                                                  logd_exec
@@ -409,6 +413,7 @@
 /system/bin/traced_perf                                           traced_perf_exec
 /system/bin/traced_probes                                         traced_probes_exec
 /system/bin/traced_relay                                          traced_exec
+/system/bin/tradeinmode                                           tradeinmode_exec
 /system/bin/heapprofd                                             heapprofd_exec
 /system/bin/uncrypt                                               uncrypt_exec
 /system/bin/update_verifier                                       update_verifier_exec
@@ -433,8 +438,8 @@
 /system/bin/hw/android.system.suspend-service                     system_suspend_exec
 /system/etc/aconfig                                               system_aconfig_storage_file
 /system/etc/cgroups.json                                          cgroup_desc_file
-/system/etc/task_profiles/cgroups_0.json                          cgroup_desc_api_file
-/system/etc/task_profiles/cgroups_999.json                        cgroup_desc_api_file
+/system/etc/task_profiles/cgroups_0.json                          cgroup_desc_file
+/system/etc/task_profiles/cgroups_999.json                        cgroup_desc_file
 /system/etc/event-log-tags                                        system_event_log_tags_file
 /system/etc/font_fallback.xml                                     system_font_fallback_file
 /system/etc/group                                                 system_group_file
@@ -450,6 +455,7 @@
 #/system/etc/selinux/mapping/30.compat.0.cil                      sepolicy_file
 /system/etc/selinux/plat_mac_permissions.xml                      mac_perms_file
 /system/etc/selinux/plat_property_contexts                        property_contexts_file
+/system/etc/selinux/plat_tee_service_contexts                     tee_service_contexts_file
 /system/etc/selinux/plat_service_contexts                         service_contexts_file
 /system/etc/selinux/plat_hwservice_contexts                       hwservice_contexts_file
 /system/etc/selinux/plat_keystore2_key_contexts                   keystore2_key_contexts_file
@@ -458,12 +464,12 @@
 /system/etc/selinux/plat_sepolicy.cil                             sepolicy_file
 /system/etc/selinux/plat_and_mapping_sepolicy.cil.sha256          sepolicy_file
 /system/etc/task_profiles.json                                    task_profiles_file
-/system/etc/task_profiles/task_profiles_0.json                    task_profiles_api_file
-/system/etc/task_profiles/task_profiles_99.json                   task_profiles_api_file
+/system/etc/task_profiles/task_profiles_0.json                    task_profiles_file
+/system/etc/task_profiles/task_profiles_99.json                   task_profiles_file
 /system/usr/share/zoneinfo                                        system_zoneinfo_file
 /system/usr/share/zoneinfo/0                                      system_zoneinfo_file
 /system/bin/adbd                                                  adbd_exec
-/system/bin/aconfigd                                              aconfigd_exec
+/system/bin/aconfigd-system                                       aconfigd_exec
 /system/bin/vold_prepare_subdirs                                  vold_prepare_subdirs_exec
 /system/bin/stats                                                 stats_exec
 /system/bin/statsd                                                statsd_exec
@@ -485,6 +491,7 @@
 /system/bin/android.automotive.evs.manager@1.99                   evsmanagerd_exec
 /system/bin/uprobestats                                           uprobestats_exec
 /system/bin/trace_redactor                                        trace_redactor_exec
+/system/bin/bert_collector                                        bert_collector_exec
 
 /vendor                                                           vendor_file
 /vendor/does_not_exist                                            vendor_file
@@ -637,6 +644,7 @@
 /odm/usr/keylayout/test.kl                                        vendor_keylayout_file
 /vendor/odm/usr/keylayout.kl                                      vendor_keylayout_file
 /vendor/odm/usr/keylayout/test.kl                                 vendor_keylayout_file
+/vendor/usr/keylayout                                             vendor_keylayout_file
 /vendor/usr/keylayout.kl                                          vendor_keylayout_file
 /vendor/usr/keylayout/test.kl                                     vendor_keylayout_file
 /system/vendor/usr/keylayout.kl                                   vendor_keylayout_file
@@ -645,6 +653,7 @@
 /odm/usr/keychars/test.kcm                                        vendor_keychars_file
 /vendor/odm/usr/keychars.kcm                                      vendor_keychars_file
 /vendor/odm/usr/keychars/test.kcm                                 vendor_keychars_file
+/vendor/usr/keychars                                              vendor_keychars_file
 /vendor/usr/keychars.kcm                                          vendor_keychars_file
 /vendor/usr/keychars/test.kcm                                     vendor_keychars_file
 /system/vendor/usr/keychars.kcm                                   vendor_keychars_file
@@ -653,6 +662,7 @@
 /odm/usr/idc/test.idc                                             vendor_idc_file
 /vendor/odm/usr/idc.idc                                           vendor_idc_file
 /vendor/odm/usr/idc/test.idc                                      vendor_idc_file
+/vendor/usr/idc                                                   vendor_idc_file
 /vendor/usr/idc.idc                                               vendor_idc_file
 /vendor/usr/idc/test.idc                                          vendor_idc_file
 /system/vendor/usr/idc.idc                                        vendor_idc_file
@@ -685,6 +695,8 @@
 /vendor/odm/etc/selinux/odm_keystore2_key_contexts                keystore2_key_contexts_file
 /odm/etc/selinux/odm_mac_permissions.xml                          mac_perms_file
 /vendor/odm/etc/selinux/odm_mac_permissions.xml                   mac_perms_file
+/odm/etc/selinux/odm_tee_service_contexts                         tee_service_contexts_file
+/vendor/odm/etc/selinux/odm_tee_service_contexts                  tee_service_contexts_file
 
 /product                                                          system_file
 /product/does_not_exist                                           system_file
@@ -713,6 +725,8 @@
 /system/product/etc/selinux/product_service_contexts              service_contexts_file
 /product/etc/selinux/product_mac_permissions.xml                  mac_perms_file
 /system/product/etc/selinux/product_mac_permissions.xml           mac_perms_file
+/product/etc/selinux/product_tee_service_contexts                 tee_service_contexts_file
+/system/product/etc/selinux/product_tee_service_contexts          tee_service_contexts_file
 
 /product/lib                                                      system_lib_file
 /product/lib/does_not_exist                                       system_lib_file
@@ -757,6 +771,8 @@
 /system/system_ext/etc/selinux/system_ext_mac_permissions.xml     mac_perms_file
 /system_ext/etc/selinux/userdebug_plat_sepolicy.cil               sepolicy_file
 /system/system_ext/etc/selinux/userdebug_plat_sepolicy.cil        sepolicy_file
+/system_ext/etc/selinux/system_ext_tee_service_contexts           tee_service_contexts_file
+/system/system_ext/etc/selinux/system_ext_tee_service_contexts    tee_service_contexts_file
 
 /system_ext/bin/aidl_lazy_test_server                             aidl_lazy_test_server_exec
 /system/system_ext/bin/aidl_lazy_test_server                      aidl_lazy_test_server_exec
@@ -771,14 +787,16 @@
 /system_ext/bin/hw/android.hidl.allocator@1.0-service             hal_allocator_default_exec
 /system/system_ext/bin/hw/android.hidl.allocator@1.0-service      hal_allocator_default_exec
 
+/system_ext/bin/rkp_cert_processor                                rkp_cert_processor_exec
+/system/system_ext/bin/rkp_cert_processor                         rkp_cert_processor_exec
+
 
 /system_ext/bin/canhalconfigurator                                canhalconfigurator_exec
 /system_ext/bin/canhalconfigurator-aidl                           canhalconfigurator_exec
 /system/system_ext/bin/canhalconfigurator                         canhalconfigurator_exec
 /system/system_ext/bin/canhalconfigurator-aidl                    canhalconfigurator_exec
 
-/system_ext/bin/custom_vm_setup                                   custom_vm_setup_exec
-/system/system_ext/bin/custom_vm_setup                            custom_vm_setup_exec
+/system/bin/linux_vm_setup                                        linux_vm_setup_exec
 
 /system_ext/lib                                                   system_lib_file
 /system_ext/lib/does_not_exist                                    system_lib_file
@@ -1063,6 +1081,8 @@
 /data/misc/wifi/test                                              wifi_data_file
 /data/misc_ce/0/wifi                                              wifi_data_file
 /data/misc_ce/99/wifi/test                                        wifi_data_file
+/data/misc/wifi/mainline_supplicant                               mainline_supplicant_data_file
+/data/misc/wifi/mainline_supplicant/sockets                       mainline_supplicant_data_file
 /data/misc/wifi/sockets                                           wpa_socket
 /data/misc/wifi/sockets/test                                      wpa_socket
 /data/misc/wifi/sockets/wpa_ctrl_test                             system_wpa_socket
@@ -1250,8 +1270,6 @@
 /metadata/aconfig/maps/test                                       aconfig_storage_metadata_file
 /metadata/aconfig/boot                                            aconfig_storage_metadata_file
 /metadata/aconfig/boot/test                                       aconfig_storage_metadata_file
-/metadata/aconfig_test_missions                                   aconfig_test_mission_files
-/metadata/aconfig_test_missions/test                              aconfig_test_mission_files
 /metadata/apex                                                    apex_metadata_file
 /metadata/apex/test                                               apex_metadata_file
 /metadata/vold                                                    vold_metadata_file
@@ -1276,6 +1294,10 @@
 /metadata/watchdog/test                                           watchdog_metadata_file
 /metadata/repair-mode                                             repair_mode_metadata_file
 /metadata/repair-mode/test                                        repair_mode_metadata_file
+/metadata/tradeinmode                                             tradeinmode_metadata_file
+/metadata/tradeinmode/test                                        tradeinmode_metadata_file
+/metadata/prefetch                                                prefetch_metadata_file
+/metadata/prefetch/test                                           prefetch_metadata_file
 
 /mnt/asec                                                         asec_apk_file
 /mnt/asec/test                                                    asec_apk_file

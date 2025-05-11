@@ -102,6 +102,7 @@ phony {
         "plat_property_contexts",
         "plat_seapp_contexts",
         "plat_sepolicy.cil",
+        "plat_sepolicy_genfs_202504.cil",
         "plat_service_contexts",
         "secilc",
         "plat_29.0.cil",
@@ -124,6 +125,9 @@ phony {
         ],
     }) + select(soong_config_variable("ANDROID", "PRODUCT_PRECOMPILED_SEPOLICY"), {
         true: ["plat_sepolicy_and_mapping.sha256"],
+        default: [],
+    }) + select(release_flag("RELEASE_AVF_ENABLE_VM_TO_TEE_SERVICES_ALLOWLIST"), {
+        true: ["plat_tee_service_contexts"],
         default: [],
     }),
 }
@@ -509,7 +513,7 @@ se_versioned_policy {
 //   precompiled_sepolicy.product_sepolicy_and_mapping.sha256
 // See system/core/init/selinux.cpp for details.
 //////////////////////////////////
-genrule {
+java_genrule {
     name: "plat_sepolicy_and_mapping.sha256_gen",
     srcs: [
         ":plat_sepolicy.cil",
@@ -526,7 +530,7 @@ prebuilt_etc {
     relative_install_path: "selinux",
 }
 
-genrule {
+java_genrule {
     name: "system_ext_sepolicy_and_mapping.sha256_gen",
     srcs: [
         ":system_ext_sepolicy.cil",
@@ -544,7 +548,7 @@ prebuilt_etc {
     system_ext_specific: true,
 }
 
-genrule {
+java_genrule {
     name: "product_sepolicy_and_mapping.sha256_gen",
     srcs: [
         ":product_sepolicy.cil",
@@ -565,6 +569,22 @@ prebuilt_etc {
 sepolicy_vers {
     name: "plat_sepolicy_vers.txt",
     version: "vendor",
+    vendor: true,
+}
+
+genrule {
+    name: "genfs_labels_version.txt.gen",
+    out: ["genfs_labels_version.txt"],
+    cmd: select(soong_config_variable("ANDROID", "BOARD_GENFS_LABELS_VERSION"), {
+        any @ value: "echo " + value + " > $(out)",
+        default: "echo > $(out)",
+    }),
+}
+
+prebuilt_etc {
+    name: "genfs_labels_version.txt",
+    src: ":genfs_labels_version.txt.gen",
+    relative_install_path: "selinux",
     vendor: true,
 }
 
@@ -640,7 +660,7 @@ soong_config_module_type {
 
 filegroup {
     name: "precompiled_sepolicy_srcs",
-    srcs: [
+    device_common_srcs: [
         ":plat_sepolicy.cil",
         ":plat_pub_versioned.cil",
         ":system_ext_sepolicy.cil",
@@ -651,6 +671,10 @@ filegroup {
         ":system_ext_mapping_file",
         ":product_mapping_file",
     ],
+    device_first_srcs: select(soong_config_variable("ANDROID", "BOARD_GENFS_LABELS_VERSION"), {
+        "202504": [":plat_sepolicy_genfs_202504.cil"],
+        default: [],
+    }),
     // Make precompiled_sepolicy_srcs as public so that OEMs have access to them.
     // Useful when some partitions need to be bind mounted across VM boundaries.
     visibility: ["//visibility:public"],
@@ -890,7 +914,7 @@ se_freeze_test {
 // sepolicy_test checks various types of violations, which can't be easily done
 // by CIL itself. Refer tests/sepolicy_tests.py for more detail.
 //////////////////////////////////
-genrule {
+java_genrule {
     name: "sepolicy_test",
     srcs: [
         ":plat_file_contexts",
@@ -918,7 +942,7 @@ genrule {
 
 soong_config_module_type {
     name: "dev_type_test_genrule",
-    module_type: "genrule",
+    module_type: "java_genrule",
     config_namespace: "ANDROID",
     bool_variables: ["CHECK_DEV_TYPE_VIOLATIONS"],
     properties: ["cmd"],
@@ -1003,5 +1027,333 @@ phony {
         default: [
             "system_ext_202404.compat.cil",
         ],
+    }) + select(release_flag("RELEASE_AVF_ENABLE_VM_TO_TEE_SERVICES_ALLOWLIST"), {
+        true: ["system_ext_tee_service_contexts"],
+        default: [],
     }),
+    system_ext_specific: true,
+}
+
+phony {
+    name: "selinux_policy_product",
+    required: [
+        "product_mapping_file",
+        "product_sepolicy.cil",
+        // "ifdef HAS_PRODUCT_PUBLIC_SEPOLICY" check included in .cil
+        "product_29.0.cil",
+        "product_30.0.cil",
+        "product_31.0.cil",
+        "product_32.0.cil",
+        "product_33.0.cil",
+        "product_34.0.cil",
+        "product_file_contexts",
+        // "ifdef HAS_PRODUCT_SEPOLICY_DIR" in Android.mk can be ignored.
+        "product_file_contexts_test",
+        "product_keystore2_key_contexts",
+        "product_hwservice_contexts",
+        "product_hwservice_contexts_test",
+        "product_property_contexts",
+        "product_property_contexts_test",
+        "product_seapp_contexts",
+        "product_service_contexts",
+        "product_service_contexts_test",
+        "product_mac_permissions.xml",
+    ] + select(soong_config_variable("ANDROID", "PRODUCT_PRECOMPILED_SEPOLICY"), {
+        true: ["product_sepolicy_and_mapping.sha256"],
+        default: [],
+    }) + select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
+        "202404": [],
+        default: [
+            "product_202404.cil",
+        ],
+    }) + select(release_flag("RELEASE_AVF_ENABLE_VM_TO_TEE_SERVICES_ALLOWLIST"), {
+        true: ["product_tee_service_contexts"],
+        default: [],
+    }),
+    product_specific: true,
+}
+
+phony {
+    name: "selinux_policy_nonsystem",
+    required: [
+        "selinux_policy_system_ext",
+        "selinux_policy_product",
+        "selinux_policy_vendor",
+        "selinux_policy_odm",
+        // Builds an additional userdebug sepolicy into the debug ramdisk.
+        "userdebug_plat_sepolicy.cil",
+    ],
+}
+
+phony {
+    name: "selinux_policy_vendor",
+    required: [
+        "genfs_labels_version.txt",
+        "plat_pub_versioned.cil",
+        "vendor_sepolicy.cil",
+        "plat_sepolicy_vers.txt",
+        "vendor_file_contexts",
+        "vendor_file_contexts_test",
+        "vendor_keystore2_key_contexts",
+        "vendor_mac_permissions.xml",
+        "vendor_property_contexts",
+        "vendor_property_contexts_test",
+        "vendor_seapp_contexts",
+        "vendor_service_contexts",
+        "vendor_service_contexts_test",
+        "vendor_hwservice_contexts",
+        "vendor_hwservice_contexts_test",
+        "vendor_bug_map",
+        "vndservice_contexts",
+        "vndservice_contexts_test",
+    ] + select(release_flag("RELEASE_AVF_ENABLE_VM_TO_TEE_SERVICES_ALLOWLIST"), {
+        true: ["vendor_tee_service_contexts"],
+        default: [],
+    }),
+    vendor: true,
+}
+
+phony {
+    name: "selinux_policy_odm",
+    required: [
+        "odm_sepolicy.cil",
+        "odm_file_contexts",
+        "odm_file_contexts_test",
+        "odm_seapp_contexts",
+        "odm_property_contexts",
+        "odm_property_contexts_test",
+        "odm_service_contexts",
+        "odm_service_contexts_test",
+        "odm_hwservice_contexts",
+        "odm_hwservice_contexts_test",
+        "odm_mac_permissions.xml",
+    ] + select(soong_config_variable("ANDROID", "PRODUCT_PRECOMPILED_SEPOLICY"), {
+        true: [
+            "precompiled_sepolicy",
+            "precompiled_sepolicy.plat_sepolicy_and_mapping.sha256",
+            "precompiled_sepolicy.system_ext_sepolicy_and_mapping.sha256",
+            "precompiled_sepolicy.product_sepolicy_and_mapping.sha256",
+        ],
+        default: [],
+    }),
+    device_specific: true,
+}
+
+phony {
+    name: "selinux_policy_system",
+    required: [
+        "29.0.compat.cil",
+        "30.0.compat.cil",
+        "31.0.compat.cil",
+        "32.0.compat.cil",
+        "33.0.compat.cil",
+        "34.0.compat.cil",
+        "build_sepolicy",
+        "fuzzer_bindings_test",
+        "plat_29.0.cil",
+        "plat_30.0.cil",
+        "plat_31.0.cil",
+        "plat_32.0.cil",
+        "plat_33.0.cil",
+        "plat_34.0.cil",
+        "plat_bug_map",
+        "plat_file_contexts",
+        "plat_file_contexts_data_test",
+        "plat_file_contexts_test",
+        "plat_hwservice_contexts",
+        "plat_hwservice_contexts_test",
+        "plat_keystore2_key_contexts",
+        "plat_mac_permissions.xml",
+        "plat_mapping_file",
+        "plat_property_contexts",
+        "plat_property_contexts_test",
+        "plat_seapp_contexts",
+        "plat_sepolicy.cil",
+        "plat_sepolicy_genfs_202504.cil",
+        "plat_service_contexts",
+        "plat_service_contexts_test",
+        "searchpolicy",
+        "secilc",
+    ] + select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
+        "202404": [],
+        default: [
+            "202404.compat.cil",
+            "plat_202404.cil",
+        ],
+    }) + select(soong_config_variable("ANDROID", "PRODUCT_PRECOMPILED_SEPOLICY"), {
+        true: ["plat_sepolicy_and_mapping.sha256"],
+        default: [],
+    }) + select((
+        soong_config_variable("ANDROID", "ASAN_ENABLED"),
+        product_variable("selinux_ignore_neverallows"),
+    ), {
+        (true, true): [
+        ],
+        (default, default): [
+            "sepolicy_compat_test",
+            "sepolicy_test",
+            "sepolicy_dev_type_test",
+            "treble_sepolicy_tests_29.0",
+            "treble_sepolicy_tests_30.0",
+            "treble_sepolicy_tests_31.0",
+            "treble_sepolicy_tests_32.0",
+            "treble_sepolicy_tests_33.0",
+            "treble_sepolicy_tests_34.0",
+        ],
+    }) + select((
+        soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"),
+        soong_config_variable("ANDROID", "ASAN_ENABLED"),
+        product_variable("selinux_ignore_neverallows"),
+    ), {
+        ("202404", true, true): [],
+        (default, true, true): [],
+        (default, default, default): [
+            "treble_sepolicy_tests_202404",
+        ],
+    }) + select(soong_config_variable("ANDROID", "RELEASE_BOARD_API_LEVEL_FROZEN"), {
+        true: ["se_freeze_test"],
+        default: [],
+    }) + select(release_flag("RELEASE_AVF_ENABLE_VM_TO_TEE_SERVICES_ALLOWLIST"), {
+        true: ["plat_tee_service_contexts"],
+        default: [],
+    }),
+}
+
+phony {
+    name: "selinux_policy",
+    required: [
+        // Runs checkfc against merged service_contexts files
+        "merged_hwservice_contexts_test",
+        "merged_service_contexts_test",
+        "selinux_policy_nonsystem",
+        "selinux_policy_system",
+    ],
+}
+
+// selinux_policy is a main goal and triggers lots of tests.
+// Most tests are FAKE modules, so aren'triggered on normal builds. (e.g. 'm')
+// By setting as droidcore's dependency, tests will run on normal builds.
+phony_rule {
+    name: "droidcore",
+    phony_deps: ["selinux_policy"],
+}
+
+//-----------------------------------------------------------------------------
+// TODO - remove this.   Keep around until we get the filesystem creation stuff
+// taken care of.
+//
+// The file_contexts.bin is built in the following way:
+// 1. Collect all file_contexts files in THIS repository and process them with
+//    m4 into a tmp file called file_contexts.local.tmp.
+// 2. Collect all device specific file_contexts files and process them with m4
+//    into a tmp file called file_contexts.device.tmp.
+// 3. Run checkfc -e (allow no device fc entries ie empty) and fc_sort on
+//    file_contexts.device.tmp and output to file_contexts.device.sorted.tmp.
+// 4. Concatenate file_contexts.local.tmp and  file_contexts.device.sorted.tmp
+//    into file_contexts.concat.tmp.
+// 5. Run checkfc and sefcontext_compile on file_contexts.concat.tmp to produce
+//    file_contexts.bin.
+//
+//  Note: That a newline file is placed between each file_context file found to
+//        ensure a proper build when an fc file is missing an ending newline.
+//---
+// 1. Collect all file_contexts files in THIS repository and process them with
+//    m4 into a tmp file called file_contexts.local.tmp.
+java_genrule {
+    name: "file_contexts.local.tmp",
+    srcs: [
+        ":plat_file_contexts",
+        ":system_ext_file_contexts",
+        ":product_file_contexts",
+    ],
+    tools: [
+        "m4",
+    ],
+    out: ["file_contexts.local.tmp"],
+    cmd: "$(location m4) --fatal-warnings " +
+        "-s $(in) > $(out)",
+}
+
+// 2. Collect all device specific file_contexts files and process them with m4
+//    into a tmp file called file_contexts.device.tmp.
+PRIVATE_ADDITIONAL_M4DEFS = select(soong_config_variable("ANDROID", "ADDITIONAL_M4DEFS"), {
+    any @ m4defs: m4defs,
+    default: "",
+})
+java_genrule {
+    name: "file_contexts.device.tmp",
+    srcs: [
+        ":vendor_file_contexts",
+        ":odm_file_contexts",
+    ],
+    tools: [
+        "m4",
+    ],
+    out: ["file_contexts.device.tmp"],
+    cmd: "$(location m4) --fatal-warnings " +
+        "-s " + PRIVATE_ADDITIONAL_M4DEFS +
+        " $(in) > $(out)",
+}
+
+// 3. Run checkfc -e (allow no device fc entries ie empty) and fc_sort on
+//    file_contexts.device.tmp and output to file_contexts.device.sorted.tmp.
+java_genrule {
+    name: "file_contexts.device.sorted.tmp",
+    srcs: [
+        ":file_contexts.device.tmp",
+        ":precompiled_sepolicy",
+    ],
+    tools: [
+        "checkfc",
+        "fc_sort",
+    ],
+    out: ["file_contexts.device.sorted.tmp"],
+    cmd: "$(location checkfc) " +
+        "-e $(location :precompiled_sepolicy) " +
+        "$(location :file_contexts.device.tmp) && " +
+        "$(location fc_sort) " +
+        "-i $(location :file_contexts.device.tmp) " +
+        "-o $(out)",
+}
+
+// 4. Concatenate file_contexts.local.tmp and  file_contexts.device.sorted.tmp
+//    into file_contexts.concat.tmp.
+java_genrule {
+    name: "file_contexts.concat.tmp",
+    srcs: [
+        ":file_contexts.local.tmp",
+        ":file_contexts.device.sorted.tmp",
+    ],
+    tools: [
+        "m4",
+    ],
+    out: ["file_contexts.concat.tmp"],
+    cmd: "$(location m4) --fatal-warnings " +
+        "-s $(location :file_contexts.local.tmp) " +
+        "$(location :file_contexts.device.sorted.tmp) > $(out)",
+}
+
+// 5. Run checkfc and sefcontext_compile on file_contexts.concat.tmp to produce
+//    file_contexts.bin.
+java_genrule {
+    name: "file_contexts_bin_gen",
+    srcs: [
+        ":file_contexts.concat.tmp",
+        ":precompiled_sepolicy",
+    ],
+    tools: [
+        "checkfc",
+        "sefcontext_compile",
+    ],
+    out: ["file_contexts.bin"],
+    cmd: "$(location checkfc) " +
+        "$(location :precompiled_sepolicy) " +
+        "$(location :file_contexts.concat.tmp) && " +
+        "$(location sefcontext_compile) " +
+        "-o $(out) $(location :file_contexts.concat.tmp)",
+}
+
+prebuilt_etc {
+    name: "file_contexts.bin",
+    src: ":file_contexts_bin_gen",
 }

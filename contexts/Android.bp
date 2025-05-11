@@ -68,6 +68,11 @@ se_build_files {
     srcs: ["vndservice_contexts"],
 }
 
+se_build_files {
+    name: "tee_service_contexts_files",
+    srcs: ["tee_service_contexts"],
+}
+
 file_contexts {
     name: "plat_file_contexts",
     defaults: ["contexts_flags_defaults"],
@@ -613,4 +618,35 @@ vndservice_contexts_test {
 fuzzer_bindings_test {
     name: "fuzzer_bindings_test",
     srcs: [":plat_service_contexts"],
+}
+
+tee_service_contexts {
+    name: "plat_tee_service_contexts",
+    defaults: ["contexts_flags_defaults"],
+    srcs: [":tee_service_contexts_files{.plat_private}"],
+}
+
+tee_service_contexts {
+    name: "system_ext_tee_service_contexts",
+    defaults: ["contexts_flags_defaults"],
+    srcs: [":tee_service_contexts_files{.system_ext_private}"],
+    system_ext_specific: true,
+}
+
+tee_service_contexts {
+    name: "product_tee_service_contexts",
+    defaults: ["contexts_flags_defaults"],
+    srcs: [":tee_service_contexts_files{.product_private}"],
+    product_specific: true,
+}
+
+tee_service_contexts {
+    name: "vendor_tee_service_contexts",
+    defaults: ["contexts_flags_defaults"],
+    srcs: [
+        ":tee_service_contexts_files{.plat_vendor}",
+        ":tee_service_contexts_files{.vendor}",
+        ":tee_service_contexts_files{.reqd_mask}",
+    ],
+    soc_specific: true,
 }

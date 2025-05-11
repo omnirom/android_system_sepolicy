@@ -1,1 +1,2 @@
 (/.*)?                   u:object_r:system_file:s0
+/bin/aconfigd-mainline   u:object_r:aconfigd_mainline_exec:s0

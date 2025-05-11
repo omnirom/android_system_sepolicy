@@ -198,6 +198,8 @@ allow system_server cameraserver:process { getsched setsched };
 allow system_server hal_camera:process { getsched setsched };
 allow system_server mediaserver:process { getsched setsched };
 allow system_server bootanim:process { getsched setsched };
+# Set scheduling info for VMs (b/375058190)
+allow system_server { virtualizationmanager crosvm }:process { getsched setsched };
 
 # Set scheduling info for psi monitor thread.
 # TODO: delete this line b/131761776
@@ -291,6 +293,7 @@ binder_call(system_server, gpuservice)
 binder_call(system_server, idmap)
 binder_call(system_server, installd)
 binder_call(system_server, incidentd)
+binder_call(system_server, mmd)
 binder_call(system_server, netd)
 binder_call(system_server, ot_daemon)
 userdebug_or_eng(`binder_call(system_server, profcollectd)')
@@ -302,6 +305,7 @@ binder_call(system_server, vold)
 binder_call(system_server, logd)
 binder_call(system_server, wificond)
 binder_call(system_server, uprobestats)
+binder_call(system_server, wifi_mainline_supplicant)
 binder_service(system_server)
 
 # Use HALs
@@ -324,6 +328,7 @@ hal_client_domain(system_server, hal_input_processor)
 hal_client_domain(system_server, hal_ir)
 hal_client_domain(system_server, hal_keymint)
 hal_client_domain(system_server, hal_light)
+hal_client_domain(system_server, hal_mediaquality)
 hal_client_domain(system_server, hal_memtrack)
 hal_client_domain(system_server, hal_neuralnetworks)
 hal_client_domain(system_server, hal_oemlock)
@@ -389,6 +394,7 @@ allow system_server {
   mediaswcodec
   mediatranscoding
   mediatuner
+  mmd
   netd
   sdcardd
   servicemanager
@@ -810,11 +816,15 @@ set_prop(system_server, device_config_memory_safety_native_boot_prop)
 set_prop(system_server, device_config_memory_safety_native_prop)
 set_prop(system_server, device_config_remote_key_provisioning_native_prop)
 set_prop(system_server, device_config_tethering_u_or_later_native_prop)
+set_prop(system_server, device_config_mmd_native_prop)
 set_prop(system_server, smart_idle_maint_enabled_prop)
 set_prop(system_server, arm64_memtag_prop)
 
 # staged flag properties
 set_prop(system_server, next_boot_prop)
+
+# Allow system server to read pm.16kb.app_compat.disabled
+get_prop(system_server, pm_16kb_app_compat_prop)
 
 # Allow query ART device config properties
 get_prop(system_server, device_config_runtime_native_boot_prop)
@@ -1002,6 +1012,7 @@ allow system_server mediametrics_service:service_manager find;
 allow system_server mediaextractor_service:service_manager find;
 allow system_server mediadrmserver_service:service_manager find;
 allow system_server mediatuner_service:service_manager find;
+allow system_server mmd_service:service_manager find;
 allow system_server netd_service:service_manager find;
 allow system_server nfc_service:service_manager find;
 allow system_server ot_daemon_service:service_manager find;
@@ -1020,6 +1031,7 @@ allow system_server logd_service:service_manager find;
 userdebug_or_eng(`
   allow system_server profcollectd_service:service_manager find;
 ')
+allow system_server wifi_mainline_supplicant_service:service_manager find;
 
 add_service(system_server, batteryproperties_service)
 
@@ -1134,15 +1146,18 @@ allow system_server configfs:file { getattr open create unlink write };
 
 # Connect to adbd and use a socket transferred from it.
 # Used for e.g. jdwp.
-allow system_server adbd:unix_stream_socket connectto;
-allow system_server adbd:fd use;
-allow system_server adbd:unix_stream_socket { getattr getopt ioctl read write shutdown };
+allow system_server adbd_common:unix_stream_socket connectto;
+allow system_server adbd_common:fd use;
+allow system_server adbd_common:unix_stream_socket { getattr getopt ioctl read write shutdown };
 
 # Read service.adb.tls.port, persist.adb.wifi. properties
 get_prop(system_server, adbd_prop)
 
 # Set persist.adb.tls_server.enable property
 set_prop(system_server, system_adbd_prop)
+
+# Set service.adbd.tradeinmode from ITradeInService.
+set_prop(system_server, adbd_tradeinmode_prop)
 
 # Allow invoking tools like "timeout"
 allow system_server toolbox_exec:file rx_file_perms;
@@ -1270,8 +1285,10 @@ get_prop(system_server,system_jvmti_agent_prop)
 allow system_server functionfs:dir search;
 allow system_server functionfs:file rw_file_perms;
 # To resolve arbitrary sysfs paths from /sys/class/udc/* symlinks.
+starting_at_board_api(202504, `
 allow system_server sysfs_type:dir search;
 r_dir_file(system_server, sysfs_udc)
+')
 
 # system_server contains time / time zone detection logic so reads the associated properties.
 get_prop(system_server, time_prop)
@@ -1389,6 +1406,7 @@ neverallow {
   device_config_aconfig_flags_prop
   device_config_window_manager_native_boot_prop
   device_config_tethering_u_or_later_native_prop
+  device_config_mmd_native_prop
   next_boot_prop
 }:property_service set;
 
@@ -1447,6 +1465,9 @@ allow system_server apex_mnt_dir:dir r_dir_perms;
 # Allow system server to read /apex/apex-info-list.xml
 allow system_server apex_info_file:file r_file_perms;
 
+# Allow system_server to communicate with tradeinmode.
+binder_call(system_server, tradeinmode)
+
 # Allow system server to communicate to system-suspend's control interface
 allow system_server system_suspend_control_internal_service:service_manager find;
 allow system_server system_suspend_control_service:service_manager find;
@@ -1498,6 +1519,10 @@ allow system_server metadata_file:dir search;
 allow system_server password_slot_metadata_file:dir rw_dir_perms;
 allow system_server password_slot_metadata_file:file create_file_perms;
 
+# Allow TradeInMode service rw access to /metadata/tradeinmode.
+allow system_server tradeinmode_metadata_file:dir rw_dir_perms;
+allow system_server tradeinmode_metadata_file:file create_file_perms;
+
 allow system_server userspace_reboot_metadata_file:dir create_dir_perms;
 allow system_server userspace_reboot_metadata_file:file create_file_perms;
 
@@ -1508,15 +1533,11 @@ allow system_server staged_install_file:file create_file_perms;
 allow system_server watchdog_metadata_file:dir rw_dir_perms;
 allow system_server watchdog_metadata_file:file create_file_perms;
 
-allow system_server aconfig_storage_flags_metadata_file:dir rw_dir_perms;
-allow system_server aconfig_storage_flags_metadata_file:file create_file_perms;
-allow system_server aconfig_storage_metadata_file:dir search;
+# allow system_server write to aconfigd socket
+unix_socket_connect(system_server, aconfigd, aconfigd);
 
-allow system_server aconfigd_socket:sock_file {read write};
-allow system_server aconfigd:unix_stream_socket connectto;
-
-allow system_server aconfig_test_mission_files:dir create_dir_perms;
-allow system_server aconfig_test_mission_files:file create_file_perms;
+# allow system_server write to aconfigd_mainline socket
+unix_socket_connect(system_server, aconfigd_mainline, aconfigd_mainline);
 
 allow system_server repair_mode_metadata_file:dir rw_dir_perms;
 allow system_server repair_mode_metadata_file:file create_file_perms;
@@ -1565,10 +1586,6 @@ neverallow {
   -system_server
 } password_slot_metadata_file:notdevfile_class_set ~{ relabelto getattr };
 neverallow { domain -init -system_server } password_slot_metadata_file:notdevfile_class_set *;
-
-# Only system server should access /metadata/aconfig
-neverallow { domain -init -system_server -aconfigd } aconfig_storage_flags_metadata_file:dir *;
-neverallow { domain -init -system_server -aconfigd } aconfig_storage_flags_metadata_file:file no_rw_file_perms;
 
 # Allow systemserver to read/write the invalidation property
 set_prop(system_server, binder_cache_system_server_prop)
@@ -1672,6 +1689,9 @@ allow system_server {
 # Do not allow any domain other than init or system server to get or set the property
 neverallow { domain -init -system_server } crashrecovery_prop:property_service set;
 neverallow { domain -init -dumpstate -system_server } crashrecovery_prop:file no_rw_file_perms;
+
+# Do not allow anything other than system_server and init to touch /metadata/tradeinmode.
+neverallow { domain -init -system_server } tradeinmode_metadata_file:file no_rw_file_perms;
 
 neverallow {
   domain

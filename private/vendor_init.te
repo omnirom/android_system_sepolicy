@@ -115,6 +115,7 @@ allow vendor_init {
   -userspace_reboot_metadata_file
   -aconfig_storage_metadata_file
   -aconfig_storage_flags_metadata_file
+  -tradeinmode_metadata_file
   enforce_debugfs_restriction(`-debugfs_type')
 }:file { create getattr open read write setattr relabelfrom unlink map };
 
@@ -291,6 +292,7 @@ set_prop(vendor_init, logd_prop)
 set_prop(vendor_init, log_tag_prop)
 set_prop(vendor_init, log_prop)
 set_prop(vendor_init, graphics_config_writable_prop)
+set_prop(vendor_init, prefetch_boot_prop);
 set_prop(vendor_init, qemu_hw_prop)
 set_prop(vendor_init, radio_control_prop)
 set_prop(vendor_init, rebootescrow_hal_prop)

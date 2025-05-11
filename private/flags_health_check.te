@@ -34,6 +34,7 @@ set_prop(flags_health_check, device_config_memory_safety_native_prop)
 set_prop(flags_health_check, device_config_remote_key_provisioning_native_prop)
 set_prop(flags_health_check, device_config_camera_native_prop)
 set_prop(flags_health_check, device_config_tethering_u_or_later_native_prop)
+set_prop(flags_health_check, device_config_mmd_native_prop)
 set_prop(flags_health_check, next_boot_prop)
 
 allow flags_health_check server_configurable_flags_data_file:dir rw_dir_perms;

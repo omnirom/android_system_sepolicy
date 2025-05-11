@@ -6,7 +6,9 @@ type apex_info_file, file_type;
 type apex_mnt_dir, file_type;
 type authfs_data_file, file_type, data_file_type, core_data_file_type;
 type authfs_service_socket, file_type, coredomain_socket;
-type cgroup_desc_api_file, file_type, system_file_type;
+until_board_api(202504, `
+    type cgroup_desc_api_file, file_type, system_file_type;
+')
 type cgroup_desc_file, file_type, system_file_type;
 type extra_apk_file, file_type;
 type file_contexts_file, file_type, system_file_type;
@@ -30,7 +32,9 @@ type system_linker_config_file, file_type, system_file_type;
 type system_passwd_file, file_type, system_file_type;
 type system_seccomp_policy_file, file_type, system_file_type;
 type system_security_cacerts_file, file_type, system_file_type;
-type task_profiles_api_file, file_type, system_file_type;
+until_board_api(202504, `
+    type task_profiles_api_file, file_type, system_file_type;
+')
 type task_profiles_file, file_type, system_file_type;
 type trace_data_file, file_type, data_file_type, core_data_file_type;
 type unlabeled, file_type;

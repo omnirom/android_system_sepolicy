@@ -1,0 +1,31 @@
+type wifi_mainline_supplicant, domain, coredomain;
+type wifi_mainline_supplicant_exec, system_file_type, exec_type, file_type;
+
+binder_use(wifi_mainline_supplicant)
+init_daemon_domain(wifi_mainline_supplicant)
+add_service(wifi_mainline_supplicant, wifi_mainline_supplicant_service)
+
+allow wifi_mainline_supplicant self:global_capability_class_set { net_admin net_raw };
+allow wifi_mainline_supplicant proc_net:file rw_file_perms;
+allow wifi_mainline_supplicant sysfs_net:dir search;
+
+# Allow limited access to the parent directory /data/misc/wifi/
+allow wifi_mainline_supplicant wifi_data_file:dir { getattr search };
+
+# Create temporary socket files in /data/misc/wifi/mainline_supplicant/sockets
+allow wifi_mainline_supplicant mainline_supplicant_data_file:dir create_dir_perms;
+allow wifi_mainline_supplicant mainline_supplicant_data_file:file create_file_perms;
+allow wifi_mainline_supplicant mainline_supplicant_data_file:sock_file { create write setattr unlink };
+
+# UDP sockets
+allow wifi_mainline_supplicant self:udp_socket create_socket_perms;
+allowxperm wifi_mainline_supplicant self:udp_socket ioctl { priv_sock_ioctls SIOCSIFFLAGS SIOCSIFHWADDR };
+
+# Packet sockets
+allow wifi_mainline_supplicant self:packet_socket create_socket_perms;
+allowxperm wifi_mainline_supplicant self:packet_socket ioctl { unpriv_sock_ioctls priv_sock_ioctls unpriv_tty_ioctls };
+
+# Netlink sockets
+allow wifi_mainline_supplicant self:netlink_route_socket { bind create read write nlmsg_readpriv nlmsg_write };
+allow wifi_mainline_supplicant self:netlink_socket create_socket_perms_no_ioctl;
+allow wifi_mainline_supplicant self:netlink_generic_socket create_socket_perms_no_ioctl;

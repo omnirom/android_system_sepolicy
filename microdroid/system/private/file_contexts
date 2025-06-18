@@ -105,7 +105,9 @@
 /system/bin/authfs               u:object_r:authfs_exec:s0
 /system/bin/authfs_service       u:object_r:authfs_service_exec:s0
 /system/bin/encryptedstore       u:object_r:encryptedstore_exec:s0
-/system/bin/mke2fs		u:object_r:e2fs_exec:s0
+/system/bin/e2fsck               u:object_r:fsck_exec:s0
+/system/bin/mke2fs               u:object_r:e2fs_exec:s0
+/system/bin/resize2fs            u:object_r:fsck_exec:s0
 /system/bin/kexec_load           u:object_r:kexec_exec:s0
 /system/bin/prng_seeder          u:object_r:prng_seeder_exec:s0
 /system/bin/atrace               u:object_r:atrace_exec:s0

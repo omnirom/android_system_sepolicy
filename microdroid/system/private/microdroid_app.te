@@ -12,3 +12,7 @@ type microdroid_app_exec, exec_type, file_type, system_file_type;
 # Let microdroid_manager kernel-log.
 allow microdroid_app kmsg_device:chr_file w_file_perms;
 allow microdroid_app kmsg_debug_device:chr_file w_file_perms;
+
+# Allow microdroid_manager to read /apex directory to learn about activated
+# APEXes. It uses this to create linker namespace links to those APEXes.
+allow microdroid_app apex_mnt_dir:dir r_dir_perms;

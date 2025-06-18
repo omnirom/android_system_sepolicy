@@ -1,0 +1,10 @@
+###
+### A domain for sandboxing the remote key provisioning daemon
+### app that is shipped via mainline.
+###
+
+type rkpdapp, domain;
+
+# system/sepolicy/public is for vendor-facing type and attribute definitions.
+# DO NOT ADD allow, neverallow, or dontaudit statements here.
+# Instead, add such policy rules to system/sepolicy/private/*.te.

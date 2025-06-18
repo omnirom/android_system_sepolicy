@@ -14,6 +14,10 @@ allow microdroid_payload devpts:chr_file rw_file_perms;
 # Allow to set debug prop
 set_prop(microdroid_payload, debug_prop)
 
+# Allow to use service manager APIs without waiting for the servicemanager
+# process because it's not installed in microdroid
+get_prop(microdroid_payload, servicemanager_prop)
+
 # Allow microdroid_payload to use vsock inherited from microdroid_manager
 allow microdroid_payload microdroid_manager:vsock_socket { read write };
 

@@ -22,3 +22,7 @@ neverallow {
   -init
   -shell
 } ctl_prefetch_prop:property_service set;
+
+# Allow rootfs so prefetch can walk through directory tree and
+# create a map of inodes -> file path.
+allow prefetch rootfs:dir { open read search getattr };

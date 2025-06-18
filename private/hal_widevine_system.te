@@ -1,0 +1,14 @@
+type hal_widevine_system, domain, coredomain;
+hal_server_domain(hal_widevine_system, hal_drm)
+
+type hal_widevine_system_exec, exec_type, system_file_type, file_type;
+init_daemon_domain(hal_widevine_system)
+
+allow hal_widevine_system self:vsock_socket { create_socket_perms_no_ioctl };
+
+get_prop(hal_widevine_system, drm_config_prop)
+get_prop(hal_widevine_system, trusty_widevine_vm_sys_prop)
+
+allow hal_widevine_system mediadrm_system_data_file:dir { create search add_name rw_dir_perms };
+allow hal_widevine_system mediadrm_system_data_file:file { getattr create open read write };
+

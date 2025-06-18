@@ -1,0 +1,13 @@
+# Domain used for su processes, as well as for adbd and adb shell
+# after performing an adb root command.
+
+# All types must be defined regardless of build variant to ensure
+# policy compilation succeeds with userdebug/user combination at boot
+type su, domain;
+
+# File types must be defined for file_contexts.
+type su_exec, system_file_type, exec_type, file_type;
+
+# system/sepolicy/public is for vendor-facing type and attribute definitions.
+# DO NOT ADD allow, neverallow, or dontaudit statements here.
+# Instead, add such policy rules to system/sepolicy/private/*.te.

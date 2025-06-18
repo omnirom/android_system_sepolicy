@@ -243,6 +243,11 @@ allow system_server sysfs_ion:file r_file_perms;
 # Read /sys/kernel/dma_heap/*.
 allow system_server sysfs_dma_heap:file r_file_perms;
 
+# Read /sys/kernel/mm/cma/*.
+starting_at_board_api(202504, `
+allow system_server sysfs_cma:file r_file_perms;
+')
+
 # Allow reading DMA-BUF sysfs stats from /sys/kernel/dmabuf.
 allow system_server sysfs_dmabuf_stats:dir r_dir_perms;
 allow system_server sysfs_dmabuf_stats:file r_file_perms;
@@ -278,6 +283,10 @@ allow system_server webview_zygote:unix_stream_socket { read write connectto set
 
 # Communicate over a socket created by app_zygote.
 allow system_server app_zygote:unix_stream_socket { read write connectto setopt };
+
+# Communicate with a virtual machine (b/396144272)
+allow system_server virtualizationmanager:fd use;
+allow system_server virtualizationmanager:vsock_socket { getopt read write };
 
 # Perform Binder IPC.
 binder_use(system_server)
@@ -424,6 +433,9 @@ allow system_server {
   hal_sensors_server
   hal_vibrator_server
   hal_vr_server
+  hal_wifi_hostapd_server
+  hal_wifi_server
+  hal_wifi_supplicant_server
   system_suspend_server
 }:process { signal };
 
@@ -692,6 +704,9 @@ allow system_server app_data_file_type:file { getattr read write append map };
 # Access to /data/media for measuring disk usage.
 allow system_server media_rw_data_file:dir { search getattr open read };
 
+# Access to check if the mainline supplicant binary exists
+allow system_server wifi_mainline_supplicant_exec:file getattr;
+
 # Receive and use open /data/media files passed over binder IPC.
 # Also used for measuring disk usage.
 allow system_server media_rw_data_file:file { getattr read write append };
@@ -841,6 +856,9 @@ get_prop(system_server, boottime_prop)
 # Read device's serial number from system properties
 get_prop(system_server, serialno_prop)
 
+# Read whether uvc gadget is enabled
+get_prop(system_server, usb_uvc_enabled_prop)
+
 # Read/write the property which keeps track of whether this is the first start of system_server
 set_prop(system_server, firstboot_prop)
 
@@ -863,9 +881,6 @@ get_prop(system_server, gsid_prop)
 
 # Read the property that mocks an OTA
 get_prop(system_server, mock_ota_prop)
-
-# Read the property as feature flag for protecting apks with fs-verity.
-get_prop(system_server, apk_verity_prop)
 
 # Read wifi.interface
 get_prop(system_server, wifi_prop)
@@ -893,6 +908,7 @@ get_prop(system_server, hypervisor_prop)
 
 # Read persist.wm.debug. properties
 get_prop(system_server, persist_wm_debug_prop)
+set_prop(system_server, persist_wm_debug_prop)
 
 # Read persist.sysui.notification.builder_extras_override property
 get_prop(system_server, persist_sysui_builder_extras_prop)
@@ -913,6 +929,9 @@ get_prop(system_server, sensors_config_prop)
 
 # Allow system server to determine if system services are enabled
 get_prop(system_server, system_service_enable_prop)
+
+# Allow system server to read shared mmd properties
+get_prop(system_server, mmd_shared_prop)
 
 # Create a socket for connections from debuggerd.
 allow system_server system_ndebug_socket:sock_file create_file_perms;
@@ -1162,6 +1181,9 @@ set_prop(system_server, adbd_tradeinmode_prop)
 # Allow invoking tools like "timeout"
 allow system_server toolbox_exec:file rx_file_perms;
 
+# Allow invoking pbtombstone
+allow system_server pbtombstone_exec:file rx_file_perms;
+
 # Allow system process to setup fs-verity
 allowxperm system_server { apk_data_file apk_tmp_file system_data_file apex_system_server_data_file }:file ioctl FS_IOC_ENABLE_VERITY;
 
@@ -1275,7 +1297,7 @@ allow system_server profman_dump_data_file:dir rw_dir_perms;
 
 # On userdebug build we may profile system server. Allow it to write and create its own profile.
 userdebug_or_eng(`
-  allow system_server user_profile_data_file:dir w_dir_perms;
+  allow system_server user_profile_data_file:dir rw_dir_perms;
   allow system_server user_profile_data_file:file create_file_perms;
 ')
 # Allow system server to load JVMTI agents under control of a property.
@@ -1354,6 +1376,7 @@ neverallow system_server {
   file_type
   -toolbox_exec
   -logcat_exec
+  -pbtombstone_exec
   with_asan(`-shell_exec -asanwrapper_exec -zygote_exec')
 }:file execute_no_trans;
 
@@ -1444,7 +1467,7 @@ neverallow system_server { dev_type -frp_block_device -vd_device }:blk_file r_fi
 # never shipped to users.
 ifelse(target_requires_insecure_execmem_for_swiftshader, `true',
   `allow system_server self:process execmem;',
-  `neverallow system_server self:process execmem;')
+  on_physical_device(`neverallow system_server self:process execmem;'))
 neverallow system_server { ashmem_device ashmem_libcutils_device }:chr_file execute;
 
 # TODO: deal with tmpfs_domain pub/priv split properly
@@ -1650,6 +1673,16 @@ userdebug_or_eng(`
 
 # Allow GameManagerService to read and write persist.graphics.game_default_frame_rate.enabled
 set_prop(system_server, game_manager_config_prop)
+
+# Allow system server to write HintManagerService properties
+set_prop(system_server, hint_manager_config_prop)
+neverallow {
+  domain
+  -init
+  -vendor_init
+  -system_server
+  userdebug_or_eng(`-shell')
+} hint_manager_config_prop:property_service set;
 
 # ThreadNetworkService reads Thread Network properties
 get_prop(system_server, threadnetwork_config_prop)

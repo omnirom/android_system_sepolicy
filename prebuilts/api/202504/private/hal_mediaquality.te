@@ -1,0 +1,9 @@
+starting_at_board_api(202504, `
+    binder_call(hal_mediaquality_client, hal_mediaquality_server)
+    binder_call(hal_mediaquality_server, hal_mediaquality_client)
+
+    hal_attribute_service(hal_mediaquality, hal_mediaquality_service)
+
+    binder_call(hal_mediaquality_server, servicemanager)
+    binder_call(hal_mediaquality_client, servicemanager)
+')

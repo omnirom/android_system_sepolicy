@@ -1,0 +1,10 @@
+# virtual_camera - virtual camera daemon
+
+starting_at_board_api(202504, `
+    type virtual_camera, domain, coredomain;
+    type virtual_camera_exec, system_file_type, exec_type, file_type;
+')
+
+# system/sepolicy/public is for vendor-facing type and attribute definitions.
+# DO NOT ADD allow, neverallow, or dontaudit statements here.
+# Instead, add such policy rules to system/sepolicy/private/*.te.

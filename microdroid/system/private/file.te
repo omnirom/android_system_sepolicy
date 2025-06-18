@@ -13,7 +13,8 @@ allow sysfs_type sysfs:filesystem associate;
 allow system_data_file tmpfs:filesystem associate;
 
 type authfs_fuse, fs_type, contextmount_type;
-
+# /system/bin/e2fsck, /system/bin/resize2fs - used to expand encryptedstore block device
+type fsck_exec, system_file_type, exec_type, file_type;
 # /system/bin/mke2fs - used to format encryptedstore block device
 type e2fs_exec, system_file_type, exec_type, file_type;
 

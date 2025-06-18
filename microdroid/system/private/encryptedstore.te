@@ -21,6 +21,9 @@ allow encryptedstore self:global_capability_class_set sys_admin;
 # encryptedstore is forked from microdroid_manager
 allow encryptedstore microdroid_manager:fd use;
 
+# encryptedstore runs e2fsck and resize2fs to expand encrypted storage device
+allow encryptedstore fsck_exec:file { rx_file_perms };
+
 # For formatting encrypted storage device
 allow encryptedstore e2fs_exec:file { rx_file_perms };
 allowxperm encryptedstore dm_device:blk_file ioctl {

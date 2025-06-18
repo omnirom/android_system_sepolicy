@@ -67,6 +67,9 @@ binder_call(dumpstate, virtual_camera)
 # Allow dumpstate to talk to ot_daemon service over binder
 binder_call(dumpstate, ot_daemon)
 
+# Allow dumpstate to talk to mmd service over binder
+binder_call(dumpstate, mmd)
+
 # Collect metrics on boot time created by init
 get_prop(dumpstate, boottime_prop)
 
@@ -347,6 +350,7 @@ dump_hal(hal_secretkeeper)
 dump_hal(hal_sensors)
 dump_hal(hal_thermal)
 dump_hal(hal_vehicle)
+dump_hal(hal_vm_capabilities)
 dump_hal(hal_weaver)
 dump_hal(hal_wifi)
 
@@ -394,9 +398,11 @@ read_runtime_log_tags(dumpstate)
 
 # Read files in /proc
 allow dumpstate {
+  proc_allocinfo
   proc_bootconfig
   proc_buddyinfo
   proc_cmdline
+  proc_cgroups
   proc_meminfo
   proc_modules
   proc_net_type
@@ -461,6 +467,7 @@ allow dumpstate {
   -hal_service_type
   -virtual_touchpad_service
   -vold_service
+  -fwk_vold_service
   -default_android_service
 }:service_manager find;
 # suppress denials for services dumpstate should not be accessing.
@@ -471,6 +478,7 @@ dontaudit dumpstate {
   hal_service_type
   virtual_touchpad_service
   vold_service
+  fwk_vold_service
 }:service_manager find;
 
 # Most of these are neverallowed.
@@ -539,6 +547,9 @@ dontaudit dumpstate {
   vm_data_file
 }:dir getattr;
 
+#suppress denials for dumpstate to call vitualizationservice.
+dontaudit dumpstate virtualizationservice:binder { call };
+
 # Allow dumpstate to talk to bufferhubd over binder
 binder_call(dumpstate, bufferhubd);
 
@@ -560,6 +571,9 @@ use_apex_info(dumpstate)
 # Allow reading files under /data/system/shutdown-checkpoints/
 allow dumpstate shutdown_checkpoints_system_data_file:dir r_dir_perms;
 allow dumpstate shutdown_checkpoints_system_data_file:file r_file_perms;
+
+# Allow dumpstate to make binder calls to wifi_mainline_supplicant
+binder_call(dumpstate, wifi_mainline_supplicant);
 
 ###
 ### neverallow rules

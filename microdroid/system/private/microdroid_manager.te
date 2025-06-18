@@ -45,6 +45,11 @@ typeattribute microdroid_manager no_crash_dump_domain;
 allowxperm microdroid_manager vd_device:blk_file ioctl BLKFLSBUF;
 allow microdroid_manager self:global_capability_class_set sys_admin;
 
+# microdroid_manager needs to adjust the priority of the payload process.
+# It requires the sys_nice cap as well.
+allow microdroid_manager microdroid_app:process setsched;
+allow microdroid_manager self:global_capability_class_set sys_nice;
+
 # Allow microdroid_manager to remove capabilities from it's capability bounding set.
 allow microdroid_manager self:global_capability_class_set setpcap;
 

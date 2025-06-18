@@ -1,0 +1,26 @@
+### ADB in trade-in mode
+type adbd_tradeinmode, domain, coredomain, adbd_common;
+
+# Create and use network sockets.
+net_domain(adbd_tradeinmode)
+
+# Run /system/bin/tradeinmode
+domain_auto_trans(adbd_tradeinmode, tradeinmode_exec, tradeinmode)
+
+# Baseline rules to make adbd work after setcon().
+allow adbd_tradeinmode adbd:unix_stream_socket {
+    rw_socket_perms_no_ioctl
+    listen
+    accept
+};
+allow adbd_tradeinmode adbd:fd use;
+allow adbd_tradeinmode adbd:unix_dgram_socket { connect write };
+allow adbd_tradeinmode functionfs:dir r_dir_perms;
+allow adbd_tradeinmode functionfs:file rw_file_perms;
+allow adbd_tradeinmode proc_uptime:file r_file_perms;
+allow adbd_tradeinmode rootfs:dir r_dir_perms;
+
+set_prop(adbd_tradeinmode, ffs_control_prop)
+
+# Allow changing persist.adb.tradeinmode when testing.
+userdebug_or_eng(`set_prop(adbd_tradeinmode, shell_prop)')

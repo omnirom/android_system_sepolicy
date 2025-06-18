@@ -58,6 +58,7 @@ ro.build.fingerprint u:object_r:fingerprint_prop:s0 exact string
 
 apexd.status      u:object_r:apexd_prop:s0 exact enum starting activated ready
 ro.apex.updatable u:object_r:apexd_prop:s0 exact bool
+apex.all.ready    u:object_r:apex_ready_prop:s0 exact bool
 
 ro.cold_boot_done u:object_r:cold_boot_done_prop:s0 exact bool
 
@@ -120,6 +121,9 @@ microdroid_manager.export_tombstones.enabled u:object_r:microdroid_config_prop:s
 
 microdroid_manager.config_done u:object_r:microdroid_lifecycle_prop:s0 exact bool
 microdroid_manager.init_done u:object_r:microdroid_lifecycle_prop:s0 exact bool
+
+# servicemanager property to avoid waiting for servicemanager process
+servicemanager.installed u:object_r:servicemanager_prop:s0 exact bool
 
 init_debug_policy.adbd.enabled u:object_r:init_debug_policy_prop:s0 exact bool
 

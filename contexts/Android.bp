@@ -87,6 +87,14 @@ file_contexts {
     },
 }
 
+// The platform file context without any extra added. This is used by CTS to
+// ensure that no entries are removed from the AOSP file.
+file_contexts {
+    name: "plat_file_contexts_cts",
+    defaults: ["contexts_flags_defaults"],
+    srcs: [":file_contexts_files{.plat_private}"],
+}
+
 file_contexts {
     name: "plat_file_contexts.recovery",
     defaults: ["contexts_flags_defaults"],
@@ -242,7 +250,14 @@ property_contexts {
     defaults: ["contexts_flags_defaults"],
     srcs: [":property_contexts_files{.system_ext_private}"],
     system_ext_specific: true,
-    recovery_available: true,
+}
+
+property_contexts {
+    name: "system_ext_property_contexts.recovery",
+    defaults: ["contexts_flags_defaults"],
+    srcs: [":property_contexts_files{.system_ext_private}"],
+    recovery: true,
+    stem: "system_ext_property_contexts",
 }
 
 property_contexts {
@@ -250,7 +265,14 @@ property_contexts {
     defaults: ["contexts_flags_defaults"],
     srcs: [":property_contexts_files{.product_private}"],
     product_specific: true,
-    recovery_available: true,
+}
+
+property_contexts {
+    name: "product_property_contexts.recovery",
+    defaults: ["contexts_flags_defaults"],
+    srcs: [":property_contexts_files{.product_private}"],
+    recovery: true,
+    stem: "product_property_contexts",
 }
 
 property_contexts {
@@ -262,7 +284,18 @@ property_contexts {
         ":property_contexts_files{.reqd_mask}",
     ],
     soc_specific: true,
-    recovery_available: true,
+}
+
+property_contexts {
+    name: "vendor_property_contexts.recovery",
+    defaults: ["contexts_flags_defaults"],
+    srcs: [
+        ":property_contexts_files{.plat_vendor}",
+        ":property_contexts_files{.vendor}",
+        ":property_contexts_files{.reqd_mask}",
+    ],
+    recovery: true,
+    stem: "vendor_property_contexts",
 }
 
 property_contexts {
@@ -270,7 +303,14 @@ property_contexts {
     defaults: ["contexts_flags_defaults"],
     srcs: [":property_contexts_files{.odm}"],
     device_specific: true,
-    recovery_available: true,
+}
+
+property_contexts {
+    name: "odm_property_contexts.recovery",
+    defaults: ["contexts_flags_defaults"],
+    srcs: [":property_contexts_files{.odm}"],
+    recovery: true,
+    stem: "odm_property_contexts",
 }
 
 service_contexts {
@@ -292,7 +332,14 @@ service_contexts {
     defaults: ["contexts_flags_defaults"],
     srcs: [":service_contexts_files{.system_ext_private}"],
     system_ext_specific: true,
-    recovery_available: true,
+}
+
+service_contexts {
+    name: "system_ext_service_contexts.recovery",
+    defaults: ["contexts_flags_defaults"],
+    srcs: [":service_contexts_files{.system_ext_private}"],
+    recovery: true,
+    stem: "system_ext_service_contexts",
 }
 
 service_contexts {
@@ -300,7 +347,14 @@ service_contexts {
     defaults: ["contexts_flags_defaults"],
     srcs: [":service_contexts_files{.product_private}"],
     product_specific: true,
-    recovery_available: true,
+}
+
+service_contexts {
+    name: "product_service_contexts.recovery",
+    defaults: ["contexts_flags_defaults"],
+    srcs: [":service_contexts_files{.product_private}"],
+    recovery: true,
+    stem: "product_service_contexts",
 }
 
 service_contexts {
@@ -312,7 +366,18 @@ service_contexts {
         ":service_contexts_files{.reqd_mask}",
     ],
     soc_specific: true,
-    recovery_available: true,
+}
+
+service_contexts {
+    name: "vendor_service_contexts.recovery",
+    defaults: ["contexts_flags_defaults"],
+    srcs: [
+        ":service_contexts_files{.plat_vendor}",
+        ":service_contexts_files{.vendor}",
+        ":service_contexts_files{.reqd_mask}",
+    ],
+    recovery: true,
+    stem: "vendor_service_contexts",
 }
 
 service_contexts {

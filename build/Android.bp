@@ -32,3 +32,15 @@ python_binary_host {
         "version_policy",
     ],
 }
+
+python_test_host {
+    name: "sepolicy_file_utils_test",
+    srcs: [
+        "file_utils.py",
+        "file_utils_test.py",
+    ],
+    main: "file_utils_test.py",
+    test_options: {
+        unit_test: true,
+    },
+}

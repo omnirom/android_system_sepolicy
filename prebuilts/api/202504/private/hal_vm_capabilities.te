@@ -1,0 +1,9 @@
+# Domain for the VM capability HAL, which is used to allow some pVMs to issue
+# vendor-specific SMCs.
+
+binder_call(hal_vm_capabilities_client, hal_vm_capabilities_server)
+
+hal_attribute_service(hal_vm_capabilities, hal_vm_capabilities_service)
+
+binder_use(hal_vm_capabilities_client)
+binder_use(hal_vm_capabilities_server)

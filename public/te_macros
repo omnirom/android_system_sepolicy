@@ -75,7 +75,8 @@ allow $1 $2:{ file lnk_file } r_file_perms;
 # Allow access to a unique type for this domain when creating tmpfs / ashmem files.
 define(`tmpfs_domain', `
 type_transition $1 tmpfs:file $1_tmpfs;
-allow $1 $1_tmpfs:file { read write getattr map };
+allow $1 $1_tmpfs:file { read write getattr map ioctl };
+allowxperm $1 $1_tmpfs:file ioctl ashmem_ioctls;
 ')
 
 # pdx macros for IPC. pdx is a high-level name which contains transport-specific
@@ -201,6 +202,10 @@ allow $1 virtualizationmanager:vsock_socket { getattr getopt read write };
 get_prop($1, hypervisor_prop)
 # Allow client to read (but not open) the crashdump provided by virtualizationmanager
 allow $1 virtualizationservice_data_file:file { getattr read };
+# Allow virtualizationmanager to read the path of the client using /proc/{PID}/exe
+allow virtualizationmanager $1:dir search;
+allow virtualizationmanager $1:file read;
+allow virtualizationmanager $1:lnk_file read;
 ')
 
 ####################################
@@ -239,7 +244,8 @@ typeattribute $1 appdomain;
 # Label tmpfs objects for all apps.
 type_transition $1 tmpfs:file appdomain_tmpfs;
 userfaultfd_use($1)
-allow $1 appdomain_tmpfs:file { execute getattr map read write };
+allow $1 appdomain_tmpfs:file { execute getattr map read write ioctl };
+allowxperm $1 appdomain_tmpfs:file ioctl ashmem_ioctls;
 neverallow { $1 -runas_app -shell -simpleperf } { domain -$1 }:file no_rw_file_perms;
 neverallow { appdomain -runas_app -shell -simpleperf -$1 } $1:file no_rw_file_perms;
 # The Android security model guarantees the confidentiality and integrity
@@ -416,10 +422,6 @@ define(`binder_use', `
 allow $1 servicemanager:binder { call transfer };
 # Allow servicemanager to send out callbacks
 allow servicemanager $1:binder { call transfer };
-# servicemanager performs getpidcon on clients.
-allow servicemanager $1:dir search;
-allow servicemanager $1:file { read open };
-allow servicemanager $1:process getattr;
 # rw access to /dev/binder and /dev/ashmem is presently granted to
 # all domains in domain.te.
 ')
@@ -432,10 +434,6 @@ define(`hwbinder_use', `
 allow $1 hwservicemanager:binder { call transfer };
 # Allow hwservicemanager to send out callbacks
 allow hwservicemanager $1:binder { call transfer };
-# hwservicemanager performs getpidcon on clients.
-allow hwservicemanager $1:dir search;
-allow hwservicemanager $1:file { read open map };
-allow hwservicemanager $1:process getattr;
 # rw access to /dev/hwbinder and /dev/ashmem is presently granted to
 # all domains in domain.te.
 ')
@@ -448,10 +446,6 @@ define(`vndbinder_use', `
 allow $1 vndbinder_device:chr_file rw_file_perms;
 # Call the vndservicemanager and transfer references to it.
 allow $1 vndservicemanager:binder { call transfer };
-# vndservicemanager performs getpidcon on clients.
-allow vndservicemanager $1:dir search;
-allow vndservicemanager $1:file { read open map };
-allow vndservicemanager $1:process getattr;
 ')
 
 #####################################
@@ -605,7 +599,10 @@ define(`not_compatible_property', ifelse(target_compatible_property, `true', , $
 # Userdebug or eng builds
 # SELinux rules which apply only to userdebug or eng builds
 #
-define(`userdebug_or_eng', ifelse(target_build_variant, `eng', $1, ifelse(target_build_variant, `userdebug', $1)))
+define(`userdebug_or_eng', ifelse(target_build_variant, `eng', $1, ifelse(target_build_variant, `userdebug', $1,
+#
+# SUPPRESSED_BY_USERDEBUG_OR_ENG -- this marker is used by CTS -- do not modify
+)))
 
 #####################################
 # asan builds
@@ -624,6 +621,18 @@ define(`with_native_coverage', ifelse(target_with_native_coverage, `true', userd
 # SELinux rules which are verified during build, but not as part of *TS testing.
 #
 define(`build_test_only', ifelse(target_exclude_build_test, `true', , $1))
+
+#####################################
+# On physical devices
+# SELinux neverallow assertions that are enforced only on physical devices. It
+# can be used to support special requirements for virtual devices. This is
+# equivalent to the @RequiresDevice annotation in CTS.
+#
+define(`on_physical_device',
+# BEGIN_PHYSICAL_DEVICE_ONLY -- this marker is used by CTS -- do not modify
+$1
+# END_PHYSICAL_DEVICE_ONLY -- this marker is used by CTS -- do not modify
+)
 
 ####################################
 # Fallback crash handling for processes that can't exec crash_dump (e.g. because of seccomp).
@@ -689,12 +698,7 @@ unix_socket_connect($1, logd, logd)
 #####################################
 # use_keystore(domain)
 # Ability to use keystore.
-# Keystore is requires the following permissions
-# to call getpidcon.
 define(`use_keystore', `
-  allow keystore $1:dir search;
-  allow keystore $1:file { read open };
-  allow keystore $1:process getattr;
   allow $1 apc_service:service_manager find;
   allow $1 keystore_service:service_manager find;
   allow $1 legacykeystore_service:service_manager find;
@@ -706,22 +710,9 @@ define(`use_keystore', `
 # use_credstore(domain)
 # Ability to use credstore.
 define(`use_credstore', `
-  allow credstore $1:dir search;
-  allow credstore $1:file { read open };
-  allow credstore $1:process getattr;
   allow $1 credstore_service:service_manager find;
   binder_call($1, credstore)
   binder_call(credstore, $1)
-')
-
-###########################################
-# use_drmservice(domain)
-# Ability to use DrmService which requires
-# DrmService to call getpidcon.
-define(`use_drmservice', `
-  allow drmserver $1:dir search;
-  allow drmserver $1:file { read open };
-  allow drmserver $1:process getattr;
 ')
 
 ###########################################

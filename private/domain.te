@@ -430,6 +430,8 @@ allow domain cgroup_rc_file:file r_file_perms;
 allow domain task_profiles_file:file r_file_perms;
 allow domain vendor_cgroup_desc_file:file r_file_perms;
 allow domain vendor_task_profiles_file:file r_file_perms;
+allow domain libprocessgroup_metadata_file:dir r_dir_perms;
+allow domain libprocessgroup_metadata_file:file r_file_perms;
 
 # Allow all domains to read sys.use_memfd to determine
 # if memfd support can be used if device supports it
@@ -526,13 +528,10 @@ neverallow {
 # still contains global information about the system.
 neverallow { domain -dumpstate -init -vendor_init -system_server } binderfs_logs_transaction_history:file no_rw_file_perms;
 
-# Allow access to fsverity keyring.
+# Needed for loading kernel modules.
+# TODO(384942085): Reduce the scope.
+is_flag_disabled(RELEASE_SEPOLICY_RESTRICT_KERNEL_KEYRING_SEARCH, `
 allow domain kernel:key search;
-# Allow access to keys in the fsverity keyring that were installed at boot.
-allow domain fsverity_init:key search;
-# For testing purposes, allow access to keys installed with su.
-userdebug_or_eng(`
-  allow domain su:key search;
 ')
 
 # Allow access to linkerconfig file
@@ -591,6 +590,11 @@ r_dir_file({ coredomain appdomain }, system_aconfig_storage_file);
 # processes needs to access storage file stored at /metadata/aconfig/boot, require search
 # permission on /metadata dir
 allow domain metadata_file:dir search;
+
+# overlayfs performs all file operations as the mounter, being overlay_remounter.
+# It thus opens files as overlay_remounter, and then uses those files in the context of
+# the caller, which is anyone accessing a file on a overlaid read-only partition
+userdebug_or_eng(`allow domain overlay_remounter:fd use');
 
 ###
 ### neverallow rules
@@ -703,7 +707,7 @@ neverallow { domain -kernel -init -recovery } block_device:blk_file { open read 
 # Do not allow renaming of block files or character files
 # Ability to do so can lead to possible use in an exploit chain
 # e.g. https://googleprojectzero.blogspot.com/2016/12/chrome-os-exploit-one-byte-overflow-and.html
-neverallow * *:{ blk_file chr_file } rename;
+neverallow { domain userdebug_or_eng(`-overlay_remounter') } *:{ blk_file chr_file } rename;
 
 # Don't allow raw read/write/open access to generic devices.
 # Rather force a relabel to a more specific type.
@@ -739,16 +743,21 @@ neverallow {
     with_asan(`-asan_extract')
     recovery_only(`userdebug_or_eng(`-fastbootd')')
     -update_engine
+    userdebug_or_eng(`-kernel')
+    userdebug_or_eng(`-overlay_remounter')
 } {
     system_file_type
     vendor_file_type
     exec_type
 }:dir_file_class_set { create write setattr relabelfrom append unlink link rename };
 
-neverallow { domain -update_engine -coredomain -kernel with_asan(`-asan_extract') } { system_file_type vendor_file_type exec_type }:dir_file_class_set relabelto;
+neverallow { domain update_engine -coredomain -kernel with_asan(`-asan_extract') userdebug_or_eng(`-overlay_remounter') } { system_file_type vendor_file_type exec_type }:dir_file_class_set relabelto;
 
 # Don't allow mounting on top of /system files or directories
-neverallow * exec_type:dir_file_class_set mounton;
+neverallow {
+  domain
+  userdebug_or_eng(`-overlay_remounter')
+} exec_type:dir_file_class_set mounton;
 
 # Nothing should be writing to files in the rootfs.
 neverallow { domain -recovery -update_engine } rootfs:file { create write setattr relabelto append unlink link rename };
@@ -760,9 +769,9 @@ neverallow * {fs_type -contextmount_type}:filesystem relabelto;
 # Ensure that context mount types are not writable, to ensure that
 # the write to /system restriction above is not bypassed via context=
 # mount to another type.
-neverallow * contextmount_type:dir_file_class_set
+neverallow { domain userdebug_or_eng(`-overlay_remounter') } contextmount_type:dir_file_class_set
     { create setattr relabelfrom relabelto append link rename };
-neverallow { domain recovery_only(`userdebug_or_eng(`-fastbootd')') } contextmount_type:dir_file_class_set { write unlink };
+neverallow { domain recovery_only(`userdebug_or_eng(`-fastbootd')') userdebug_or_eng(`-overlay_remounter') } contextmount_type:dir_file_class_set { write unlink };
 
 # Do not allow service_manager add for default service labels.
 # Instead domains should use a more specific type such as
@@ -1149,6 +1158,7 @@ full_treble_only(`
         -init
         -shell
         -ueventd
+        userdebug_or_eng(`-overlay_remounter')
     } vendor_shell_exec:file { execute execute_no_trans };
 ')
 
@@ -1172,6 +1182,8 @@ full_treble_only(`
         # Vendor components still can invoke shell commands via /system/bin/sh
         -shell_exec
         -toolbox_exec
+        -virtualizationmanager_exec
+        is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `-early_virtmgr_exec')
     }:file { entrypoint execute execute_no_trans };
 ')
 
@@ -1201,6 +1213,7 @@ full_treble_only(`
       -shell
       -system_executes_vendor_violators
       -ueventd
+      userdebug_or_eng(`-overlay_remounter')
     } {
       vendor_file_type
       -same_process_hal_file
@@ -1216,6 +1229,7 @@ full_treble_only(`
       coredomain
       -shell
       -system_executes_vendor_violators
+      userdebug_or_eng(`-overlay_remounter')
     } {
       vendor_file_type
       -same_process_hal_file
@@ -1256,6 +1270,8 @@ full_treble_only(`
     # Vendor components still can invoke shell commands via /system/bin/sh
     -shell_exec
     -toolbox_exec
+    -virtualizationmanager_exec
+    is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `-early_virtmgr_exec')
   }:file *;
 ')
 
@@ -1297,19 +1313,25 @@ neverallow * *:{ shm sem msg msgq } *;
 
 # Do not mount on top of symlinks, fifos, or sockets.
 # Feature parity with Chromium LSM.
-neverallow * { file_type fs_type dev_type }:{ lnk_file fifo_file sock_file } mounton;
+neverallow {
+  domain
+  userdebug_or_eng(`-overlay_remounter')
+} { file_type fs_type dev_type }:{ lnk_file fifo_file sock_file } mounton;
 
 # Nobody should be able to execute su on user builds.
 # On userdebug/eng builds, only dumpstate, shell, and
 # su itself execute su.
-neverallow { domain userdebug_or_eng(`-dumpstate -shell -su') } su_exec:file no_x_file_perms;
+neverallow { domain userdebug_or_eng(`-dumpstate -shell -su -overlay_remounter') } su_exec:file no_x_file_perms;
 
 # Do not allow the introduction of new execmod rules. Text relocations
 # and modification of executable pages are unsafe.
 # The only exceptions are for NDK text relocations associated with
 # https://code.google.com/p/android/issues/detail?id=23203
 # which, long term, need to go away.
-neverallow * {
+neverallow {
+  domain
+  userdebug_or_eng(`-overlay_remounter')
+} {
   file_type
   -apk_data_file
   -app_data_file
@@ -1323,7 +1345,12 @@ neverallow * self:process { execstack execheap };
 
 # Do not allow the introduction of new execmod rules. Text relocations
 # and modification of executable pages are unsafe.
-neverallow { domain -untrusted_app_25 -untrusted_app_27 } file_type:file execmod;
+neverallow {
+  domain
+  -untrusted_app_25
+  -untrusted_app_27
+  userdebug_or_eng(`-overlay_remounter')
+} file_type:file execmod;
 
 # Ensure that all types assigned to processes are included
 # in the domain attribute, so that all allow and neverallow rules
@@ -1449,6 +1476,7 @@ neverallow {
   -installd
   -profman
   -artd
+  userdebug_or_eng(`-overlay_remounter')
 } profman_exec:file no_x_file_perms;
 
 # Enforce restrictions on kernel module origin.
@@ -1516,6 +1544,7 @@ full_treble_only(`
   neverallow {
     coredomain
     -appdomain
+    userdebug_or_eng(`-overlay_remounter')
   } {vendor_public_framework_file vendor_public_lib_file}:file { execute execute_no_trans };
 ')
 
@@ -1830,6 +1859,7 @@ neverallow {
     -zygote
     userdebug_or_eng(`-mediaextractor')
     userdebug_or_eng(`-mediaswcodec')
+    userdebug_or_eng(`-overlay_remounter')
 } {
     file_type
     -system_file_type
@@ -1905,6 +1935,7 @@ neverallow {
 neverallow {
   domain
   -appdomain
+  userdebug_or_eng(`-overlay_remounter')
 } {
   data_file_type
   -apex_art_data_file
@@ -1939,6 +1970,7 @@ define(`dac_override_allowed', `{
   vold_prepare_subdirs
   zygote
   update_engine
+  userdebug_or_eng(`overlay_remounter')
 }')
 neverallow ~dac_override_allowed self:global_capability_class_set dac_override;
 # Since the kernel checks dac_read_search before dac_override, domains that
@@ -1967,6 +1999,7 @@ neverallow {
     -update_engine
     -vold
     -zygote
+    userdebug_or_eng(`-overlay_remounter')
 } { fs_type
     -sdcard_type
     -fusefs_type
@@ -2035,6 +2068,7 @@ full_treble_only(`
     userdebug_or_eng(`-simpleperf_boot')
     -traced_perf
     -ueventd
+    userdebug_or_eng(`-overlay_remounter')
   } vendor_file:file { no_w_file_perms no_x_file_perms open };
 ')
 
@@ -2078,6 +2112,7 @@ full_treble_only(`
     -traced_perf # library/binary access for symbolization
     -ueventd # reads /vendor/ueventd.rc
     -vold # loads incremental fs driver
+    userdebug_or_eng(`-overlay_remounter')
   } {
     vendor_file_type
     -same_process_hal_file
@@ -2111,7 +2146,17 @@ neverallow domain mlsvendorcompat:process fork;
 
 # Only init and otapreopt_chroot should be mounting filesystems on locations
 # labeled system or vendor (/product and /vendor respectively).
-neverallow { domain -dexopt_chroot_setup -init -otapreopt_chroot } { system_file_type vendor_file_type }:dir_file_class_set mounton;
+neverallow {
+  domain
+  -dexopt_chroot_setup
+  -init
+  -otapreopt_chroot
+  userdebug_or_eng(`-overlay_remounter')
+  userdebug_or_eng(`-zygote')
+} {
+  system_file_type
+  vendor_file_type
+}:dir_file_class_set mounton;
 
 # Only allow init and vendor_init to read/write mm_events properties
 # NOTE: dumpstate is allowed to read any system property
@@ -2122,18 +2167,24 @@ neverallow {
   -dumpstate
 } mm_events_config_prop:file no_rw_file_perms;
 
-# Allow the tracing daemon and callstack sampler to use kallsyms to symbolize
-# kernel traces. Addresses are not disclosed, they are repalced with symbol
-# names (if available). Traces don't disclose KASLR.
+# Allow init to open /proc/kallsyms while kernel address mappings are still
+# visible, and later share it with tracing daemons (traced_probes,
+# traced_perf). These daemons are allowed to read from the shared fd, but also
+# to separately open the file (which will always have zeroed out addresses due
+# to init raising kptr_restrict) for locking to coordinate access to the shared
+# fd. The performance traces contain only the referenced kernel symbols, and
+# never the raw addresses (i.e. KASLR is not disclosed).
+# On debuggable builds, performance tools are allowed to open and read the file
+# directly because init is allowed to temporarily unrestrict systemwide address
+# visibility.
 neverallow {
   domain
   -init
-  userdebug_or_eng(`-profcollectd')
-  -vendor_init
-  userdebug_or_eng(`-simpleperf_boot')
   -traced_probes
   -traced_perf
-} proc_kallsyms:file { open read };
+  userdebug_or_eng(`-profcollectd')
+  userdebug_or_eng(`-simpleperf_boot')
+} proc_kallsyms:file *;
 
 # debugfs_kcov type is not included in this neverallow statement since the KCOV
 # tool uses it for kernel fuzzing.
@@ -2265,5 +2316,27 @@ neverallow { domain -dexopt_chroot_setup -init -zygote } proc_type:{ file dir } 
 # ueventd needs write access to all sysfs files.
 neverallow { domain -init -vendor_init -ueventd } sysfs_pgsize_migration:file no_w_file_perms;
 
-# We need to be able to rely on vsock labels, so disallow changing them.
-neverallow domain *:vsock_socket { relabelfrom relabelto };
+# virtmanager enforces access policy for which components can connect
+# to which VMs. If you have permissions to make direct connections, you
+# can talk to anything.
+starting_at_board_api(202504, `
+neverallow {
+    domain
+
+    # these are expected
+    is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `-early_virtmgr')
+    -virtualizationmanager
+    -virtualizationservice
+    -adbd_common # maybe should move to emulator/virtual device specific policy
+
+    # not expected, and defined outside of system/sepolicy.
+    # Note: this attribute is strongly recommended to be empty if not required.
+    -unconstrained_vsock_violators
+
+    # these are permissions that should be removed, and they are here for visibility.
+    -compos_fd_server   # TODO: get connections from virtmanager
+    -hal_keymint_system # TODO: get connections from virtmanager
+    -hal_widevine_system # TODO: get connections from virtmanager
+    -vmlauncher_app     # TODO: get connections from virtmanager
+} *:vsock_socket { connect create accept bind };
+')

@@ -5,8 +5,10 @@ type mmd_exec, system_file_type, exec_type, file_type;
 
 init_daemon_domain(mmd)
 
-# Set mmd.enabled_aconfig properties.
-set_prop(mmd, mmd_prop)
+# Set mmd.enabled_aconfig and zram backing device size.
+set_prop(mmd, mmd_shared_status_prop)
+set_prop(mmd, mmd_status_prop)
+get_prop(mmd, mmd_prop)
 get_prop(mmd, device_config_mmd_native_prop)
 
 # mmd binder setup
@@ -29,3 +31,14 @@ allow mmd swap_block_device:blk_file rw_file_perms;
 
 # swapon syscall
 allow mmd self:capability sys_admin;
+
+# Allow mmd to write to statsd socket.
+unix_socket_send(mmd, statsdw, statsd)
+# Allow mmd to interact with statsd binder calls for pulled atoms.
+allow mmd stats_service:service_manager find;
+allow mmd statsmanager_service:service_manager find;
+binder_call(mmd, statsd)
+
+# Allow mmd to send dump info to dumpstate.
+allow mmd dumpstate:fd use;
+allow mmd dumpstate:fifo_file { getattr write };

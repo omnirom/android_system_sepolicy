@@ -68,6 +68,12 @@ set_prop(init, userspace_reboot_exported_prop)
 allow init self:perf_event { open cpu };
 allow init self:global_capability2_class_set perfmon;
 
+# Allow opening /proc/kallsyms so that on boot, init can create and retain an
+# fd with the full address visibility (which is evaluated on open and persists
+# for the lifetime of the open file description). This fd can then be shared
+# with other privileged processes.
+allow init proc_kallsyms:file r_file_perms;
+
 # Allow init to communicate with snapuserd to transition Virtual A/B devices
 # from the first-stage daemon to the second-stage.
 allow init snapuserd_socket:sock_file write;
@@ -533,6 +539,7 @@ userdebug_or_eng(`
 
 allow init {
   proc # b/67049235 processes /proc/<pid>/* files are mislabeled.
+  proc_allocinfo
   proc_bootconfig
   proc_cmdline
   proc_diskstats
@@ -568,6 +575,7 @@ allow init {
 
 # init chmod/chown access to /proc files.
 allow init {
+  proc_allocinfo
   proc_cmdline
   proc_bootconfig
   proc_kmsg
@@ -799,6 +807,9 @@ allow init userdata_sysdev:file create_file_perms;
 # allow disk tuning
 allow init rootdisk_sysdev:file create_file_perms;
 
+# Allow updating the trade-in mode wipe indicator.
+allow init tradeinmode_metadata_file:file rw_file_perms;
+
 ###
 ### neverallow rules
 ###
@@ -806,7 +817,7 @@ allow init rootdisk_sysdev:file create_file_perms;
 # The init domain is only entered via an exec based transition from the
 # kernel domain, never via setcon().
 neverallow domain init:process dyntransition;
-neverallow { domain -kernel } init:process transition;
+neverallow { domain -kernel userdebug_or_eng(`-overlay_remounter') } init:process transition;
 neverallow init { file_type fs_type -init_exec }:file entrypoint;
 
 # Never read/follow symlinks created by shell or untrusted apps.

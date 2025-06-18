@@ -32,6 +32,7 @@ android.hardware.biometrics.fingerprint.IFingerprint/default         u:object_r:
 android.hardware.biometrics.fingerprint.IFingerprint/virtual         u:object_r:hal_fingerprint_service:s0
 android.hardware.biometrics.fingerprint.virtualhal.IVirtualHal/virtual u:object_r:hal_fingerprint_service:s0
 android.hardware.bluetooth.IBluetoothHci/default                     u:object_r:hal_bluetooth_service:s0
+android.hardware.bluetooth.offload.leaudio.IHciProxy/default         u:object_r:hal_bluetooth_service:s0
 android.hardware.bluetooth.finder.IBluetoothFinder/default           u:object_r:hal_bluetooth_service:s0
 is_flag_enabled(RELEASE_HARDWARE_BLUETOOTH_RANGING_SERVICE, `
     android.hardware.bluetooth.ranging.IBluetoothChannelSounding/default u:object_r:hal_bluetooth_service:s0
@@ -55,6 +56,7 @@ android.hardware.fastboot.IFastboot/default                          u:object_r:
 android.hardware.gnss.IGnss/default                                  u:object_r:hal_gnss_service:s0
 android.hardware.graphics.allocator.IAllocator/default               u:object_r:hal_graphics_allocator_service:s0
 android.hardware.graphics.composer3.IComposer/default                u:object_r:hal_graphics_composer_service:s0
+android.hardware.tv.mediaquality.IPictureProfileChangedListener/default     u:object_r:hal_graphics_composer_service:s0
 android.hardware.health.storage.IStorage/default                     u:object_r:hal_health_storage_service:s0
 android.hardware.health.IHealth/default                              u:object_r:hal_health_service:s0
 android.hardware.identity.IIdentityCredentialStore/default           u:object_r:hal_identity_service:s0
@@ -108,6 +110,7 @@ android.hardware.security.keymint.IRemotelyProvisionedComponent/default u:object
 android.hardware.security.keymint.IRemotelyProvisionedComponent/avf     u:object_r:hal_remotelyprovisionedcomponent_avf_service:s0
 android.hardware.gatekeeper.IGatekeeper/default                      u:object_r:hal_gatekeeper_service:s0
 android.hardware.security.secureclock.ISecureClock/default             u:object_r:hal_secureclock_service:s0
+android.hardware.security.see.hwcrypto.IHwCryptoKey/default          u:object_r:hal_hwcrypto_service:s0
 android.hardware.security.sharedsecret.ISharedSecret/default             u:object_r:hal_sharedsecret_service:s0
 android.hardware.sensors.ISensors/default                            u:object_r:hal_sensors_service:s0
 android.hardware.soundtrigger3.ISoundTriggerHw/default               u:object_r:hal_audio_service:s0
@@ -138,9 +141,12 @@ android.hardware.secure_element.ISecureElement/SIM2                  u:object_r:
 android.hardware.secure_element.ISecureElement/SIM3                  u:object_r:hal_secure_element_service:s0
 android.hardware.security.secretkeeper.ISecretkeeper/default         u:object_r:hal_secretkeeper_service:s0
 android.hardware.security.secretkeeper.ISecretkeeper/nonsecure       u:object_r:hal_secretkeeper_service:s0
+android.hardware.virtualization.capabilities.IVmCapabilitiesService/default u:object_r:hal_vm_capabilities_service:s0
+android.hardware.virtualization.capabilities.IVmCapabilitiesService/noop u:object_r:hal_vm_capabilities_service:s0
 android.system.keystore2.IKeystoreService/default                    u:object_r:keystore_service:s0
 android.system.net.netd.INetd/default                                u:object_r:system_net_netd_service:s0
 android.system.suspend.ISystemSuspend/default                        u:object_r:hal_system_suspend_service:s0
+android.system.vold.IVold/default                                    u:object_r:fwk_vold_service:s0
 
 accessibility                             u:object_r:accessibility_service:s0
 account                                   u:object_r:account_service:s0
@@ -148,9 +154,7 @@ activity                                  u:object_r:activity_service:s0
 activity_task                             u:object_r:activity_task_service:s0
 adb                                       u:object_r:adb_service:s0
 adservices_manager                        u:object_r:adservices_manager_service:s0
-starting_at_board_api(202504, `
-    advanced_protection                       u:object_r:advanced_protection_service:s0
-')
+advanced_protection                       u:object_r:advanced_protection_service:s0
 aidl_lazy_test_1                          u:object_r:aidl_lazy_test_service:s0
 aidl_lazy_test_2                          u:object_r:aidl_lazy_test_service:s0
 aidl_lazy_test_quit                       u:object_r:aidl_lazy_test_service:s0
@@ -188,9 +192,7 @@ ambient_context                           u:object_r:ambient_context_service:s0
 app_binding                               u:object_r:app_binding_service:s0
 app_function                              u:object_r:app_function_service:s0
 app_hibernation                           u:object_r:app_hibernation_service:s0
-starting_at_board_api(202504, `
-    dynamic_instrumentation               u:object_r:dynamic_instrumentation_service:s0
-')
+dynamic_instrumentation                   u:object_r:dynamic_instrumentation_service:s0
 app_integrity                             u:object_r:app_integrity_service:s0
 app_prediction                            u:object_r:app_prediction_service:s0
 app_search                                u:object_r:app_search_service:s0
@@ -280,9 +282,6 @@ feature_flags                             u:object_r:feature_flags_service:s0
 file_integrity                            u:object_r:file_integrity_service:s0
 fingerprint                               u:object_r:fingerprint_service:s0
 font                                      u:object_r:font_service:s0
-starting_at_board_api(202504, `
-    forensic                                  u:object_r:forensic_service:s0
-')
 android.hardware.fingerprint.IFingerprintDaemon u:object_r:fingerprintd_service:s0
 game                                      u:object_r:game_service:s0
 gfxinfo                                   u:object_r:gfxinfo_service:s0

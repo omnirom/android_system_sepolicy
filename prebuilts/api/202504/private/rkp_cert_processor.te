@@ -1,0 +1,15 @@
+# Cert processor service
+type rkp_cert_processor, domain, coredomain;
+type rkp_cert_processor_exec, system_file_type, exec_type, file_type;
+
+init_daemon_domain(rkp_cert_processor)
+net_domain(rkp_cert_processor)
+
+binder_use(rkp_cert_processor)
+binder_call(rkp_cert_processor, system_server)
+
+add_service(rkp_cert_processor, rkp_cert_processor_service)
+
+use_bootstrap_libs(rkp_cert_processor)
+
+allow rkp_cert_processor package_native_service:service_manager find;

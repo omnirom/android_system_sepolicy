@@ -60,6 +60,9 @@ auditallow system_app usb_prop:property_service set;
 # Allow Settings to enable Dynamic System Update
 set_prop(system_app, dynamic_system_prop)
 
+# Allow Settings to access le audio mode property
+set_prop(system_app, bluetooth_lea_mode_prop)
+
 # ctl interface
 set_prop(system_app, ctl_default_prop)
 set_prop(system_app, ctl_bugreport_prop)
@@ -69,6 +72,9 @@ get_prop(system_app, gsid_prop)
 
 # Allow developer settings to check 16k pages boot option status
 get_prop(system_app, enable_16k_pages_prop)
+
+# Allow developer settings to check virtualization capabilities
+get_prop(system_app, hypervisor_prop)
 
 # Create /data/anr/traces.txt.
 allow system_app anr_data_file:dir ra_dir_perms;

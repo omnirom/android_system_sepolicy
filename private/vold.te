@@ -291,9 +291,10 @@ allow vold fusectlfs:dir rw_dir_perms;
 # Allow vold to use wake locks.  Needed for idle maintenance and moving storage.
 wakelock_use(vold)
 
-# Allow vold to publish a binder service and make binder calls.
+# Allow vold to make binder calls and publish binder services.
 binder_use(vold)
 add_service(vold, vold_service)
+add_service(vold, fwk_vold_service)
 
 # Allow vold to call into the system server so it can check permissions.
 binder_call(vold, system_server)
@@ -471,6 +472,7 @@ neverallow vold {
   -keystore
   -servicemanager
   -system_server
+  -tee
   userdebug_or_eng(`-su')
 }:binder call;
 

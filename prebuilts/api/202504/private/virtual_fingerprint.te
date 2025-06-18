@@ -1,0 +1,7 @@
+# biometric virtual fingerprint sensor
+type virtual_fingerprint, domain;
+type virtual_fingerprint_exec, system_file_type, exec_type, file_type;
+hal_server_domain(virtual_fingerprint, hal_fingerprint)
+typeattribute virtual_fingerprint coredomain;
+init_daemon_domain(virtual_fingerprint)
+set_prop(virtual_fingerprint, virtual_fingerprint_prop)

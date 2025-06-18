@@ -1,0 +1,3 @@
+# Deprecated file type for the legacy dexoptanalyzer binary, used by Android T-. We need to keep it
+# for compatibility because the file type is burnt into the apex image.
+type dexoptanalyzer_exec, system_file_type, exec_type, file_type;

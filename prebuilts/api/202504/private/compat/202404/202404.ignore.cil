@@ -1,0 +1,43 @@
+;; new_objects - a collection of types that have been introduced with ToT policy
+;;   that have no analogue in 202404 policy.  Thus, we do not need to map these types to
+;;   previous ones.  Add here to pass checkapi tests.
+(type new_objects)
+(typeattribute new_objects)
+(typeattributeset new_objects
+  ( new_objects
+    app_function_service
+    binderfs_logs_transaction_history
+    binderfs_logs_transactions
+    bluetooth_finder_prop
+    crosvm
+    drm_config_prop
+    early_virtmgr
+    early_virtmgr_exec
+    enable_16k_pages_prop
+    forensic_service
+    fstype_prop
+    fwk_vold_service
+    hal_mediaquality_service
+    hal_vm_capabilities_service
+    intrusion_detection_service
+    media_quality_service
+    proc_cgroups
+    proc_compaction_proactiveness
+    profcollectd_etr_prop
+    ranging_service
+    supervision_service
+    sysfs_cma
+    sysfs_firmware_acpi_tables
+    tee_service_contexts_file
+    trusty_security_vm_sys_vendor_prop
+    virtual_camera
+    virtual_camera_exec
+    virtual_face
+    virtual_face_exec
+    virtual_fingerprint
+    virtual_fingerprint_exec
+    virtualizationmanager
+    virtualizationmanager_exec
+    wifi_mainline_supplicant_service
+    wifi_usd_service
+  ))

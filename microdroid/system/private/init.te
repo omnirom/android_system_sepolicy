@@ -19,6 +19,12 @@ allow init self:perf_event { open cpu };
 allow init self:global_capability2_class_set perfmon;
 dontaudit init self:perf_event { kernel tracepoint read write };
 
+# Allow opening /proc/kallsyms so that on boot, init can create and retain an
+# fd with the full address visibility (which is evaluated on open and persists
+# for the lifetime of the open file description). This fd can then be shared
+# with other privileged processes.
+allow init proc_kallsyms:file r_file_perms;
+
 # Allow init to restore contexts of vd_device(/dev/block/vd[..]) when labeling
 # /dev/block.
 allow init vd_device:blk_file relabelto;

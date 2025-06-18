@@ -321,7 +321,6 @@
 /system/bin/fsck.f2fs                                             fsck_exec
 /system/bin/init                                                  init_exec
 /system/bin/mini-keyctl                                           toolbox_exec
-/system/bin/fsverity_init                                         fsverity_init_exec
 /system/bin/sload_f2fs                                            e2fs_exec
 /system/bin/make_f2fs                                             e2fs_exec
 /system/bin/fsck_msdos                                            fsck_exec
@@ -340,6 +339,7 @@
 /system/bin/bootstat                                              bootstat_exec
 /system/bin/app_process32                                         zygote_exec
 /system/bin/app_process64                                         zygote_exec
+/system/bin/pbtombstone                                           pbtombstone_exec
 /system/bin/servicemanager                                        servicemanager_exec
 /system/bin/surfaceflinger                                        surfaceflinger_exec
 /system/bin/gpuservice                                            gpuservice_exec
@@ -436,6 +436,7 @@
 /system/bin/virtual_touchpad                                      virtual_touchpad_exec
 /system/bin/hw/android.frameworks.bufferhub@1.0-service           fwk_bufferhub_exec
 /system/bin/hw/android.system.suspend-service                     system_suspend_exec
+/system/bin/memcgv2_activation_depth.sh                           memcgv2_activation_depth_exec
 /system/etc/aconfig                                               system_aconfig_storage_file
 /system/etc/cgroups.json                                          cgroup_desc_file
 /system/etc/task_profiles/cgroups_0.json                          cgroup_desc_file
@@ -807,6 +808,9 @@
 /system/system_ext/lib64                                          system_lib_file
 /system/system_ext/lib64/does_not_exist                           system_lib_file
 
+/system_ext/bin/hw/android.hardware.drm-service.widevine.system          hal_widevine_system_exec
+/system/system_ext/bin/hw/android.hardware.drm-service.widevine.system   hal_widevine_system_exec
+
 /vendor_dlkm                                                      vendor_file
 /vendor_dlkm/does_not_exist                                       vendor_file
 /vendor/vendor_dlkm                                               vendor_file
@@ -854,6 +858,7 @@
 /data/system/unsolzygotesocket                                    system_unsolzygote_socket
 /data/drm                                                         drm_data_file
 /data/drm/test                                                    drm_data_file
+/data/system/mediadrm                                             mediadrm_system_data_file
 /data/resource-cache                                              resourcecache_data_file
 /data/resource-cache/test                                         resourcecache_data_file
 /data/dalvik-cache                                                dalvikcache_data_file
@@ -1298,6 +1303,8 @@
 /metadata/tradeinmode/test                                        tradeinmode_metadata_file
 /metadata/prefetch                                                prefetch_metadata_file
 /metadata/prefetch/test                                           prefetch_metadata_file
+/metadata/libprocessgroup                                         libprocessgroup_metadata_file
+/metadata/libprocessgroup/test                                    libprocessgroup_metadata_file
 
 /mnt/asec                                                         asec_apk_file
 /mnt/asec/test                                                    asec_apk_file
@@ -1342,3 +1349,5 @@
 /tmp                                                              shell_data_file
 
 /mnt/pre_reboot_dexopt                                            pre_reboot_dexopt_file
+
+/second_stage_resources/overlay_remounter                         overlay_remounter_exec

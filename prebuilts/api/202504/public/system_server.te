@@ -1,0 +1,10 @@
+#
+# System Server aka system_server spawned by zygote.
+# Most of the framework services run in this process.
+#
+type system_server, domain;
+type system_server_tmpfs, file_type, mlstrustedobject;
+
+# system/sepolicy/public is for vendor-facing type and attribute definitions.
+# DO NOT ADD allow, neverallow, or dontaudit statements here.
+# Instead, add such policy rules to system/sepolicy/private/*.te.

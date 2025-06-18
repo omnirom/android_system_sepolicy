@@ -20,6 +20,7 @@ import glob
 import logging
 import mini_parser
 import os
+import pkgutil
 import policy
 import shutil
 import subprocess
@@ -91,30 +92,34 @@ def fetch_artifact(branch, build, pattern, destination='.'):
     check_run(cmd)
 
 
-def extract_mapping_file_from_img(img_path, ver, destination='.'):
-    """ Extracts system/etc/selinux/mapping/{ver}.cil from system.img file.
+def extract_mapping_file_from_img_zip(zip_path, ver, destination='.'):
+    """ Extracts system/etc/selinux/mapping/{ver}.cil from img.zip file.
 
     Args:
-      img_path: string, path to system.img file
+      zip_path: string, path to img.zip file
       ver: string, version of designated mapping file
       destination: string, destination to pull the mapping file to
 
     Returns:
       string, path to extracted mapping file
     """
+    with zipfile.ZipFile(zip_path) as zip_file:
+        logging.debug(f'Extracting system.img to {temp_dir}')
+        zip_file.extract('system.img', temp_dir)
 
+    system_img_path = os.path.join(temp_dir, 'system.img')
+    mapping_file_path = os.path.join(destination, f'{ver}.cil')
     cmd = [
         'debugfs', '-R',
-        'cat system/etc/selinux/mapping/10000.0.cil', img_path
+        f'dump system/etc/selinux/mapping/{ver}.cil {mapping_file_path}',
+        system_img_path
     ]
-    path = os.path.join(destination, '%s.cil' % ver)
-    with open(path, 'wb') as f:
-        logging.debug('Extracting %s.cil to %s' % (ver, destination))
-        f.write(check_output(cmd).stdout.replace(b'10000_0', ver.replace('.', '_').encode()))
-    return path
+    logging.debug(f'Extracting {ver}.cil to {destination}')
+    check_run(cmd)
+    return mapping_file_path
 
 
-def download_mapping_file(branch, build, ver, destination='.'):
+def download_img_zip(branch, build, destination='.'):
     """ Downloads system/etc/selinux/mapping/{ver}.cil from Android Build server.
 
     Args:
@@ -124,7 +129,7 @@ def download_mapping_file(branch, build, ver, destination='.'):
       destination: string, destination to pull build artifact to
 
     Returns:
-      string, path to extracted mapping file
+      string, path to img.zip file
     """
     logging.info('Downloading %s mapping file from branch %s build %s...' %
                  (ver, branch, build))
@@ -132,13 +137,7 @@ def download_mapping_file(branch, build, ver, destination='.'):
     fetch_artifact(branch, build, artifact_pattern, temp_dir)
 
     # glob must succeed
-    zip_path = glob.glob(os.path.join(temp_dir, artifact_pattern))[0]
-    with zipfile.ZipFile(zip_path) as zip_file:
-        logging.debug('Extracting system.img to %s' % temp_dir)
-        zip_file.extract('system.img', temp_dir)
-
-    system_img_path = os.path.join(temp_dir, 'system.img')
-    return extract_mapping_file_from_img(system_img_path, ver, destination)
+    return glob.glob(os.path.join(temp_dir, artifact_pattern))[0]
 
 
 def build_base_files(target_version):
@@ -167,7 +166,7 @@ def build_base_files(target_version):
     dist_dir = os.path.join(build_top, 'out', 'dist')
     base_policy_path = os.path.join(dist_dir, 'base_plat_sepolicy')
     old_policy_path = os.path.join(dist_dir,
-                                   '%s_plat_sepolicy' % target_version)
+                                   '%s_plat_policy' % target_version)
     pub_policy_cil_path = os.path.join(dist_dir, 'base_plat_pub_policy.cil')
 
     return base_policy_path, old_policy_path, pub_policy_cil_path
@@ -176,8 +175,8 @@ def build_base_files(target_version):
 def change_api_level(versioned_type, api_from, api_to):
     """ Verifies the API version of versioned_type, and changes it to new API level.
 
-    For example, change_api_level("foo_32_0", "32.0", "31.0") will return
-    "foo_31_0".
+    For example, change_api_level("foo_202404", "202404", "202504") will return
+    "foo_202504".
 
     Args:
       versioned_type: string, type with version suffix
@@ -187,12 +186,10 @@ def change_api_level(versioned_type, api_from, api_to):
     Returns:
       string, a new versioned type
     """
-    old_suffix = api_from.replace('.', '_')
-    new_suffix = api_to.replace('.', '_')
-    if not versioned_type.endswith(old_suffix):
+    if not versioned_type.endswith(api_from):
         raise ValueError('Version of type %s is different from %s' %
                          (versioned_type, api_from))
-    return versioned_type.removesuffix(old_suffix) + new_suffix
+    return versioned_type.removesuffix(api_from) + api_to
 
 
 def create_target_compat_modules(bp_path, target_ver):
@@ -323,17 +320,21 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--branch',
-        required=True,
         help='Branch to pull build from. e.g. "sc-v2-dev"')
-    parser.add_argument('--build', required=True, help='Build ID, or "latest"')
+    parser.add_argument('--build',
+        default='latest',
+        help='Build ID, or "latest"')
     parser.add_argument(
         '--target-version',
         required=True,
-        help='Target version of designated mapping file. e.g. "32.0"')
+        help='Target version of designated mapping file. e.g. "202504"')
     parser.add_argument(
         '--latest-version',
         required=True,
-        help='Latest version for mapping of newer types. e.g. "31.0"')
+        help='Latest version for mapping of newer types. e.g. "202404"')
+    parser.add_argument(
+        '--img-zip',
+        help='Pre-downloaded img.zip. e.g. "aosp_arm64-img-xxxxxxxx.zip"')
     parser.add_argument(
         '-v',
         '--verbose',
@@ -355,12 +356,13 @@ def main():
     temp_dir = tempfile.mkdtemp()
 
     try:
-        libpath = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), 'libsepolwrap' + SHARED_LIB_EXTENSION)
-        if not os.path.exists(libpath):
-            sys.exit(
-                'Error: libsepolwrap does not exist. Is this binary corrupted?\n'
-            )
+        libname = "libsepolwrap" + SHARED_LIB_EXTENSION
+        libpath = os.path.join(temp_dir, libname)
+        with open(libpath, "wb") as f:
+            blob = pkgutil.get_data("sepolicy_generate_compat", libname)
+            if not blob:
+                sys.exit("Error: libsepolwrap does not exist. Is this binary corrupted?\n")
+            f.write(blob)
 
         build_top = get_android_build_top()
         sepolicy_path = os.path.join(build_top, 'system', 'sepolicy')
@@ -386,8 +388,16 @@ def main():
         Path(target_ignore_file).touch()
 
         # Step 1. Download system/etc/selinux/mapping/{ver}.cil, and remove types/typeattributes
-        mapping_file = download_mapping_file(
-            args.branch, args.build, args.target_version, destination=temp_dir)
+        if args.img_zip and args.branch:
+            sys.exit('Error: only one of --img-zip and --branch can be set')
+        elif args.img_zip:
+            img_zip = args.img_zip
+        elif args.branch:
+            img_zip = download_img_zip(args.branch, args.build, destination=temp_dir)
+        else:
+            sys.exit('Error: either one of --img-zip and --branch must be set')
+        mapping_file = extract_mapping_file_from_img_zip(img_zip, args.target_version,
+                                                         destination=temp_dir)
         mapping_file_cil = mini_parser.MiniCilParser(mapping_file)
         mapping_file_cil.types = set()
         mapping_file_cil.typeattributes = set()
@@ -507,6 +517,9 @@ def main():
             logging.info('writing %s' % target_ignore_file)
             f.write(ignore_cil_template %
                     (args.target_version, '\n    '.join(sorted(target_ignored_types))))
+
+        # TODO(b/391513934): add treble tests
+        # TODO(b/391513934): add mapping files to phony modules like selinux_policy_system
     finally:
         logging.info('Deleting temporary dir: {}'.format(temp_dir))
         shutil.rmtree(temp_dir)

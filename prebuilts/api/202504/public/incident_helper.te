@@ -1,0 +1,9 @@
+# The incident_helper is called by incidentd and
+# can only read/write data from/to incidentd
+
+# incident_helper
+type incident_helper, domain;
+
+# system/sepolicy/public is for vendor-facing type and attribute definitions.
+# DO NOT ADD allow, neverallow, or dontaudit statements here.
+# Instead, add such policy rules to system/sepolicy/private/*.te.

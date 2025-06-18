@@ -37,11 +37,12 @@ userfaultfd_use(artd)
 # Read access to primary dex'es on writable partitions
 # ({/data,/mnt/expand/<volume-uuid>}/app/...).
 # Also allow creating the "oat" directory before restorecon.
+# Also allow deleting .sdm files.
 allow artd mnt_expand_file:dir { getattr search };
 allow artd apk_data_file:dir { rw_dir_perms create setattr relabelfrom };
-allow artd apk_data_file:file r_file_perms;
+allow artd apk_data_file:file { r_file_perms unlink };
 allow artd apk_tmp_file:dir { rw_dir_perms create setattr relabelfrom };
-allow artd apk_tmp_file:file r_file_perms;
+allow artd apk_tmp_file:file { r_file_perms unlink };
 
 # Read access to vendor APKs ({/vendor,/odm}/{app,priv-app}/...).
 r_dir_file(artd, vendor_app_file)

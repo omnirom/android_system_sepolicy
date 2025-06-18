@@ -7,6 +7,9 @@ net_domain(vmlauncher_app)
 allow vmlauncher_app app_api_service:service_manager find;
 allow vmlauncher_app system_api_service:service_manager find;
 
+# TODO(b/402303887): Remove this when WebView doesn't requires camera access.
+allow vmlauncher_app cameraserver_service:service_manager find;
+
 allow vmlauncher_app shell_data_file:dir search;
 allow vmlauncher_app shell_data_file:file { read open write };
 virtualizationservice_use(vmlauncher_app)

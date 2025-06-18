@@ -1,0 +1,12 @@
+is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `
+    # Domain for a child process that manages early VMs available before /data mount, on behalf of
+    # its parent.
+    starting_at_board_api(202504, `
+        type early_virtmgr, domain, coredomain;
+        type early_virtmgr_exec, system_file_type, exec_type, file_type;
+    ')
+')
+
+# system/sepolicy/public is for vendor-facing type and attribute definitions.
+# DO NOT ADD allow, neverallow, or dontaudit statements here.
+# Instead, add such policy rules to system/sepolicy/private/*.te.

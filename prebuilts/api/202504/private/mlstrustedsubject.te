@@ -1,0 +1,63 @@
+# MLS override can't be used to access private app data.
+
+# Apps should not normally be mlstrustedsubject, but if they must be
+# they cannot use this to access app private data files; their own app
+# data files must use a different label.
+
+neverallow {
+  mlstrustedsubject
+  -artd # compile secondary dex files
+  -installd
+} {
+  app_data_file
+  privapp_data_file
+  is_flag_enabled(RELEASE_UNLOCKED_STORAGE_API, `storage_area_content_file')
+}:file ~{ read write map getattr ioctl lock append };
+
+neverallow {
+  mlstrustedsubject
+  -artd # compile secondary dex files
+  -installd
+} {
+  app_data_file
+  privapp_data_file
+  is_flag_enabled(RELEASE_UNLOCKED_STORAGE_API, `storage_area_content_file')
+}:dir ~{ read getattr search };
+
+is_flag_enabled(RELEASE_UNLOCKED_STORAGE_API, `
+  neverallow {
+    mlstrustedsubject
+    -artd # compile secondary dex files
+    -installd
+    -vold # encryption of storage areas
+    -vold_prepare_subdirs # creation of storage area directories
+  } { storage_area_dir storage_area_app_dir }:dir ~{ read getattr search };
+')
+
+neverallow {
+  mlstrustedsubject
+  -artd # compile secondary dex files
+  -installd
+  -system_server
+  -adbd
+  -runas
+  -zygote
+} {
+  app_data_file
+  privapp_data_file
+  is_flag_enabled(RELEASE_UNLOCKED_STORAGE_API, `storage_area_content_file')
+}:dir { read getattr search };
+
+is_flag_enabled(RELEASE_UNLOCKED_STORAGE_API, `
+  neverallow {
+    mlstrustedsubject
+    -artd # compile secondary dex files
+    -installd
+    -system_server
+    -adbd
+    -runas
+    -vold # encryption of storage area directories
+    -vold_prepare_subdirs # creation of storage area directories
+    -zygote
+  } { storage_area_dir storage_area_app_dir }:dir { read getattr search };
+')

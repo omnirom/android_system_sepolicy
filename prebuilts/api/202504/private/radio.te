@@ -1,0 +1,74 @@
+typeattribute radio coredomain, mlstrustedsubject;
+
+app_domain(radio)
+
+read_runtime_log_tags(radio)
+
+# Property service
+set_prop(radio, radio_control_prop)
+set_prop(radio, radio_prop)
+set_prop(radio, net_radio_prop)
+set_prop(radio, telephony_status_prop)
+set_prop(radio, radio_cdma_ecm_prop)
+
+# ctl interface
+set_prop(radio, ctl_rildaemon_prop)
+
+# Telephony code contains time / time zone detection logic so it reads the associated properties.
+get_prop(radio, time_prop)
+
+# allow telephony to access platform compat to log permission denials
+allow radio platform_compat_service:service_manager find;
+
+allow radio uce_service:service_manager find;
+
+# Manage /data/misc/emergencynumberdb
+allow radio emergency_data_file:dir r_dir_perms;
+allow radio emergency_data_file:file r_file_perms;
+
+# allow telephony to access related cache properties
+set_prop(radio, binder_cache_telephony_server_prop);
+
+# allow sending pulled atoms to statsd
+binder_call(radio, statsd)
+
+net_domain(radio)
+bluetooth_domain(radio)
+binder_service(radio)
+
+# Talks to hal_telephony_server via the rild socket only for devices without full treble
+not_full_treble(`unix_socket_connect(radio, rild, hal_telephony_server)')
+
+# Data file accesses.
+allow radio radio_data_file:dir create_dir_perms;
+allow radio radio_data_file:notdevfile_class_set create_file_perms;
+allow radio radio_core_data_file:dir r_dir_perms;
+allow radio radio_core_data_file:file r_file_perms;
+
+allow radio net_data_file:dir search;
+allow radio net_data_file:file r_file_perms;
+
+add_service(radio, radio_service)
+allow radio audioserver_service:service_manager find;
+allow radio cameraserver_service:service_manager find;
+allow radio drmserver_service:service_manager find;
+allow radio mediaserver_service:service_manager find;
+allow radio nfc_service:service_manager find;
+allow radio app_api_service:service_manager find;
+allow radio system_api_service:service_manager find;
+allow radio timedetector_service:service_manager find;
+allow radio timezonedetector_service:service_manager find;
+
+# Perform HwBinder IPC.
+hwbinder_use(radio)
+hal_client_domain(radio, hal_telephony)
+
+# Used by TelephonyManager
+allow radio proc_cmdline:file r_file_perms;
+
+###
+### Neverallow rules
+###
+
+neverallow { domain -radio -init }
+    binder_cache_telephony_server_prop:property_service set;

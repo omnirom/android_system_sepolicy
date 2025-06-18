@@ -2,10 +2,11 @@ type wifi_mainline_supplicant, domain, coredomain;
 type wifi_mainline_supplicant_exec, system_file_type, exec_type, file_type;
 
 binder_use(wifi_mainline_supplicant)
+binder_call(wifi_mainline_supplicant, system_server)
 init_daemon_domain(wifi_mainline_supplicant)
 add_service(wifi_mainline_supplicant, wifi_mainline_supplicant_service)
 
-allow wifi_mainline_supplicant self:global_capability_class_set { setuid setgid net_admin net_raw };
+allow wifi_mainline_supplicant self:global_capability_class_set { net_admin net_raw };
 allow wifi_mainline_supplicant proc_net:file rw_file_perms;
 allow wifi_mainline_supplicant sysfs_net:dir search;
 
@@ -29,3 +30,7 @@ allowxperm wifi_mainline_supplicant self:packet_socket ioctl { unpriv_sock_ioctl
 allow wifi_mainline_supplicant self:netlink_route_socket { bind create read write nlmsg_readpriv nlmsg_write };
 allow wifi_mainline_supplicant self:netlink_socket create_socket_perms_no_ioctl;
 allow wifi_mainline_supplicant self:netlink_generic_socket create_socket_perms_no_ioctl;
+
+# Dumpstate support
+allow wifi_mainline_supplicant dumpstate:fd use;
+allow wifi_mainline_supplicant dumpstate:fifo_file write;

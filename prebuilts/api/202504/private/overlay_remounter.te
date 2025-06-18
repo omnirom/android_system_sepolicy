@@ -1,0 +1,47 @@
+# Domain used for overlay_remounter process
+
+# All types must be defined regardless of build variant to ensure
+# policy compilation succeeds with userdebug/user combination at boot
+type overlay_remounter, domain, coredomain;
+
+# File types must be defined for file_contexts.
+type overlay_remounter_exec, system_file_type, exec_type, file_type;
+
+userdebug_or_eng(`
+  domain_auto_trans(overlay_remounter, init_exec, init)
+
+  allow overlay_remounter init:process share;
+  allow overlay_remounter init:process2 nosuid_transition;
+  allow overlay_remounter kernel:fd use;
+  allow overlay_remounter tmpfs:chr_file { open read write };
+  allow overlay_remounter labeledfs:filesystem { mount unmount };
+  allow overlay_remounter overlayfs_file:chr_file { unlink create link rename };
+  allow overlay_remounter overlayfs_file:dir create_dir_perms;
+  allow overlay_remounter overlayfs_file:file { create open rename unlink write };
+  allow overlay_remounter self:capability { chown fowner sys_admin dac_override dac_read_search };
+  allow overlay_remounter unlabeled:dir { rmdir search };
+  use_bootstrap_libs(overlay_remounter)
+
+  # overlay_remounter must be able to perform all possible operations
+  # on the overlaid partitions
+  allow overlay_remounter {
+    system_dlkm_file_type
+    vendor_file_type
+    system_file_type
+    adb_keys_file
+  }:{ file } ~{ entrypoint };
+
+  allow overlay_remounter {
+    system_dlkm_file_type
+    vendor_file_type
+    system_file_type
+    adb_keys_file
+  }:chr_file unlink;
+
+  allow overlay_remounter {
+    system_dlkm_file_type
+    vendor_file_type
+    system_file_type
+    adb_keys_file
+  }:{ dir lnk_file } *;
+')

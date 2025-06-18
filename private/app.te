@@ -6,6 +6,7 @@ r_dir_file({
   appdomain
   -ephemeral_app
   -isolated_app_all
+  -network_stack
   -platform_app
   -priv_app
   -shell
@@ -19,6 +20,7 @@ userdebug_or_eng(`
     appdomain
     -ephemeral_app
     -isolated_app_all
+    -network_stack
     -platform_app
     -priv_app
     -shell
@@ -369,7 +371,7 @@ unix_socket_send(appdomain, statsdw, statsd)
 
 # Write profiles /data/misc/profiles
 allow appdomain user_profile_root_file:dir search;
-allow appdomain user_profile_data_file:dir w_dir_perms;
+allow appdomain user_profile_data_file:dir rw_dir_perms;
 allow appdomain user_profile_data_file:file create_file_perms;
 
 # Allow writing performance tracing data into the perfetto traced daemon.
@@ -607,6 +609,8 @@ neverallow appdomain system_data_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
 
 # Write to various other parts of /data.
+neverallow appdomain mediadrm_system_data_file:dir_file_class_set
+    { create write setattr relabelfrom relabelto append unlink link rename };
 neverallow appdomain drm_data_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
 neverallow { appdomain -platform_app }

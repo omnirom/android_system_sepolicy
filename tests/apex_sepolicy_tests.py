@@ -29,7 +29,7 @@ import re
 import sys
 import tempfile
 from dataclasses import dataclass
-from typing import List
+from typing import Callable, List
 
 import policy
 
@@ -61,7 +61,12 @@ class BinaryFile:
     pass
 
 
-Matcher = Is | Glob | Regex | BinaryFile
+@dataclass
+class MatchPred:
+    pred: Callable[[str], bool]
+
+
+Matcher = Is | Glob | Regex | BinaryFile | MatchPred
 
 
 # predicate functions for Func matcher
@@ -87,7 +92,13 @@ class NotAnyOf:
     labels: set[str]
 
 
-Rule = AllowPerm | ResolveType | NotAnyOf
+@dataclass
+class HasAttr:
+    """Rule checking if the context has the specified attribute"""
+    attr: str
+
+
+Rule = AllowPerm | ResolveType | NotAnyOf | HasAttr
 
 
 # Helper for 'read'
@@ -104,8 +115,12 @@ def match_path(path: str, matcher: Matcher) -> bool:
             return pathlib.PurePath(path).match(pattern)
         case Regex(pattern):
             return re.match(pattern, path)
-        case BinaryFile:
+        case BinaryFile():
             return path.startswith('./bin/') and not path.endswith('/')
+        case MatchPred(pred):
+            return pred(path)
+        case _:
+            sys.exit(f'unknown matcher: {matcher}')
 
 
 def check_rule(pol, path: str, tcontext: str, rule: Rule) -> List[str]:
@@ -129,6 +144,9 @@ def check_rule(pol, path: str, tcontext: str, rule: Rule) -> List[str]:
         case NotAnyOf(labels):
             if tcontext in labels:
                 errors.append(f"Error: {path}: can't be labelled as '{tcontext}'")
+        case HasAttr(attr):
+            if tcontext not in pol.QueryTypeAttribute(attr, True):
+                errors.append(f"Error: {path}: tcontext({tcontext}) must be associated with {attr}")
     return errors
 
 
@@ -139,7 +157,7 @@ target_specific_rules = [
 
 generic_rules = [
     # binaries should be executable
-    (BinaryFile, NotAnyOf({'vendor_file'})),
+    (BinaryFile(), NotAnyOf({'vendor_file'})),
     # permissions
     (Is('./etc/permissions/'), AllowRead('dir', {'system_server'})),
     (Glob('./etc/permissions/*.xml'), AllowRead('file', {'system_server'})),
@@ -159,7 +177,26 @@ generic_rules = [
 all_rules = target_specific_rules + generic_rules
 
 
-def check_line(pol: policy.Policy, line: str, rules) -> List[str]:
+def base_attr_for(partition):
+    if partition in ['system', 'system_ext', 'product']:
+        return 'system_file_type'
+    elif partition in ['vendor', 'odm']:
+        return 'vendor_file_type'
+    else:
+        sys.exit(f"Error: invalid partition: {partition}\n")
+
+
+def system_vendor_rule(partition):
+    exceptions = [
+        "./etc/linker.config.pb"
+    ]
+    def pred(path):
+        return path not in exceptions
+
+    return MatchPred(pred), HasAttr(base_attr_for(partition))
+
+
+def check_line(pol: policy.Policy, line: str, rules, ignore_unknown_context=False) -> List[str]:
     """Parses a file_contexts line and runs checks"""
     # skip empty/comment line
     line = line.strip()
@@ -174,6 +211,9 @@ def check_line(pol: policy.Policy, line: str, rules) -> List[str]:
     if len(context.split(':')) != 4:
         return [f"Error: invalid file_contexts: {line}"]
     tcontext = context.split(':')[2]
+
+    if ignore_unknown_context and tcontext not in pol.GetAllTypes(False):
+        return []
 
     # check rules
     errors = []
@@ -197,22 +237,27 @@ def do_main(work_dir):
     """Do testing"""
     parser = argparse.ArgumentParser()
     parser.add_argument('--all', action='store_true', help='tests ALL aspects')
-    parser.add_argument('-f', '--file_contexts', help='output of "deapexer list -Z"')
+    parser.add_argument('-f', '--file_contexts', required=True, help='output of "deapexer list -Z"')
+    parser.add_argument('-p', '--partition', help='partition to check Treble violations')
     args = parser.parse_args()
 
     lib_path = extract_data(LIBSEPOLWRAP, work_dir)
     policy_path = extract_data('precompiled_sepolicy', work_dir)
     pol = policy.Policy(policy_path, None, lib_path)
 
+    # ignore unknown contexts unless --all is specified
+    ignore_unknown_context = True
     if args.all:
-        rules = all_rules
-    else:
-        rules = generic_rules
+        ignore_unknown_context = False
+
+    rules = all_rules
+    if args.partition:
+        rules.append(system_vendor_rule(args.partition))
 
     errors = []
     with open(args.file_contexts, 'rt', encoding='utf-8') as file_contexts:
         for line in file_contexts:
-            errors.extend(check_line(pol, line, rules))
+            errors.extend(check_line(pol, line, rules, ignore_unknown_context))
     if len(errors) > 0:
         sys.exit('\n'.join(errors))
 

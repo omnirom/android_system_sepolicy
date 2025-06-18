@@ -130,7 +130,7 @@ EOF
 # Build general_sepolicy.conf, plat_sepolicy.cil, and mapping file for CTS
 DIST_DIR=out/dist $top/build/soong/soong_ui.bash --make-mode dist sepolicy_finalize bpmodify
 
-cp "$top/out/dist/plat_sepolicy.cil" "$prebuilt_dir/${ver}_plat_sepolicy.cil"
+cp "$top/out/dist/base_plat_sepolicy.cil" "$prebuilt_dir/${ver}_plat_sepolicy.cil"
 cp "$top/out/dist/general_sepolicy.conf" "$prebuilt_dir/${ver}_general_sepolicy.conf"
 cp "$top/out/dist/$ver.cil" "$prebuilt_dir/${ver}_mapping.cil"
 
@@ -149,3 +149,5 @@ EOF
 bpmodify="$top/out/host/linux-x86/bin/bpmodify"
 $bpmodify -a ":${ver}_sepolicy_cts_data" -m prebuilt_sepolicy_cts_data -property srcs -w \
     $top/system/sepolicy/tests/Android.bp
+sed -i "s/FREEZE_TEST_BOARD_API_LEVEL = \".\{6\}\"/FREEZE_TEST_BOARD_API_LEVEL = \"${ver}\"/" \
+    $top/system/sepolicy/Android.bp

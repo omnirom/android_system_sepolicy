@@ -1,0 +1,26 @@
+is_flag_enabled(RELEASE_AVF_ENABLE_NETWORK, `
+    # vmnic is a helper service for network tasks, like creating TAP network interface.
+    # vmnic is separated from virtualizationservice as vmnic requires more permission to do network related tasks.
+    type vmnic, domain, coredomain;
+    type vmnic_exec, system_file_type, exec_type, file_type;
+
+    # When init runs a file labelled with vmnic_exec, run it in the vmnic domain.
+    init_daemon_domain(vmnic)
+
+    # Let the vmnic domain register the vmnic_service with ServiceManager.
+    add_service(vmnic, vmnic_service)
+
+    # Let the vmnic domain use Binder.
+    binder_use(vmnic)
+
+    # Allow for creating and deleting TAP network interfaces.
+    allow vmnic self:global_capability_class_set net_admin;
+    allow vmnic self:tun_socket create_socket_perms_no_ioctl;
+    allow vmnic tun_device:chr_file rw_file_perms;
+    allowxperm vmnic tun_device:chr_file ioctl { TUNGETIFF TUNSETIFF };
+    allow vmnic self:udp_socket create_socket_perms;
+    allowxperm vmnic self:udp_socket ioctl SIOCSIFFLAGS;
+
+    # Only virtualizationservice can communicate to vmnic
+    neverallow { domain -virtualizationservice -servicemanager } vmnic:binder call;
+') # is_flag_enabled(RELEASE_AVF_ENABLE_NETWORK)

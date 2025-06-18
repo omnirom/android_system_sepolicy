@@ -589,7 +589,7 @@ class TestPolicy:
                 vendor = any(MatchPathPrefix(path, prefix) for prefix in
                              ["/vendor", "/odm"])
                 system = any(MatchPathPrefix(path, prefix) for prefix in
-                             ["/init", "/system_ext", "/product" ])
+                             ["/init", "/system_ext", "/product", "/second_stage_resources" ])
 
                 # only mark entrypoint as system if it is not in legacy /system/vendor
                 if MatchPathPrefix(path, "/system/vendor"):

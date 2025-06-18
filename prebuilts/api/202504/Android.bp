@@ -1,0 +1,106 @@
+// Automatically generated file, do not edit!
+se_policy_conf {
+    name: "202504_reqd_policy_mask.conf",
+    defaults: ["se_policy_conf_flags_defaults"],
+    srcs: reqd_mask_policy,
+    installable: false,
+    build_variant: "user",
+    board_api_level: "202504",
+}
+
+se_policy_cil {
+    name: "202504_reqd_policy_mask.cil",
+    src: ":202504_reqd_policy_mask.conf",
+    secilc_check: false,
+    installable: false,
+}
+
+se_policy_conf {
+    name: "202504_plat_pub_policy.conf",
+    defaults: ["se_policy_conf_flags_defaults"],
+    srcs: [
+        ":se_build_files{.plat_public_202504}",
+        ":se_build_files{.reqd_mask}",
+    ],
+    installable: false,
+    build_variant: "user",
+    board_api_level: "202504",
+}
+
+se_policy_cil {
+    name: "202504_plat_pub_policy.cil",
+    src: ":202504_plat_pub_policy.conf",
+    filter_out: [":202504_reqd_policy_mask.cil"],
+    secilc_check: false,
+    installable: false,
+}
+
+se_policy_conf {
+    name: "202504_product_pub_policy.conf",
+    defaults: ["se_policy_conf_flags_defaults"],
+    srcs: [
+        ":se_build_files{.plat_public_202504}",
+        ":se_build_files{.system_ext_public_202504}",
+        ":se_build_files{.product_public_202504}",
+        ":se_build_files{.reqd_mask}",
+    ],
+    installable: false,
+    build_variant: "user",
+    board_api_level: "202504",
+}
+
+se_policy_cil {
+    name: "202504_product_pub_policy.cil",
+    src: ":202504_product_pub_policy.conf",
+    filter_out: [":202504_reqd_policy_mask.cil"],
+    secilc_check: false,
+    installable: false,
+}
+
+se_versioned_policy {
+    name: "202504_plat_pub_versioned.cil",
+    base: ":202504_product_pub_policy.cil",
+    target_policy: ":202504_product_pub_policy.cil",
+    version: "202504",
+    installable: false,
+}
+
+se_policy_conf {
+    name: "202504_plat_policy.conf",
+    defaults: ["se_policy_conf_flags_defaults"],
+    srcs: [
+        ":se_build_files{.plat_public_202504}",
+        ":se_build_files{.plat_private_202504}",
+        ":se_build_files{.system_ext_public_202504}",
+        ":se_build_files{.system_ext_private_202504}",
+        ":se_build_files{.product_public_202504}",
+        ":se_build_files{.product_private_202504}",
+    ],
+    installable: false,
+    build_variant: "user",
+}
+
+se_policy_cil {
+    name: "202504_plat_policy.cil",
+    src: ":202504_plat_policy.conf",
+    additional_cil_files: [":sepolicy_technical_debt{.plat_private_202504}"],
+    installable: false,
+}
+
+se_policy_binary {
+    name: "202504_plat_policy",
+    srcs: [":202504_plat_policy.cil"],
+    installable: false,
+    dist: {
+        targets: ["base-sepolicy-files-for-mapping"],
+    },
+}
+
+filegroup {
+    name: "202504_sepolicy_cts_data",
+    srcs: [
+        "202504_general_sepolicy.conf",
+        "202504_plat_sepolicy.cil",
+        "202504_mapping.cil",
+    ],
+}

@@ -532,6 +532,7 @@ se_cil_compat_map {
     stem: "202404.cil",
     bottom_half: [":202404.board.compat.map{.plat_private}"],
     version: "202404",
+    top_half: "plat_202504.cil",
 }
 
 se_cil_compat_map {
@@ -540,6 +541,7 @@ se_cil_compat_map {
     bottom_half: [":202404.board.compat.map{.system_ext_private}"],
     system_ext_specific: true,
     version: "202404",
+    top_half: "system_ext_202504.cil",
 }
 
 se_cil_compat_map {
@@ -548,12 +550,14 @@ se_cil_compat_map {
     bottom_half: [":202404.board.compat.map{.product_private}"],
     product_specific: true,
     version: "202404",
+    top_half: "product_202504.cil",
 }
 
 se_cil_compat_map {
     name: "202404.ignore.cil",
     bottom_half: [":202404.board.ignore.map{.plat_private}"],
     version: "202404",
+    top_half: "202504.ignore.cil",
 }
 
 se_cil_compat_map {
@@ -562,6 +566,7 @@ se_cil_compat_map {
     bottom_half: [":202404.board.ignore.map{.system_ext_private}"],
     system_ext_specific: true,
     version: "202404",
+    top_half: "system_ext_202504.ignore.cil",
 }
 
 se_cil_compat_map {
@@ -570,6 +575,7 @@ se_cil_compat_map {
     bottom_half: [":202404.board.ignore.map{.product_private}"],
     product_specific: true,
     version: "202404",
+    top_half: "product_202504.ignore.cil",
 }
 
 se_compat_cil {
@@ -589,5 +595,85 @@ se_compat_cil {
 prebuilt_etc {
     name: "plat_sepolicy_genfs_202504.cil",
     src: "plat_sepolicy_genfs_202504.cil",
+    relative_install_path: "selinux",
+}
+
+se_build_files {
+    name: "202504.board.compat.map",
+    srcs: ["compat/202504/202504.cil"],
+}
+
+se_build_files {
+    name: "202504.board.compat.cil",
+    srcs: ["compat/202504/202504.compat.cil"],
+}
+
+se_build_files {
+    name: "202504.board.ignore.map",
+    srcs: ["compat/202504/202504.ignore.cil"],
+}
+
+se_cil_compat_map {
+    name: "plat_202504.cil",
+    stem: "202504.cil",
+    bottom_half: [":202504.board.compat.map{.plat_private}"],
+    version: "202504",
+}
+
+se_cil_compat_map {
+    name: "system_ext_202504.cil",
+    stem: "202504.cil",
+    bottom_half: [":202504.board.compat.map{.system_ext_private}"],
+    system_ext_specific: true,
+    version: "202504",
+}
+
+se_cil_compat_map {
+    name: "product_202504.cil",
+    stem: "202504.cil",
+    bottom_half: [":202504.board.compat.map{.product_private}"],
+    product_specific: true,
+    version: "202504",
+}
+
+se_cil_compat_map {
+    name: "202504.ignore.cil",
+    bottom_half: [":202504.board.ignore.map{.plat_private}"],
+    version: "202504",
+}
+
+se_cil_compat_map {
+    name: "system_ext_202504.ignore.cil",
+    stem: "202504.ignore.cil",
+    bottom_half: [":202504.board.ignore.map{.system_ext_private}"],
+    system_ext_specific: true,
+    version: "202504",
+}
+
+se_cil_compat_map {
+    name: "product_202504.ignore.cil",
+    stem: "202504.ignore.cil",
+    bottom_half: [":202504.board.ignore.map{.product_private}"],
+    product_specific: true,
+    version: "202504",
+}
+
+se_compat_cil {
+    name: "202504.compat.cil",
+    srcs: [":202504.board.compat.cil{.plat_private}"],
+    version: "202504",
+}
+
+se_compat_cil {
+    name: "system_ext_202504.compat.cil",
+    stem: "202504.compat.cil",
+    srcs: [":202504.board.compat.cil{.system_ext_private}"],
+    system_ext_specific: true,
+    version: "202504",
+}
+
+prebuilt_etc {
+    name: "plat_sepolicy_genfs_202604.cil",
+    src: "plat_sepolicy_genfs_202604.cil",
     relative_install_path: "selinux",
 }

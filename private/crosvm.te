@@ -1,4 +1,7 @@
-type crosvm, domain, coredomain;
+until_board_api(202504, `
+    type crosvm, domain, coredomain;
+')
+
 type crosvm_exec, system_file_type, exec_type, file_type;
 type crosvm_tmpfs, file_type;
 
@@ -169,6 +172,9 @@ is_flag_enabled(RELEASE_AVF_ENABLE_NETWORK, `
 # Early VMs may print messages to kmsg_debug_device.
 allow crosvm kmsg_debug_device:chr_file w_file_perms;
 
+# Allow crosvm to read /data/nativetest for VTS
+r_dir_file(crosvm, nativetest_data_file)
+
 # Don't allow crosvm to open files that it doesn't own.
 # This is important because a malicious application could try to start a VM with a composite disk
 # image referring by name to files which it doesn't have permission to open, trying to get crosvm to
@@ -220,6 +226,7 @@ neverallow {
   -crosvm
   -virtualizationmanager
   -vmlauncher_app
+  userdebug_or_eng(`-overlay_remounter')
 
   is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `-early_virtmgr')
 } crosvm_exec:file no_x_file_perms;

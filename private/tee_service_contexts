@@ -10,4 +10,4 @@
 
 # Example tee service that can be used for end-to-end integration of
 # custom smcs filtering on devices with pkvm hypervisor.
-test_pkvm_tee_service u:object_r:test_pkvm_tee_service:s0
+vendor.test_pkvm_tee_service u:object_r:test_pkvm_tee_service:s0

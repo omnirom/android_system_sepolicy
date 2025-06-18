@@ -31,9 +31,6 @@ allow installd rollback_data_file:file create_file_perms;
 get_prop(installd, device_config_runtime_native_prop)
 get_prop(installd, device_config_runtime_native_boot_prop)
 
-# Allow installd to access apk verity feature flag (for legacy case).
-get_prop(installd, apk_verity_prop)
-
 # Allow installd to access odsign verification status
 get_prop(installd, odsign_prop)
 
@@ -225,6 +222,13 @@ is_flag_enabled(RELEASE_UNLOCKED_STORAGE_API, `
   };
   allow installd storage_area_key_file:file unlink;
 ')
+
+# Allow installd to delete the terminal app's data file.
+# `virtualizationservice_data_file` was used for a while, but it needs to be
+# deleted when terminal feature is disabled.
+# TODO(b/383026786): Remove this rule once the there is no
+# `virtualizationservice_data_file` in terminal app anymore..
+allow installd virtualizationservice_data_file:file unlink;
 
 ###
 ### Neverallow rules

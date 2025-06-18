@@ -1,0 +1,26 @@
+# The memcgv2_activation_depth.sh script run by init.
+
+type memcgv2_activation_depth, domain, coredomain;
+type memcgv2_activation_depth_exec, system_file_type, exec_type, file_type;
+
+init_daemon_domain(memcgv2_activation_depth)
+
+# required permissions to run the script from init
+allow memcgv2_activation_depth shell_exec:file rx_file_perms;
+allow memcgv2_activation_depth system_file:file x_file_perms;
+allow memcgv2_activation_depth toolbox_exec:file rx_file_perms;
+
+# for system default max activation depth
+allow memcgv2_activation_depth cgroup_desc_file:file r_file_perms;
+
+# /metadata/libprocessgroup/*
+allow memcgv2_activation_depth libprocessgroup_metadata_file:dir rw_dir_perms;
+allow memcgv2_activation_depth libprocessgroup_metadata_file:file create_file_perms;
+
+# /sys/fs/cgroup/cgroup.controllers
+# /sys/fs/cgroup/**/cgroup.subtree_control
+allow memcgv2_activation_depth cgroup_v2:dir r_dir_perms;
+allow memcgv2_activation_depth cgroup_v2:file rw_file_perms;
+
+# For reboot, when reducing the depth override
+set_prop(memcgv2_activation_depth, powerctl_prop)

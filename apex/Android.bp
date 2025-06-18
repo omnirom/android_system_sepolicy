@@ -253,6 +253,13 @@ filegroup {
 }
 
 filegroup {
+    name: "com.android.bt-file_contexts",
+    srcs: [
+        "com.android.bt-file_contexts",
+    ],
+}
+
+filegroup {
     name: "com.android.car.framework-file_contexts",
     srcs: [
         "com.android.car.framework-file_contexts",

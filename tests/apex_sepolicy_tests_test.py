@@ -106,7 +106,18 @@ class ApexSepolicyTests(unittest.TestCase):
         self.assert_ok('./bin/init u:object_r:init_exec:s0')
         self.assert_ok('./bin/hw/svc u:object_r:init_exec:s0')
         self.assert_error('./bin/hw/svc u:object_r:vendor_file:s0',
-                          r"Error: .*svc: can\'t be labelled as \'vendor_file\'")
+                          r'Error: .*svc: can\'t be labelled as \'vendor_file\'')
+
+    def test_system_vendor(self):
+        line = './bin/foo u:object_r:vendor_file:s0'
+        rules = [apex.system_vendor_rule('system')]
+        errors = apex.check_line(self.pol, line, rules)
+        self.assertRegex(errors[0], r'Error: .* must be associated')
+
+        line = './bin/foo u:object_r:system_file:s0'
+        rules = [apex.system_vendor_rule('vendor')]
+        errors = apex.check_line(self.pol, line, rules)
+        self.assertRegex(errors[0], r'Error: .* must be associated')
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

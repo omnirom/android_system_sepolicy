@@ -324,9 +324,6 @@ type policyCilProperties struct {
 	// exported policies
 	Filter_out []string `android:"path"`
 
-	// Whether to remove line markers (denoted by ;;) out of compiled cil files. Defaults to false
-	Remove_line_marker *bool
-
 	// Whether to run secilc to check compiled policy or not. Defaults to true
 	Secilc_check *bool
 
@@ -390,17 +387,6 @@ func (c *policyCil) compileConfToCil(ctx android.ModuleContext, conf android.Pat
 		rule.Command().Text("cat").
 			Inputs(android.PathsForModuleSrc(ctx, c.properties.Additional_cil_files)).
 			Text(">> ").Output(cil)
-	}
-
-	if proptools.Bool(c.properties.Remove_line_marker) {
-		rule.Command().Text("grep -v").
-			Text(proptools.ShellEscape(";;")).
-			Text(cil.String()).
-			Text(">").
-			Text(cil.String() + ".tmp").
-			Text("&& mv").
-			Text(cil.String() + ".tmp").
-			Text(cil.String())
 	}
 
 	if proptools.BoolDefault(c.properties.Secilc_check, true) {

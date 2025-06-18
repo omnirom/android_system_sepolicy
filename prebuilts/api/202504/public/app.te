@@ -1,0 +1,13 @@
+###
+### Domain for all zygote spawned apps
+###
+### This file is the base policy for all zygote spawned apps.
+### Other policy files, such as isolated_app.te, untrusted_app.te, etc
+### extend from this policy. Only policies which should apply to ALL
+### zygote spawned apps should be added here.
+###
+type appdomain_tmpfs, file_type;
+
+# system/sepolicy/public is for vendor-facing type and attribute definitions.
+# DO NOT ADD allow, neverallow, or dontaudit statements here.
+# Instead, add such policy rules to system/sepolicy/private/*.te.

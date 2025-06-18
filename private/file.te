@@ -1,3 +1,6 @@
+# /proc/allocinfo
+type proc_allocinfo, fs_type, proc_type;
+
 # /proc/config.gz
 type config_gz, fs_type, proc_type;
 
@@ -10,6 +13,9 @@ type fs_bpf_netd_shared, fs_type, bpffs_type;
 type fs_bpf_loader, fs_type, bpffs_type;
 type fs_bpf_uprobestats, fs_type, bpffs_type;
 type fs_bpf_memevents, fs_type, bpffs_type;
+
+# /data/system/mediadrm
+type mediadrm_system_data_file, file_type, data_file_type, core_data_file_type;
 
 # /data/misc/storaged
 type storaged_data_file, file_type, data_file_type, core_data_file_type;
@@ -189,6 +195,9 @@ type sysfs_pgsize_migration, fs_type, sysfs_type;
 # /sys/firmware/acpi/tables
 type sysfs_firmware_acpi_tables, fs_type, sysfs_type;
 
+# Type for /system/bin/pbtombstone.
+type pbtombstone_exec, system_file_type, exec_type, file_type;
+
 # Allow files to be created in their appropriate filesystems.
 allow fs_type self:filesystem associate;
 allow cgroup tmpfs:filesystem associate;
@@ -228,6 +237,9 @@ type tradeinmode_metadata_file, file_type;
 # /metadata/prefetch files
 type prefetch_metadata_file, file_type;
 
+# /metadata/libprocessgroup files
+type libprocessgroup_metadata_file, file_type;
+
 # Types added in 202504 in public/file.te
 until_board_api(202504, `
     type binderfs_logs_transactions, fs_type;
@@ -256,5 +268,8 @@ until_board_api(202504, `
     type tee_service_contexts_file, system_file_type, file_type;
 ')
 
-## END Types added in 202504 in public/file.te
+until_board_api(202504, `
+    type sysfs_mem_sleep, fs_type, sysfs_type;
+')
 
+## END Types added in 202504 in public/file.te

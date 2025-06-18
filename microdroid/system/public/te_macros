@@ -618,16 +618,6 @@ define(`use_credstore', `
 ')
 
 ###########################################
-# use_drmservice(domain)
-# Ability to use DrmService which requires
-# DrmService to call getpidcon.
-define(`use_drmservice', `
-  allow drmserver $1:dir search;
-  allow drmserver $1:file { read open };
-  allow drmserver $1:process getattr;
-')
-
-###########################################
 # add_service(domain, service)
 # Ability for domain to add a service to service_manager
 # and find it. It also creates a neverallow preventing

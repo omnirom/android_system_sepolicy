@@ -11,3 +11,6 @@
 # Example tee service that can be used for end-to-end integration of
 # custom smcs filtering on devices with pkvm hypervisor.
 vendor.test_pkvm_tee_service u:object_r:test_pkvm_tee_service:s0
+
+# Represents a pVM capability to talk to TEE using FF-A.
+guest_ffa_tee_service u:object_r:guest_ffa_tee_service:s0

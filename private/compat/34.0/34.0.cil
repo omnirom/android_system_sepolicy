@@ -5,6 +5,9 @@
 (type ppp_device)
 (type ppp_exec)
 
+;; types added in 24Q1
+(typeattribute hidraw_device_34_0)
+
 ;; mapping information from ToT policy's types to 34.0 policy's types.
 (expandtypeattribute (DockObserver_service_34_0) true)
 (expandtypeattribute (IProxyService_service_34_0) true)
@@ -547,6 +550,7 @@
 (expandtypeattribute (hidl_manager_hwservice_34_0) true)
 (expandtypeattribute (hidl_memory_hwservice_34_0) true)
 (expandtypeattribute (hidl_token_hwservice_34_0) true)
+(expandtypeattribute (hidraw_device_34_0) true)
 (expandtypeattribute (hint_service_34_0) true)
 (expandtypeattribute (hw_random_device_34_0) true)
 (expandtypeattribute (hw_timeout_multiplier_prop_34_0) true)
@@ -1901,6 +1905,7 @@
 (typeattributeset hidl_manager_hwservice_34_0 (hidl_manager_hwservice))
 (typeattributeset hidl_memory_hwservice_34_0 (hidl_memory_hwservice))
 (typeattributeset hidl_token_hwservice_34_0 (hidl_token_hwservice))
+(typeattributeset hidraw_device_34_0 (hidraw_device))
 (typeattributeset hint_service_34_0 (hint_service))
 (typeattributeset hw_random_device_34_0 (hw_random_device))
 (typeattributeset hw_timeout_multiplier_prop_34_0 (hw_timeout_multiplier_prop))

@@ -14,4 +14,10 @@ allow ot_rcp devpts:chr_file {read write ioctl};
 allow ot_rcp self:udp_socket { bind create ioctl read setopt write };
 allow ot_rcp node:udp_socket node_bind;
 allow ot_rcp port:udp_socket name_bind;
-allow ot_rcp self:netlink_route_socket { nlmsg_read nlmsg_readpriv create read write };
+allow ot_rcp self:netlink_route_socket create_socket_perms_no_ioctl;
+# For kernel < 6.13
+allow ot_rcp self:netlink_route_socket { nlmsg_read nlmsg_readpriv };
+# For kernel >= 6.13
+allow ot_rcp self:netlink_route_socket nlmsg;
+allowxperm ot_rcp self:netlink_route_socket nlmsg unpriv_route_socket_nlmsgs;
+allowxperm ot_rcp self:netlink_route_socket nlmsg RTM_GETLINK;

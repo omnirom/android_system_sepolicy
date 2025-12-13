@@ -275,6 +275,12 @@ r_dir_file(zygote, sysfs_fs_f2fs)
 # Allow zygote to read fonts_customization.xml for preloading font files that matches device locale.
 allow zygote system_font_fallback_file:file r_file_perms;
 
+# Allow Zygote to change its scheduling policy
+allow zygote zygote:process setsched;
+
+# Allow Zygote to change its niceness
+allow zygote self:global_capability_class_set sys_nice;
+
 ###
 ### neverallow rules
 ###

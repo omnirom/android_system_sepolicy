@@ -1,0 +1,10 @@
+until_board_api(202604, `
+    type init_dev_config, domain;
+    type init_dev_config_exec, exec_type, vendor_file_type, file_type;
+')
+
+init_daemon_domain(init_dev_config)
+use_bootstrap_libs(init_dev_config)
+
+set_prop(init_dev_config, apexd_select_prop)
+set_prop(init_dev_config, media_variant_prop)

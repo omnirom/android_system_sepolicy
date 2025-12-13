@@ -13,6 +13,7 @@ allow dhcp cgroup_v2:dir { create write add_name };
 allow dhcp self:global_capability_class_set { setgid setuid net_admin net_raw net_bind_service };
 allow dhcp self:packet_socket create_socket_perms_no_ioctl;
 allow dhcp self:netlink_route_socket nlmsg_write;
+allowxperm dhcp self:netlink_route_socket nlmsg priv_route_socket_nlmsgs;
 allow dhcp shell_exec:file rx_file_perms;
 allow dhcp system_file:file rx_file_perms;
 not_full_treble(`allow dhcp vendor_file:file rx_file_perms;')

@@ -36,3 +36,6 @@ allow nfc shell_data_file:file read;
 
 # Allow to check whether security logging is enabled.
 get_prop(nfc, device_logging_prop)
+
+# Allow use of wakelocks
+wakelock_use(nfc)

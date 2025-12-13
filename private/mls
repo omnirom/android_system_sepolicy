@@ -38,13 +38,26 @@ mlsconstrain unix_stream_socket { connectto }
 	     (l1 eq l2 or t1 == mlstrustedsubject or t2 == mlstrustedsubject);
 
 #
+# vsock_socket constraints
+#
+# To enforce that vsock sockets are self contained in the application's process
+# or can be transferred only to mlstrustedsubject like system server.
+mlsconstrain vsock_socket {
+   ioctl read write create getattr setattr lock relabelfrom relabelto append map
+   bind connect listen accept getopt setopt shutdown recvfrom sendto name_bind
+} (l1 eq l2 or t1 == mlstrustedsubject);
+
+#
 # Directory/file constraints
 #
 
 # Create/relabel operations:  Subject must be equivalent to object unless
 # the subject is trusted. Also, files should always be single-level.
 # Do NOT exempt mlstrustedobject types from this constraint.
-mlsconstrain dir_file_class_set { create relabelfrom relabelto }
+mlsconstrain dir_file_class_set { relabelto }
+	     (l2 eq h2 and (l1 eq l2 or t1 == mlstrustedsubject or t2 == ashmem_compat_memfd));
+
+mlsconstrain dir_file_class_set { create relabelfrom }
 	     (l2 eq h2 and (l1 eq l2 or t1 == mlstrustedsubject));
 
 #

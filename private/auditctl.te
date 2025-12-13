@@ -15,4 +15,10 @@ type auditctl_exec, file_type, system_file_type, exec_type;
 init_daemon_domain(auditctl)
 
 allow auditctl self:global_capability_class_set audit_control;
-allow auditctl self:netlink_audit_socket { create_socket_perms_no_ioctl nlmsg_write };
+allow auditctl self:netlink_audit_socket create_socket_perms_no_ioctl;
+
+# For kernel < 6.13
+allow auditctl self:netlink_audit_socket nlmsg_write;
+# For kernel >= 6.13
+allow auditctl self:netlink_audit_socket nlmsg;
+allowxperm auditctl self:netlink_audit_socket nlmsg AUDIT_SET;

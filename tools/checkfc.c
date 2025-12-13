@@ -19,6 +19,9 @@ static const char * const CHECK_SC_ASSERT_ATTRS[] = { "service_manager_type", NU
 static const char * const CHECK_HW_SC_ASSERT_ATTRS[] = { "hwservice_manager_type", NULL };
 static const char * const CHECK_VND_SC_ASSERT_ATTRS[] = { "vndservice_manager_type", NULL };
 
+// testAospFileContexts will ignore the following exit value.
+#define EXIT_MISSING_TEST_ENTRIES 2
+
 typedef enum filemode filemode;
 enum filemode {
     filemode_file_contexts = 0,
@@ -67,7 +70,7 @@ static const char * const *filemode_to_assert_attrs(filemode mode)
     }
     /* die on invalid parameters */
     fprintf(stderr, "Error: Invalid mode of operation: %d\n", mode);
-    exit(1);
+    exit(EXIT_FAILURE);
 }
 
 static int get_attr_bit(policydb_t *policydb, const char *attr_name)
@@ -128,7 +131,7 @@ static bool is_type_of_attribute_set(policydb_t *policydb, const char *type_name
     int rc = ebitmap_and(&dst, attr_set, &policydb->type_attr_map[type->s.value - 1]);
     if (rc) {
         fprintf(stderr, "Error: Could not perform ebitmap_and: %d\n", rc);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     bool res = (bool)ebitmap_length(&dst);
@@ -161,7 +164,7 @@ static int validate(char **contextp)
             &ctx);
     if (rc < 0) {
         fprintf(stderr, "Error: Could not allocate context from string");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     rc = sepol_context_check(global_state.sepolicy.handle,
@@ -218,7 +221,7 @@ static void usage(char *name) {
         "test_data is a text file where each line has the format:\n"
         "  path expected_type\n\n\n",
         name, name, name);
-    exit(1);
+    exit(EXIT_FAILURE);
 }
 
 static void cleanup(void) {
@@ -263,7 +266,7 @@ static void do_compare_and_die_on_error(struct selinux_opt opts[], unsigned int 
          global_state.sepolicy.sehnd[i] = selabel_open(backend, opts, 2);
          if (!global_state.sepolicy.sehnd[i]) {
              fprintf(stderr, "Error: could not load context file from %s\n", paths[i]);
-             exit(1);
+             exit(EXIT_FAILURE);
          }
      }
 
@@ -293,14 +296,14 @@ static void do_test_data_and_die_on_error(struct selinux_opt opts[], unsigned in
     if (!global_state.sepolicy.sehnd[0]) {
         fprintf(stderr, "Error: could not load context file from %s: %s\n",
                 paths[0], strerror(errno));
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     FILE* test_data = fopen(paths[1], "r");
     if (test_data == NULL) {
         fprintf(stderr, "Error: could not load test file from %s : %s\n",
                 paths[1], strerror(errno));
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     char line[1024];
@@ -316,14 +319,14 @@ static void do_test_data_and_die_on_error(struct selinux_opt opts[], unsigned in
         int ret = sscanf(line, "%ms %ms", &path, &expected_type);
         if (ret != 2) {
             fprintf(stderr, "Error: unable to parse the line %s\n", line);
-            exit(1);
+            exit(EXIT_FAILURE);
         }
 
         char *found_context;
         ret = selabel_lookup(global_state.sepolicy.sehnd[0], &found_context, path, 0);
         if (ret != 0) {
             fprintf(stderr, "Error: unable to lookup the path for %s\n", line);
-            exit(1);
+            exit(EXIT_FAILURE);
         }
 
         context_t found = context_new(found_context);
@@ -343,7 +346,7 @@ static void do_test_data_and_die_on_error(struct selinux_opt opts[], unsigned in
     fclose(test_data);
 
     if (non_matching_entries) {
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     // Prints the coverage of file_contexts on the test data. It includes
@@ -355,7 +358,7 @@ static void do_test_data_and_die_on_error(struct selinux_opt opts[], unsigned in
     if (warnings) {
         fprintf(stderr, "No test entries were found for the contexts above. " \
                         "You may need to update %s.\n", paths[1]);
-        exit(1);
+        exit(EXIT_MISSING_TEST_ENTRIES);
     }
 }
 
@@ -365,7 +368,7 @@ static void do_fc_check_and_die_on_error(struct selinux_opt opts[], unsigned int
     struct stat sb;
     if (stat(context_file, &sb) < 0) {
         perror("Error: could not get stat on file contexts file");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     if (sb.st_size == 0) {
@@ -379,18 +382,18 @@ static void do_fc_check_and_die_on_error(struct selinux_opt opts[], unsigned int
     global_state.sepolicy.file = fopen(sepolicy_file, "r");
     if (!global_state.sepolicy.file) {
       perror("Error: could not open policy file");
-      exit(1);
+      exit(EXIT_FAILURE);
     }
 
     global_state.sepolicy.handle = sepol_handle_create();
     if (!global_state.sepolicy.handle) {
         fprintf(stderr, "Error: could not create policy handle: %s\n", strerror(errno));
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     if (sepol_policy_file_create(&global_state.sepolicy.pf) < 0) {
       perror("Error: could not create policy handle");
-      exit(1);
+      exit(EXIT_FAILURE);
     }
 
     sepol_policy_file_set_fp(global_state.sepolicy.pf, global_state.sepolicy.file);
@@ -399,13 +402,13 @@ static void do_fc_check_and_die_on_error(struct selinux_opt opts[], unsigned int
     int rc = sepol_policydb_create(&global_state.sepolicy.sdb);
     if (rc < 0) {
       perror("Error: could not create policy db");
-      exit(1);
+      exit(EXIT_FAILURE);
     }
 
     rc = sepol_policydb_read(global_state.sepolicy.sdb, global_state.sepolicy.pf);
     if (rc < 0) {
       perror("Error: could not read file into policy db");
-      exit(1);
+      exit(EXIT_FAILURE);
     }
 
     global_state.assert.attrs = filemode_to_assert_attrs(mode);
@@ -413,7 +416,7 @@ static void do_fc_check_and_die_on_error(struct selinux_opt opts[], unsigned int
     bool ret = ebitmap_attribute_assertion_init(&global_state.assert.set, global_state.assert.attrs);
     if (!ret) {
         /* error messages logged by ebitmap_attribute_assertion_init() */
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     selinux_set_callback(SELINUX_CB_VALIDATE,
@@ -424,7 +427,7 @@ static void do_fc_check_and_die_on_error(struct selinux_opt opts[], unsigned int
     global_state.sepolicy.sehnd[0] = selabel_open(backend, opts, 2);
     if (!global_state.sepolicy.sehnd[0]) {
       fprintf(stderr, "Error: could not load context file from %s\n", context_file);
-      exit(1);
+      exit(EXIT_FAILURE);
     }
 }
 
@@ -501,5 +504,5 @@ int main(int argc, char **argv)
 
       do_fc_check_and_die_on_error(opts, backend, mode, sepolicy_file, context_file, allow_empty);
   }
-  exit(0);
+  exit(EXIT_SUCCESS);
 }

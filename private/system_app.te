@@ -60,8 +60,8 @@ auditallow system_app usb_prop:property_service set;
 # Allow Settings to enable Dynamic System Update
 set_prop(system_app, dynamic_system_prop)
 
-# Allow Settings to access le audio mode property
-set_prop(system_app, bluetooth_lea_mode_prop)
+# Allow Settings to access le audio property
+set_prop(system_app, bluetooth_lea_prop)
 
 # ctl interface
 set_prop(system_app, ctl_default_prop)

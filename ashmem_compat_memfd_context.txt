@@ -1,0 +1,1 @@
+u:object_r:ashmem_compat_memfd:s0

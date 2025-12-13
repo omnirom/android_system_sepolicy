@@ -1,3 +1,4 @@
+divert(-1)
 #
 # Common neverallow permissions
 define(`no_w_file_perms', `{ append create link unlink relabelfrom rename setattr write }')
@@ -13,3 +14,4 @@ define(`neverallow_establish_socket_comms', `
   neverallow $1 $2:socket_class_set { connect sendto };
   neverallow $1 $2:unix_stream_socket connectto;
 ')
+divert(0)

@@ -1,11 +1,5 @@
 # virtual_camera - virtual camera daemon
 
-# The types are moved to public starting at 202502
-until_board_api(202504, `
-    type virtual_camera, domain, coredomain;
-    type virtual_camera_exec, system_file_type, exec_type, file_type;
-')
-
 init_daemon_domain(virtual_camera)
 
 # Since virtual_camera is not a real HAL we don't set the

@@ -46,6 +46,8 @@ var policyConfOrder = []string{
 	"te_macros",
 	"ioctl_defines",
 	"ioctl_macros",
+	"nlmsg_defines",
+	"nlmsg_macros",
 	"attributes|*.te",
 	"roles_decl",
 	"roles",
@@ -94,6 +96,10 @@ type policyConfProperties struct {
 	// Board api level of policy files. Set "current" for RELEASE_BOARD_API_LEVEL, or a direct
 	// version string (e.g. "202404"). Defaults to "current"
 	Board_api_level *string
+
+	// Leave only neverallow rules and line markers. This minimizes the output conf files used for
+	// neverallow CTS tests. Default is false
+	Only_neverallow_rules *bool
 }
 
 type policyConf struct {
@@ -271,6 +277,12 @@ func (c *policyConf) transformPolicyToConf(ctx android.ModuleContext) android.Ou
 		Inputs(srcs).
 		Text("> ").Output(conf)
 
+	if proptools.Bool(c.properties.Only_neverallow_rules) {
+		rule.Command().BuiltTool("sepolicy_filter_neverallow").
+			Text(conf.String()). // input
+			Text(conf.String())  // output (in-place filtering)
+	}
+
 	rule.Build("conf", "Transform policy to conf: "+ctx.ModuleName())
 	return conf
 }
@@ -289,6 +301,10 @@ func (c *policyConf) GenerateAndroidBuildActions(ctx android.ModuleContext) {
 	ctx.InstallFile(c.installPath, c.stem(), c.installSource)
 
 	ctx.SetOutputFiles(android.Paths{c.installSource}, "")
+
+	moduleInfoJSON := ctx.ModuleInfoJSON()
+	moduleInfoJSON.Class = []string{"ETC"}
+	moduleInfoJSON.SystemSharedLibs = []string{"none"}
 }
 
 func (c *policyConf) AndroidMkEntries() []android.AndroidMkEntries {
@@ -367,6 +383,7 @@ func (c *policyCil) compileConfToCil(ctx android.ModuleContext, conf android.Pat
 	checkpolicyCmd := rule.Command().BuiltTool("checkpolicy").
 		Flag("-C"). // Write CIL
 		Flag("-M"). // Enable MLS
+		Flag("-L"). // Line markers for allow rules
 		FlagWithArg("-c ", strconv.Itoa(PolicyVers)).
 		FlagWithOutput("-o ", cil).
 		Input(conf)
@@ -432,6 +449,10 @@ func (c *policyCil) GenerateAndroidBuildActions(ctx android.ModuleContext) {
 	ctx.InstallFile(c.installPath, c.stem(), c.installSource)
 
 	ctx.SetOutputFiles(android.Paths{c.installSource}, "")
+
+	moduleInfoJSON := ctx.ModuleInfoJSON()
+	moduleInfoJSON.Class = []string{"ETC"}
+	moduleInfoJSON.SystemSharedLibs = []string{"none"}
 }
 
 func (c *policyCil) AndroidMkEntries() []android.AndroidMkEntries {
@@ -575,6 +596,10 @@ func (c *policyBinary) GenerateAndroidBuildActions(ctx android.ModuleContext) {
 	ctx.InstallFile(c.installPath, c.stem(), c.installSource)
 
 	ctx.SetOutputFiles(android.Paths{c.installSource}, "")
+
+	moduleInfoJSON := ctx.ModuleInfoJSON()
+	moduleInfoJSON.Class = []string{"ETC"}
+	moduleInfoJSON.SystemSharedLibs = []string{"none"}
 }
 
 func (c *policyBinary) AndroidMkEntries() []android.AndroidMkEntries {

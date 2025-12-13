@@ -20,7 +20,7 @@ import sys
 
 # A line should look like:
 # {prop_name} u:object_r:{context_name}:s0
-line_regex = re.compile(r'^(\S+)\s+u:object_r:([^:]+):s0.*$')
+line_regex = re.compile(r'^\s*(\S+)\s+u:object_r:([^:]+):s0.*$')
 
 # Parses a line in property_contexts and return a (prop, ctx) tuple.
 # Raises an error for any malformed entries.

@@ -1,3 +1,4 @@
+divert(-1)
 ########################################
 #
 # gen_cats(N)
@@ -52,3 +53,4 @@ define(`gen_levels',`decl_levels(0,decr($1),decr($2))')
 #
 define(`mls_systemlow',`s0')
 define(`mls_systemhigh',`s`'decr(mls_num_sens):c0.c`'decr(mls_num_cats)')
+divert(0)

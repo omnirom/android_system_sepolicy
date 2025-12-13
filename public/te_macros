@@ -1,3 +1,4 @@
+divert(-1)
 #####################################
 # domain_trans(olddomain, type, newdomain)
 # Allow a transition from olddomain to newdomain
@@ -75,7 +76,7 @@ allow $1 $2:{ file lnk_file } r_file_perms;
 # Allow access to a unique type for this domain when creating tmpfs / ashmem files.
 define(`tmpfs_domain', `
 type_transition $1 tmpfs:file $1_tmpfs;
-allow $1 $1_tmpfs:file { read write getattr map ioctl };
+allow $1 $1_tmpfs:file { read write getattr map ioctl relabelfrom };
 allowxperm $1 $1_tmpfs:file ioctl ashmem_ioctls;
 ')
 
@@ -206,6 +207,10 @@ allow $1 virtualizationservice_data_file:file { getattr read };
 allow virtualizationmanager $1:dir search;
 allow virtualizationmanager $1:file read;
 allow virtualizationmanager $1:lnk_file read;
+
+# Allow owner of a VM to kill the VM forcibly, by sending sigkill to the process group
+# where virtmgr is the leader
+allow $1 crosvm:process sigkill;
 ')
 
 ####################################
@@ -244,7 +249,7 @@ typeattribute $1 appdomain;
 # Label tmpfs objects for all apps.
 type_transition $1 tmpfs:file appdomain_tmpfs;
 userfaultfd_use($1)
-allow $1 appdomain_tmpfs:file { execute getattr map read write ioctl };
+allow $1 appdomain_tmpfs:file { execute getattr map read write ioctl relabelfrom };
 allowxperm $1 appdomain_tmpfs:file ioctl ashmem_ioctls;
 neverallow { $1 -runas_app -shell -simpleperf } { domain -$1 }:file no_rw_file_perms;
 neverallow { appdomain -runas_app -shell -simpleperf -$1 } $1:file no_rw_file_perms;
@@ -715,6 +720,15 @@ define(`use_credstore', `
   binder_call(credstore, $1)
 ')
 
+#####################################
+# use_omapi(domain)
+# Ability to use omapi.
+define(`use_omapi', `
+  allow $1 omapi_service:service_manager find;
+  binder_call($1, omapi)
+  binder_call(omapi, $1)
+')
+
 ###########################################
 # add_service(domain, service)
 # Ability for domain to add a service to service_manager
@@ -1085,3 +1099,57 @@ neverallow { domain -$1 } $1_iouring:anon_inode *;
 # grant CAP_IPC_LOCK to silence avc denials, which is undesireable.
 dontaudit $1 self:global_capability_class_set ipc_lock;
 ')
+
+####################################
+# mapper_sphal_use(domain)
+# Allow domain to load mapper SPHAL.
+define(`mapper_sphal_use', `
+typeattribute $1 mapper_sphal_domain;
+')
+
+####################################
+# opengl_sphal_use(domain)
+# Allow domain to load opengl SPHAL.
+define(`opengl_sphal_use', `
+typeattribute $1 opengl_sphal_domain;
+')
+
+####################################
+# vulkan_sphal_use(domain)
+# Allow domain to load vulkan SPHAL.
+define(`vulkan_sphal_use', `
+typeattribute $1 vulkan_sphal_domain;
+')
+
+#####################################
+# set_xperm_filter(target_context, allowed_target, unpriv_ioctls, restricted_ioctls, instrumentation_ioctls)
+# Allow targets to harden their IOCTL interfaces by specifying
+# unprivileged, blocked, and instrumentation-specific IOCTLs for appdomain.
+#
+# Parameters:
+#   target_context: The target context to apply the filter to.
+#   allowed_target: Additional `appdomain` target to exempt from hardened policy.
+#     Allows for an allowlist of services, or gating by a target SDK.
+#   unpriv_ioctls: IOCTLs to allow across appdomain.
+#   restricted_ioctls: IOCTLs to deny across appdomain.
+#   instrumentation_ioctls: IOCTLs intended to be used in development.
+#     IOCTLs will be allowed from `shell` or `debuggable` applications.
+define(`set_xperm_filter', `
+  # Allow unprivileged IOCTLs.
+  allowxperm appdomain $1:chr_file ioctl { $3 };
+  # Disallow restricted IOCTLs. Gate by targetSdkVersion.
+  neverallowxperm { appdomain -$2 } $1:chr_file ioctl { $4 };
+  allowxperm $2 $1:chr_file ioctl { $4 };
+  # Allow instrumentation ioctls when used from shell by
+  # profiling tools, or debuggable applications.
+  # Gate by targetSdkVersion.
+  allowxperm { $2 runas_app shell } $1:chr_file ioctl { $5 };
+  neverallowxperm {
+    appdomain
+    -$2
+    -runas_app
+    -shell
+  } $1:chr_file ioctl { $5 };
+')
+
+divert(0)

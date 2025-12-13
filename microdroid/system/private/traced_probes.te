@@ -19,6 +19,11 @@ allow traced_probes debugfs_tracing:file rw_file_perms;
 allow traced_probes debugfs_trace_marker:file getattr;
 allow traced_probes debugfs_tracing_printk_formats:file r_file_perms;
 
+userdebug_or_eng(`
+allow traced_probes debugfs_tracing_debug:dir r_dir_perms;
+allow traced_probes debugfs_tracing_debug:file rw_file_perms;
+')
+
 # Allow to log to kernel dmesg when starting / stopping ftrace.
 allow traced_probes kmsg_device:chr_file write;
 
@@ -29,8 +34,26 @@ r_dir_file(traced_probes, domain)
 # their userspace TRACE macros.
 domain_auto_trans(traced_probes, atrace_exec, atrace)
 
+# For kernel address symbolisation. Allow reading from /proc/kallsyms inherited
+# from init, as well as separately opening and locking the file for
+# coordinating the use of that shared fd.
+allow traced_probes proc_kallsyms:file { open read lock };
+
 # Allow traced_probes to kill atrace on timeout.
 allow traced_probes atrace:process sigkill;
+
+# Allow traced_probes to access /proc files for system stats.
+# Note: trace data is NOT exposed to anything other than shell and privileged
+# system apps that have access to the traced consumer socket.
+allow traced_probes {
+  proc_meminfo
+  proc_vmstat
+  proc_stat
+  proc_buddyinfo
+  proc_pressure_cpu
+  proc_pressure_io
+  proc_pressure_mem
+}:file r_file_perms;
 
 ###
 ### Neverallow rules

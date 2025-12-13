@@ -296,4 +296,5 @@ se_policy_conf {
     exclude_build_test: true,
     installable: false,
     mls_cats: 1,
+    only_neverallow_rules: true,
 }

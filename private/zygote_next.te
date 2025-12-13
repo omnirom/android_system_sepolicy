@@ -1,0 +1,27 @@
+type zygote_next, domain;
+type zygote_next_exec, system_file_type, exec_type, file_type;
+
+typeattribute zygote_next coredomain;
+typeattribute zygote_next mlstrustedsubject;
+
+init_daemon_domain(zygote_next)
+
+# Override DAC on files and switch uid/gid.
+allow zygote_next self:global_capability_class_set { dac_override setgid setuid };
+
+# Set scheduler policy.
+allow zygote_next self:global_capability_class_set sys_nice;
+
+# Drop capabilities from bounding set.
+# sys_admin is required to install the seccomp filter
+allow zygote_next self:global_capability_class_set { sys_admin setpcap };
+
+# Needed for calling selinux_android_setcontext
+allow zygote_next seapp_contexts_file:file r_file_perms;
+# Check validity of SELinux context before use.
+selinux_check_context(zygote_next)
+# Check SELinux permissions.
+selinux_check_access(zygote_next)
+
+allow zygote_next self:process setcurrent;
+allow zygote_next isolated_app:process dyntransition;

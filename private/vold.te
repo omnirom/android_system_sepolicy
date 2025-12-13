@@ -104,6 +104,7 @@ allow vold {
   sysfs_devices_block
   sysfs_dm
   sysfs_loop # writing to /sys/block/loop*/uevent during coldboot.
+  sysfs_ublk # writing to /sys/block/ublk*/uevent
   sysfs_usb
   sysfs_zram_uevent
   sysfs_fs_f2fs
@@ -151,6 +152,7 @@ allowxperm vold data_file_type:dir ioctl {
 allowxperm vold {
   vold_data_file
   vold_metadata_file
+  unencrypted_data_file
   is_flag_enabled(RELEASE_UNLOCKED_STORAGE_API, `storage_area_key_file')
 }:file ioctl {
   F2FS_IOC_SEC_TRIM_FILE
@@ -434,6 +436,7 @@ neverallow {
 
 neverallow {
     domain
+    -apexd
     -init
     -vold
 } vold_metadata_file:dir *;
@@ -447,6 +450,7 @@ neverallow {
 
 neverallow {
     domain
+    -apexd
     -init
     -vold
     -vold_prepare_subdirs
@@ -454,6 +458,7 @@ neverallow {
 
 neverallow {
     domain
+    -apexd
     -init
     -kernel
     -vold

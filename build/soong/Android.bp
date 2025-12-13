@@ -25,6 +25,7 @@ bootstrap_go_package {
     pkgPath: "android/soong/selinux",
     deps: [
         "blueprint",
+        "blueprint-proptools",
         "soong",
         "soong-android",
         "soong-genrule",

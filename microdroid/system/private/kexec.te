@@ -13,3 +13,8 @@ allow kexec self:capability sys_boot;
 
 # allow kexec to write kmsg_debug
 allow kexec kmsg_debug_device:chr_file w_file_perms;
+
+# allow kexec to pass permission checks in Linux 6.15 and newer, which have
+# commit 2c2b1e059792 ("selinux: add permission checks for loading other kinds
+# of kernel files")
+allow kexec system_file:system { kexec_image_load kexec_initramfs_load };

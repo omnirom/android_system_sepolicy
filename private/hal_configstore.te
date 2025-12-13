@@ -64,4 +64,4 @@ neverallow hal_configstore_server self:capability_class_set *;
 neverallow hal_configstore_server *:process ptrace;
 
 # no relabeling
-neverallow hal_configstore_server *:dir_file_class_set { relabelfrom relabelto };
+neverallow hal_configstore_server { file_type -tmpfs -ashmem_compat_memfd }:dir_file_class_set { relabelfrom relabelto };

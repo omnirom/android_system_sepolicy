@@ -8,12 +8,8 @@ type binderfs, fs_type;
 type binderfs_logs, fs_type;
 type binderfs_logs_proc, fs_type;
 type binderfs_logs_stats, fs_type;
-
-starting_at_board_api(202504, `
-    type binderfs_logs_transactions, fs_type;
-    type binderfs_logs_transaction_history, fs_type;
-')
-
+type binderfs_logs_transactions, fs_type;
+type binderfs_logs_transaction_history, fs_type;
 type binderfs_features, fs_type;
 # Security-sensitive proc nodes that should not be writable to most.
 type proc_security, fs_type, proc_type;
@@ -34,9 +30,7 @@ type proc_asound, fs_type, proc_type;
 type proc_bootconfig, fs_type, proc_type;
 type proc_bpf, fs_type, proc_type;
 type proc_buddyinfo, fs_type, proc_type;
-starting_at_board_api(202504, `
-    type proc_cgroups, fs_type, proc_type;
-')
+type proc_cgroups, fs_type, proc_type;
 type proc_cmdline, fs_type, proc_type;
 type proc_cpu_alignment, fs_type, proc_type;
 type proc_cpuinfo, fs_type, proc_type;
@@ -44,6 +38,7 @@ type proc_dirty, fs_type, proc_type;
 type proc_diskstats, fs_type, proc_type;
 type proc_extra_free_kbytes, fs_type, proc_type;
 type proc_filesystems, fs_type, proc_type;
+starting_at_board_api(202604, `type proc_firmware_config, fs_type, proc_type;')
 type proc_fs_verity, fs_type, proc_type;
 type proc_hostname, fs_type, proc_type;
 type proc_hung_task, fs_type, proc_type;
@@ -70,7 +65,7 @@ type proc_pid_max, fs_type, proc_type;
 type proc_pipe_conf, fs_type, proc_type;
 type proc_pressure_cpu, fs_type, proc_type;
 type proc_pressure_io, fs_type, proc_type;
-type proc_pressure_mem, fs_type, proc_type;
+type proc_pressure_mem, fs_type, proc_type, mlstrustedobject;
 type proc_random, fs_type, proc_type;
 type proc_sched, fs_type, proc_type;
 type proc_slabinfo, fs_type, proc_type;
@@ -103,11 +98,7 @@ type sysfs_android_usb, fs_type, sysfs_type;
 type sysfs_uio, sysfs_type, fs_type;
 type sysfs_batteryinfo, fs_type, sysfs_type;
 type sysfs_bluetooth_writable, fs_type, sysfs_type, mlstrustedobject;
-
-starting_at_board_api(202504, `
-    type sysfs_cma, fs_type, sysfs_type;
-')
-
+type sysfs_cma, fs_type, sysfs_type;
 type sysfs_devfreq_cur, fs_type, sysfs_type;
 type sysfs_devfreq_dir, fs_type, sysfs_type;
 type sysfs_devices_block, fs_type, sysfs_type;
@@ -129,11 +120,7 @@ type sysfs_wake_lock, fs_type, sysfs_type;
 type sysfs_net, fs_type, sysfs_type;
 type sysfs_power, fs_type, sysfs_type;
 type sysfs_rtc, fs_type, sysfs_type;
-
-starting_at_board_api(202504, `
-    type sysfs_mem_sleep, fs_type, sysfs_type;
-')
-
+type sysfs_mem_sleep, fs_type, sysfs_type;
 type sysfs_suspend_stats, fs_type, sysfs_type;
 type sysfs_switch, fs_type, sysfs_type;
 type sysfs_sync_on_suspend, fs_type, sysfs_type;
@@ -234,19 +221,11 @@ type system_zoneinfo_file, system_file_type, file_type;
 # Cgroups description file under /system/etc/cgroups.json or
 # API file under /system/etc/task_profiles/cgroups_*.json
 type cgroup_desc_file, system_file_type, file_type;
-until_board_api(202504, `
-    # Cgroups description file under /system/etc/task_profiles/cgroups_*.json
-    type cgroup_desc_api_file, system_file_type, file_type;
-')
 # Vendor cgroups description file under /vendor/etc/cgroups.json
 type vendor_cgroup_desc_file, vendor_file_type, file_type;
 # Task profiles file under /system/etc/task_profiles.json or
 # API file under /system/etc/task_profiles/task_profiles_*.json
 type task_profiles_file, system_file_type, file_type;
-until_board_api(202504, `
-    # Task profiles file under /system/etc/task_profiles/task_profiles_*.json
-    type task_profiles_api_file, system_file_type, file_type;
-')
 # Vendor task profiles file under /vendor/etc/task_profiles.json
 type vendor_task_profiles_file, vendor_file_type, file_type;
 # Type for /system/apex/com.android.art
@@ -285,12 +264,8 @@ type vendor_public_framework_file, vendor_file_type, file_type;
 # Type for all microdroid related files in the vendor partition.
 # Files having this type should be read-only.
 type vendor_microdroid_file, vendor_file_type, file_type;
-
-starting_at_board_api(202504, `
-    # boot otas for 16KB developer option
-    type vendor_boot_ota_file, vendor_file_type, file_type;
-')
-
+# boot otas for 16KB developer option
+type vendor_boot_ota_file, vendor_file_type, file_type;
 # Input configuration
 type vendor_keylayout_file, vendor_file_type, file_type;
 type vendor_keychars_file, vendor_file_type, file_type;
@@ -302,7 +277,7 @@ type vendor_uuid_mapping_config_file, vendor_file_type, file_type;
 # SoC-specific virtual machine disk files
 type vendor_vm_file, vendor_file_type, file_type;
 # SoC-specific virtual machine disk files that are mutable
-type vendor_vm_data_file, vendor_file_type, file_type;
+type vendor_vm_data_file, data_file_type, file_type;
 
 # /metadata partition itself
 type metadata_file, file_type;
@@ -386,7 +361,9 @@ type apk_private_tmp_file, file_type, data_file_type, core_data_file_type, mlstr
 # /data/dalvik-cache
 type dalvikcache_data_file, file_type, data_file_type, core_data_file_type;
 # /data/ota
-type ota_data_file, file_type, data_file_type, core_data_file_type;
+until_board_api(202604, `
+    type ota_data_file, file_type, data_file_type, core_data_file_type;
+');
 # /data/ota_package
 type ota_package_file, file_type, data_file_type, core_data_file_type, mlstrustedobject;
 # /data/misc/profiles
@@ -460,7 +437,9 @@ type postinstall_mnt_dir, file_type;
 # Files inside the /postinstall mountpoint are all labeled as postinstall_file.
 type postinstall_file, file_type;
 # /postinstall/apex: Mount point used for APEX images within /postinstall.
-type postinstall_apex_mnt_dir, file_type;
+until_board_api(202604, `
+    type postinstall_apex_mnt_dir, file_type;
+');
 
 # /data_mirror: Contains mirror directory for storing all apps data.
 type mirror_data_file, file_type, core_data_file_type;
@@ -657,10 +636,22 @@ with_asan(`type asanwrapper_exec, exec_type, file_type;')
 # Deprecated in SDK version 28
 type audiohal_data_file, file_type, data_file_type, core_data_file_type;
 
-starting_at_board_api(202504, `
-    type sysfs_udc, fs_type, sysfs_type;
-    type tee_service_contexts_file, system_file_type, file_type;
+type sysfs_udc, fs_type, sysfs_type;
+type tee_service_contexts_file, system_file_type, file_type;
+
+# /data/misc/virtualizationservice
+# The type needs to be mlstrustedobject to allow for being accessed from
+# virtualizationmanager, which runs at a more constrained MLS level.
+starting_at_board_api(202604, `
+    type virtualizationservice_data_file, file_type, data_file_type, core_data_file_type, mlstrustedobject;
 ')
+
+# /sys/bus/thunderbolt
+starting_at_board_api(202604, `type sysfs_thunderbolt, fs_type, sysfs_type;')
+# /sys/class/typec
+starting_at_board_api(202604, `type sysfs_typec, fs_type, sysfs_type;')
+# /sys/class/usb_power_delivery
+starting_at_board_api(202604, `type sysfs_usb_pd, fs_type, sysfs_type;')
 
 # system/sepolicy/public is for vendor-facing type and attribute definitions.
 # DO NOT ADD allow, neverallow, or dontaudit statements here.

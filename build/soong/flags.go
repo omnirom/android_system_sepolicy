@@ -100,7 +100,7 @@ type buildFlagsInfo struct {
 	BuildFlags map[string]string
 }
 
-var buildFlagsProviderKey = blueprint.NewProvider[buildFlagsInfo]()
+var buildFlagsInfoProvider = blueprint.NewProvider[buildFlagsInfo]()
 
 type flagsCollectorModule struct {
 	android.ModuleBase
@@ -118,7 +118,7 @@ func flagsCollectorFactory() android.Module {
 
 func (f *flagsCollectorModule) GenerateAndroidBuildActions(ctx android.ModuleContext) {
 	var flags []string
-	ctx.VisitDirectDepsWithTag(flagsDepTag, func(m android.Module) {
+	ctx.VisitDirectDepsProxyWithTag(flagsDepTag, func(m android.ModuleProxy) {
 		if dep, ok := android.OtherModuleProvider(ctx, m, flagsProviderKey); ok {
 			flags = append(flags, dep.Flags...)
 		} else {
@@ -131,7 +131,7 @@ func (f *flagsCollectorModule) GenerateAndroidBuildActions(ctx android.ModuleCon
 			buildFlags[flag] = val
 		}
 	}
-	android.SetProvider(ctx, buildFlagsProviderKey, buildFlagsInfo{
+	android.SetProvider(ctx, buildFlagsInfoProvider, buildFlagsInfo{
 		BuildFlags: buildFlags,
 	})
 }
@@ -168,8 +168,8 @@ func (f *flaggableModuleBase) flagDeps(ctx android.BottomUpMutatorContext) {
 // getBuildFlags returns a map from flag names to flag values.
 func (f *flaggableModuleBase) getBuildFlags(ctx android.ModuleContext) map[string]string {
 	ret := make(map[string]string)
-	ctx.VisitDirectDepsWithTag(buildFlagsDepTag, func(m android.Module) {
-		if dep, ok := android.OtherModuleProvider(ctx, m, buildFlagsProviderKey); ok {
+	ctx.VisitDirectDepsProxyWithTag(buildFlagsDepTag, func(m android.ModuleProxy) {
+		if dep, ok := android.OtherModuleProvider(ctx, m, buildFlagsInfoProvider); ok {
 			maps.Copy(ret, dep.BuildFlags)
 		} else {
 			ctx.PropertyErrorf("build_flags", "unknown dependency %q", ctx.OtherModuleName(m))

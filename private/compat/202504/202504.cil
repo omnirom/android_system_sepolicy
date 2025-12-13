@@ -1,5 +1,8 @@
 ;; types removed from current policy
 (type apk_verity_prop)
+(type ota_data_file)
+(type otadexopt_service)
+(type postinstall_apex_mnt_dir)
 
 ;; mapping information from ToT policy's types to 202504 policy's types.
 (expandtypeattribute (DockObserver_service_202504) true)
@@ -2262,7 +2265,7 @@
 (typeattributeset priv_app_202504 (priv_app))
 (typeattributeset privapp_data_file_202504 (privapp_data_file))
 (typeattributeset prng_seeder_202504 (prng_seeder))
-(typeattributeset proc_202504 (proc))
+(typeattributeset proc_202504 (proc proc_firmware_config))
 (typeattributeset proc_abi_202504 (proc_abi))
 (typeattributeset proc_asound_202504 (proc_asound))
 (typeattributeset proc_bluetooth_writable_202504 (proc_bluetooth_writable))

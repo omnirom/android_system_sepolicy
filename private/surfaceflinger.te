@@ -62,6 +62,7 @@ set_prop(surfaceflinger, exported_system_prop)
 set_prop(surfaceflinger, exported3_system_prop)
 set_prop(surfaceflinger, ctl_bootanim_prop)
 set_prop(surfaceflinger, locale_prop)
+set_prop(surfaceflinger, service_sf_present_timestamp_prop)
 set_prop(surfaceflinger, surfaceflinger_display_prop)
 set_prop(surfaceflinger, timezone_prop)
 
@@ -149,6 +150,9 @@ allow surfaceflinger hal_evs:fd use;
 # Allow to use release fence fds supplied by hal_camera
 allow surfaceflinger hal_camera:fd use;
 
+# Allow access to /data/misc/surfaceflinger
+allow surfaceflinger surfaceflinger_data_file:dir create_dir_perms;
+allow surfaceflinger surfaceflinger_data_file:file create_file_perms;
 
 # Surfaceflinger should not be reading default vendor-defined properties.
 dontaudit surfaceflinger vendor_default_prop:file read;

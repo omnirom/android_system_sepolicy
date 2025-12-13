@@ -4,6 +4,9 @@ type proc_allocinfo, fs_type, proc_type;
 # /proc/config.gz
 type config_gz, fs_type, proc_type;
 
+# /proc/sys/kernel/firmware_config/*
+until_board_api(202604, `type proc_firmware_config, fs_type, proc_type;')
+
 # /sys/fs/bpf/<dir> for mainline tethering use
 # TODO: move S+ fs_bpf_tethering here from public/file.te
 type fs_bpf_net_private, fs_type, bpffs_type;
@@ -13,6 +16,7 @@ type fs_bpf_netd_shared, fs_type, bpffs_type;
 type fs_bpf_loader, fs_type, bpffs_type;
 type fs_bpf_uprobestats, fs_type, bpffs_type;
 type fs_bpf_memevents, fs_type, bpffs_type;
+type fs_bpf_cputimeinstate, fs_type, bpffs_type;
 
 # /data/system/mediadrm
 type mediadrm_system_data_file, file_type, data_file_type, core_data_file_type;
@@ -104,6 +108,10 @@ type apex_permission_data_file, file_type, data_file_type, core_data_file_type, 
 type apex_scheduling_data_file, file_type, data_file_type, core_data_file_type, apex_data_file_type;
 type apex_wifi_data_file, file_type, data_file_type, core_data_file_type, apex_data_file_type;
 
+# Label for AppSearch data files
+# https://developer.android.com/develop/ui/views/search/appsearch
+type appsearch_data_file, file_type, data_file_type, core_data_file_type;
+
 # /data/font/files
 type font_data_file, file_type, data_file_type, core_data_file_type;
 
@@ -122,7 +130,9 @@ type odsign_metrics_file, file_type, data_file_type, core_data_file_type;
 # /data/misc/virtualizationservice
 # The type needs to be mlstrustedobject to allow for being accessed from
 # virtualizationmanager, which runs at a more constrained MLS level.
-type virtualizationservice_data_file, file_type, data_file_type, core_data_file_type, mlstrustedobject;
+until_board_api(202604, `
+    type virtualizationservice_data_file, file_type, data_file_type, core_data_file_type, mlstrustedobject;
+')
 
 # /mnt/vm
 type vm_data_file, file_type, core_data_file_type;
@@ -132,6 +142,9 @@ type environ_system_data_file, file_type, data_file_type, core_data_file_type;
 
 # /data/misc/bootanim
 type bootanim_data_file, file_type, data_file_type, core_data_file_type;
+
+# /data/misc/surfaceflinger
+type surfaceflinger_data_file, file_type, data_file_type, core_data_file_type;
 
 # /dev/kvm
 # The type needs to be mlstrustedobject to allow for being accessed from
@@ -170,6 +183,9 @@ type aconfigd_mainline_socket, file_type, coredomain_socket,  mlstrustedobject;
 # Type for /(system|system_ext|product)/etc/aconfig
 type system_aconfig_storage_file, system_file_type, file_type;
 
+# Type for Gatekeeper file
+type gatekeeper_vendor_data_file, file_type, data_file_type;
+
 # Type for /vendor/etc/aconfig
 type vendor_aconfig_storage_file, vendor_file_type, file_type;
 
@@ -191,6 +207,9 @@ type apk_metadata_file, file_type, data_file_type, core_data_file_type;
 
 # Type for /sys/kernel/mm/pgsize_migration/enabled
 type sysfs_pgsize_migration, fs_type, sysfs_type;
+
+# Type for /sys/kernel/btf/*
+type sysfs_btf, fs_type, sysfs_type;
 
 # /sys/firmware/acpi/tables
 type sysfs_firmware_acpi_tables, fs_type, sysfs_type;
@@ -240,36 +259,27 @@ type prefetch_metadata_file, file_type;
 # /metadata/libprocessgroup files
 type libprocessgroup_metadata_file, file_type;
 
-# Types added in 202504 in public/file.te
-until_board_api(202504, `
-    type binderfs_logs_transactions, fs_type;
-    type binderfs_logs_transaction_history, fs_type;
-')
+type exp_partition_data_file, file_type, data_file_type, core_data_file_type;
 
-until_board_api(202504, `
-    type proc_cgroups, fs_type, proc_type;
-')
+# statsd service stores list of atoms in use
+type statsd_atoms_list_file, file_type, data_file_type, core_data_file_type;
 
-until_board_api(202504, `
-    type sysfs_udc, fs_type, sysfs_type;
-')
+# File type used for memfds created by libcutils. This type has similar access
+# control rules as the other ashmem types to smooth over the transition from
+# ashmem to memfd.
+type ashmem_compat_memfd, file_type, mlstrustedobject;
 
-until_board_api(202504, `
-    type fs_bpf_lmkd_memevents_rb, fs_type, bpffs_type;
-    type fs_bpf_lmkd_memevents_prog, fs_type, bpffs_type;
-')
+# File type used for the text file containing the type that libcutils
+# uses when constructing contexts for memfd. This needs to be accessible
+# to all processes.
+type ashmem_compat_memfd_context_file, system_file_type, file_type;
 
-until_board_api(202504, `
-    # boot otas for 16KB developer option
-    type vendor_boot_ota_file, vendor_file_type, file_type;
-')
+# /sys/device/virtual/misc/ublk-control/
+type sysfs_ublk, fs_type, sysfs_type;
 
-until_board_api(202504, `
-    type tee_service_contexts_file, system_file_type, file_type;
-')
+# /sys/bus/thunderbolt and /sys/class/typec
+until_board_api(202604, `type sysfs_thunderbolt, fs_type, sysfs_type;')
+until_board_api(202604, `type sysfs_typec, fs_type, sysfs_type;')
+until_board_api(202604, `type sysfs_usb_pd, fs_type, sysfs_type;')
 
-until_board_api(202504, `
-    type sysfs_mem_sleep, fs_type, sysfs_type;
-')
-
-## END Types added in 202504 in public/file.te
+type zygote_next_socket, file_type, coredomain_socket;

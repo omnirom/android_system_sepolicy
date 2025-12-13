@@ -1,0 +1,16 @@
+# adservices subsystem
+type adservices, domain, coredomain;
+
+app_domain(adservices)
+net_domain(adservices)
+allow adservices radio_service:service_manager find;
+
+# Allow write access to adservices specific properties
+set_prop(adservices, binder_cache_adservices_server_prop);
+
+allow adservices app_api_service:service_manager find;
+allow adservices adservices_manager_service:service_manager find;
+
+# Only adservices is allowed to write these binder cache properties
+neverallow { domain -adservices -init }
+    binder_cache_adservices_server_prop:property_service set;

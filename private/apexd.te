@@ -57,8 +57,9 @@ allow apexd dev_type:blk_file getattr;
 allow apexd vd_device:blk_file r_file_perms;
 
 # allow apexd to access /dev/block/dm-* (device-mapper entries)
+# setattr for dm_device:blk_file to override mtime
 allow apexd dm_device:chr_file rw_file_perms;
-allow apexd dm_device:blk_file rw_file_perms;
+allow apexd dm_device:blk_file {setattr rw_file_perms};
 
 # sys_admin is required to access the device-mapper and mount
 # dac_override, chown, and fowner are needed for snapshot and restore
@@ -135,6 +136,10 @@ set_prop(apexd, ctl_apex_load_prop)
 allow apexd vold_service:service_manager find;
 binder_call(apexd, vold)
 
+# Allow apexd to abortChanges directly with vold_metadata_file
+allow apexd vold_metadata_file:dir { search };
+allow apexd vold_metadata_file:file { getattr open read write };
+
 # apexd is using bootstrap bionic
 use_bootstrap_libs(apexd)
 
@@ -157,6 +162,15 @@ allowxperm apexd staging_data_file:file ioctl {
   F2FS_IOC_RELEASE_COMPRESS_BLOCKS
 };
 
+# Allow apexd to query FIEMAP from a pinned APEX file in /data/apex/images.
+allowxperm apexd apex_data_file:file ioctl FS_IOC_FIEMAP;
+
+# Allow apexd to pin a file on /data (userdata)
+allowxperm apexd userdata_block_device:blk_file ioctl {FS_IOC_FIEMAP BLKGETSIZE64 BLKIOMIN BLKALIGNOFF};
+
+# Allow apexd to create dm-linear devices on top of userdata partition
+allow apexd userdata_block_device:blk_file r_file_perms;
+
 # Allow apexd to read ro.cold_boot_done prop.
 # apexd uses it to decide whether it needs to keep retrying polling for loop device.
 get_prop(apexd, cold_boot_done_prop)
@@ -173,11 +187,13 @@ get_prop(apexd, apexd_payload_metadata_prop)
 
 set_prop(apexd, apexd_prop)
 
+# Allow apexd to set its private props
+set_prop(apexd, apexd_private_prop)
+
+# Allow apexd to set "gsid.mapped_image.*" props
+set_prop(apexd, gsid_prop)
+
 # Allow for use in postinstall
-allow apexd otapreopt_chroot:fd use;
-allow apexd postinstall_apex_mnt_dir:dir { create_dir_perms mounton };
-allow apexd postinstall_apex_mnt_dir:file { create_file_perms relabelfrom };
-allow apexd postinstall_apex_mnt_dir:lnk_file create;
 allow apexd proc_filesystems:file r_file_perms;
 
 # Allow for use in Pre-reboot Dexopt.
@@ -218,13 +234,10 @@ neverallow { domain -apexd -init } apexd_prop:property_service set;
 neverallow { domain -apexd } apex_info_file:file no_w_file_perms;
 
 # Only apexd and init should be allowed to manage /apex mounts
-# A note on otapreopt_chroot. It used to mount APEXes during postainstall stage of A/B OTAs,
-# but starting from S it just calls into apexd to prepare /apex for otapreoprt. Once the sepolicies
-# around otapreopt_chroot are cleaned up we should be able to remove it from the lists below.
 # dexopt_chroot_setup calls apexd to prepare /apex for Pre-reboot Dexopt, but it
 # needs to mount a tmpfs on /apex for apexd to work on.
-neverallow { domain -apexd -init -otapreopt_chroot } apex_mnt_dir:filesystem { mount unmount };
-neverallow { domain -apexd -dexopt_chroot_setup -init -otapreopt_chroot } apex_mnt_dir:dir mounton;
+neverallow { domain -apexd -init } apex_mnt_dir:filesystem { mount unmount };
+neverallow { domain -apexd -dexopt_chroot_setup -init } apex_mnt_dir:dir mounton;
 
 # The update_provider performs APEX updates. To do this, it needs to be able to find apex_service
 # and make binder calls to apexd.

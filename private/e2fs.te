@@ -8,6 +8,7 @@ allow e2fs dm_device:blk_file rw_file_perms;
 allow e2fs zoned_block_device:blk_file rw_file_perms;
 # Vold needs to capture mkfs.ext4's output
 allow e2fs vold:fd use;
+allow e2fs vold:fifo_file { read write getattr };
 # Need to be able to format a partition
 allow e2fs sysfs_dm:dir r_dir_perms;
 allow e2fs sysfs_dm:file r_file_perms;

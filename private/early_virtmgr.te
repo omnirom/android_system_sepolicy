@@ -1,9 +1,4 @@
 is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `
-    until_board_api(202504, `
-        type early_virtmgr, domain, coredomain;
-        type early_virtmgr_exec, system_file_type, exec_type, file_type;
-    ')
-
     use_bootstrap_libs(early_virtmgr)
 
     # Let early_virtmgr create files and directories inside /mnt/vm/early.
@@ -61,6 +56,17 @@ is_flag_enabled(RELEASE_AVF_ENABLE_EARLY_VM, `
 
     # early_virtmgr may print messages to kmsg_debug_device.
     allow early_virtmgr kmsg_debug_device:chr_file w_file_perms;
+
+    # Allow early_virtmgr to read vm related files in vendor partition
+    allow early_virtmgr vendor_vm_file:file { read getattr };
+    allow early_virtmgr vendor_vm_data_file:file { read write getattr };
+
+    # early_virtmgr reads tee_service_contexts_file to determine if VM is allowed
+    # to access requested tee services
+    allow early_virtmgr tee_service_contexts_file:file r_file_perms;
+    # early_virtmgr uses libselinux to check if VM is allowed to access requested
+    # tee services.
+    selinux_check_access(early_virtmgr)
 
     ###
     ### Neverallow rules

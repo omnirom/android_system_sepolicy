@@ -34,6 +34,7 @@ neverallow recovery_persist { app_data_file_type system_data_file }:dir_file_cla
 neverallow recovery_persist {
   file_type
   -recovery_data_file
+  -ashmem_compat_memfd
   userdebug_or_eng(`-coredump_file')
   with_native_coverage(`-method_trace_data_file')
 }:file write;

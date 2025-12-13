@@ -1,0 +1,23 @@
+type serialservice_exec, system_file_type, exec_type, file_type;
+
+starting_at_board_api(202602, `
+    typeattribute serialservice coredomain;
+    typeattribute serialservice mlstrustedobject;
+
+    init_daemon_domain(serialservice)
+
+    # Perform Binder IPC
+    binder_use(serialservice)
+
+    # Register the native service
+    add_service(serialservice, native_serial_service)
+
+    # Listen to /dev changes
+    allow serialservice device:dir r_dir_perms;
+
+    # Read /proc/tty/drivers
+    allow serialservice proc_tty_drivers:file r_file_perms;
+
+    # Read/write serial devices /dev/tty*.
+    allow serialservice { serial_device usb_serial_device }:chr_file rw_file_perms;
+')

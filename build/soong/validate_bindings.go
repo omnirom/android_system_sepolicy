@@ -91,6 +91,8 @@ func (m *fuzzerBindingsTestModule) GenerateAndroidBuildActions(ctx android.Modul
 	m.testTimestamp = android.PathForModuleOut(ctx, "timestamp")
 	rule.Command().Text("touch").Output(m.testTimestamp)
 	rule.Build("fuzzer_bindings_test", "running service:fuzzer bindings test: "+ctx.ModuleName())
+
+	ctx.CheckbuildFile(m.testTimestamp)
 }
 
 func (m *fuzzerBindingsTestModule) AndroidMkEntries() []android.AndroidMkEntries {

@@ -19,6 +19,14 @@ allow compos_verify apex_art_data_file:file r_file_perms;
 allow compos_verify odsign:fd use;
 allow compos_verify odsign_devpts:chr_file { read write };
 
+# compos_verify uses libvmclient which invokes isatty (TCGETS) and tcsetpgrp
+# (TIOCSPGRP), and tcgetpgrp (TIOCGPGRP) on stdout. Stdout of compos_verify is
+# inherited from its parent (odsign) where stdout is set to odsign_devpts.
+allow compos_verify odsign_devpts:chr_file { ioctl };
+allowxperm compos_verify odsign_devpts:chr_file ioctl {
+    TCGETS TIOCSPGRP TIOCGPGRP
+};
+
 # Only odsign can enter the domain via exec
 neverallow { domain -odsign } compos_verify:process transition;
 neverallow * compos_verify:process dyntransition;

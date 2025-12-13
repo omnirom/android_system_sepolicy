@@ -96,6 +96,9 @@ func (c *compatCil) GenerateAndroidBuildActions(ctx android.ModuleContext) {
 	if c.installSource.Valid() {
 		ctx.SetOutputFiles(android.Paths{c.installSource.Path()}, "")
 	}
+	moduleInfoJSON := ctx.ModuleInfoJSON()
+	moduleInfoJSON.Class = []string{"ETC"}
+	moduleInfoJSON.SystemSharedLibs = []string{"none"}
 }
 
 func (c *compatCil) AndroidMkEntries() []android.AndroidMkEntries {
@@ -186,7 +189,7 @@ func (f *compatTestModule) GenerateAndroidBuildActions(ctx android.ModuleContext
 		ctx.ModuleErrorf("There can only be 1 se_compat_test module named sepolicy_compat_test in system/sepolicy/compat")
 	}
 	var inputs android.Paths
-	ctx.VisitDirectDepsWithTag(compatTestDepTag, func(child android.Module) {
+	ctx.VisitDirectDepsProxyWithTag(compatTestDepTag, func(child android.ModuleProxy) {
 		outputs := android.OutputFilesForModule(ctx, child, "")
 		if len(outputs) != 1 {
 			panic(fmt.Errorf("Module %q should produce exactly one output, but did %q", ctx.OtherModuleName(child), outputs.Strings()))
@@ -199,6 +202,12 @@ func (f *compatTestModule) GenerateAndroidBuildActions(ctx android.ModuleContext
 	rule := android.NewRuleBuilder(pctx, ctx)
 	rule.Command().Text("touch").Output(f.compatTestTimestamp).Implicits(inputs)
 	rule.Build("compat", "compat test timestamp for: "+f.Name())
+
+	ctx.CheckbuildFile(f.compatTestTimestamp)
+
+	moduleInfoJSON := ctx.ModuleInfoJSON()
+	moduleInfoJSON.Class = []string{"FAKE"}
+	moduleInfoJSON.SystemSharedLibs = []string{"none"}
 }
 
 func (f *compatTestModule) AndroidMkEntries() []android.AndroidMkEntries {

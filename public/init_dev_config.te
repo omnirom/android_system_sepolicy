@@ -1,0 +1,9 @@
+
+starting_at_board_api(202604, `
+    type init_dev_config, domain;
+    type init_dev_config_exec, exec_type, vendor_file_type, file_type;
+')
+
+# system/sepolicy/public is for vendor-facing type and attribute definitions.
+# DO NOT ADD allow, neverallow, or dontaudit statements here.
+# Instead, add such policy rules to system/sepolicy/private/*.te.

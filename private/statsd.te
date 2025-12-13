@@ -76,6 +76,30 @@ allow statsd stats_data_file:file create_file_perms;
 allow statsd stats_config_data_file:dir create_dir_perms;
 allow statsd stats_config_data_file:file create_file_perms;
 
+allow statsd statsd_atoms_list_file:dir create_dir_perms;
+allow statsd statsd_atoms_list_file:file create_file_perms;
+
+# Allow all processes to check statsd atoms in use list file.
+allow {
+  coredomain
+  # Except
+  -mediaextractor
+  -perfetto
+  -traced
+  -traced_probes
+} statsd_atoms_list_file:dir r_dir_perms;
+allow {
+  coredomain
+  # Except
+  -mediaextractor
+  -perfetto
+  -traced
+  -traced_probes
+} statsd_atoms_list_file:file r_file_perms;
+
+set_prop(statsd, statsd_atoms_list_version_prop)
+get_prop(coredomain, statsd_atoms_list_version_prop)
+
 # Allow statsd to make binder calls to any binder service.
 binder_call(statsd, appdomain)
 binder_call(statsd, incidentd)
@@ -148,3 +172,16 @@ neverallow { domain -statsd -system_server -init -vold } stats_config_data_file:
 # Limited access to the directory itself.
 neverallow { domain -statsd -init -vold } stats_data_file:dir *;
 neverallow { domain -statsd -system_server -init -vold } stats_config_data_file:dir *;
+
+# Limited access atom ids file.
+neverallow {
+  domain
+  -statsd
+  -init
+} statsd_atoms_list_file:file {no_w_file_perms no_x_file_perms};
+
+neverallow {
+  domain
+  -statsd
+  -init
+} statsd_atoms_list_file:dir no_w_file_perms;

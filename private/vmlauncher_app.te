@@ -38,6 +38,3 @@ userdebug_or_eng(`
   # Allow other processes to access the pts.
   allow vmlauncher_app vmlauncher_app_devpts:chr_file setattr;
 ')
-
-# TODO(b/372664601): Remove this when we don't need linux_vm_setup
-set_prop(vmlauncher_app, debug_prop);

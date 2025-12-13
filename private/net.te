@@ -3,11 +3,14 @@ allow {netdomain -ephemeral_app -sdk_sandbox_all} node_type:{ icmp_socket rawip_
 allow {netdomain -ephemeral_app -sdk_sandbox_all} port_type:udp_socket name_bind;
 allow {netdomain -ephemeral_app -sdk_sandbox_all} port_type:tcp_socket name_bind;
 
-# b/141455849 gate RTM_GETLINK with a new permission nlmsg_readpriv and block access from
-# untrusted_apps.
-# b/171572148 gate RTM_GETNEIGH{TBL} with a new permission nlmsg_getneigh and block access from
-# untrusted_apps. Some untrusted apps (e.g. untrusted_app_25-30) are granted access elsewhere
-# to avoid app-compat breakage.
+# RTM_GETLINK, RTM_GETNEIGH and RTM_GETNEIGHTBL are not accessible to
+# untrusted_app (as these can be abused to recover the MAC address). See
+# b/141455849 and b/171572148. Some untrusted apps (e.g. untrusted_app_25-30)
+# are granted access elsewhere to avoid app-compat breakage. On kernel before
+# 6.13, Android-specific permissions were defined to implement this restriction
+# (nlmsg_readpriv and nlmsg_getneigh). From kernal 6.13 onwards, the permission
+# has been revoked for netdomain. If your domain requires it, access should be
+# granted using the extended permission "nlmsg".
 allow {
   netdomain
   -ephemeral_app
@@ -28,7 +31,8 @@ allow netdomain self:{ icmp_socket udp_socket rawip_socket } create_socket_perms
 # Connect to ports.
 allow netdomain port_type:tcp_socket name_connect;
 # See changes to the routing table.
-allow netdomain self:netlink_route_socket { create read getattr write setattr lock append connect getopt setopt shutdown nlmsg_read };
+allow netdomain self:netlink_route_socket { create read getattr write setattr lock append connect getopt setopt shutdown nlmsg_read nlmsg };
+allowxperm netdomain self:netlink_route_socket nlmsg unpriv_route_socket_nlmsgs;
 
 # Talks to netd via dnsproxyd socket.
 unix_socket_connect(netdomain, dnsproxyd, netd)

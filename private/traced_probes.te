@@ -2,6 +2,8 @@
 type traced_probes_exec, system_file_type, exec_type, file_type;
 type traced_probes_tmpfs, file_type;
 
+typeattribute traced_probes bpfdomain;
+
 # Allow init to exec the daemon.
 init_daemon_domain(traced_probes)
 tmpfs_domain(traced_probes)
@@ -118,9 +120,26 @@ allow traced_probes stats_service:service_manager find;
 allow traced_probes system_suspend_control_internal_service:service_manager find;
 allow traced_probes system_suspend:binder call;
 
+# Allow traced_probes to read, update and run the maps and programs used for time in state
+# accounting
+allow traced_probes { fs_bpf_cputimeinstate }:dir search;
+allow traced_probes { fs_bpf_cputimeinstate }:file { getattr read write };
+allow traced_probes bpfloader:bpf prog_run;
+allow traced_probes { bpfloader }:bpf { map_read map_write };
+
+# Allow traced_probes to attach BPF programs to tracepoints. Deny read permission so that
+# traced_probes cannot use this access to read perf event data like process stacks.
+allow traced_probes self:perf_event { open write cpu kernel };
+neverallow traced_probes self:perf_event ~{ open write cpu kernel };
+
 # Allow reading the system property representing number of desktop windows to
 # set the initial value for the counter in traces.
 get_prop(traced_probes, debug_tracing_desktop_mode_visible_tasks_prop)
+
+# Allow traced_probes to set AVF VM tracing related properties. The virtmngr processes are watching
+# for changes to the persist.avf_vm.traced_relay.enable.{vm_name} sysprops and start/stop
+# traced_relay service in the VMs based on the value.
+set_prop(traced_probes, avf_vm_traced_relay_enabled_prop)
 
 ###
 ### Neverallow rules

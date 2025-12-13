@@ -102,3 +102,10 @@ get_prop(shell, init_service_status_prop)
 get_prop(shell, init_service_status_private_prop)
 
 set_prop(shell, log_tag_prop)
+
+# Allow shell to start/stop heapprofd via the persist.heapprofd.enable
+# property.
+set_prop(shell, heapprofd_enabled_prop)
+# Allow shell to start/stop traced_perf via the persist.traced_perf.enable
+# property
+set_prop(shell, traced_perf_enabled_prop)

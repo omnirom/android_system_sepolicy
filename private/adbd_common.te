@@ -4,13 +4,6 @@
 # Connect to mdnsd via mdnsd socket.
 unix_socket_connect(adbd_common, mdnsd, mdnsd)
 
-# adbd probes for vsock support. Do not generate denials when
-# this occurs. (b/123569840)
-dontaudit adbd_common self:{ socket vsock_socket } create;
-
-# Allow adbd inside vm to forward vm's vsock.
-allow adbd_common self:vsock_socket { create_socket_perms_no_ioctl listen accept };
-
 # Access device logging gating property
 get_prop(adbd_common, device_logging_prop)
 
@@ -29,3 +22,6 @@ set_prop(adbd_common, adbd_config_prop)
 
 # Read device's serial number from system properties
 get_prop(adbd_common, serialno_prop)
+
+# only adbd can connect to VMs
+neverallow { adbd_common -adbd } self:vsock_socket connect;

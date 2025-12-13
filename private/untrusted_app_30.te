@@ -20,6 +20,8 @@ bluetooth_domain(untrusted_app_30)
 # allow sending RTM_GETNEIGH{TBL} messages.
 allow untrusted_app_30 self:netlink_route_socket nlmsg_getneigh;
 auditallow untrusted_app_30 self:netlink_route_socket nlmsg_getneigh;
+allowxperm untrusted_app_30 self:netlink_route_socket nlmsg { RTM_GETNEIGH RTM_GETNEIGHTBL };
+auditallowxperm untrusted_app_30 self:netlink_route_socket nlmsg { RTM_GETNEIGH RTM_GETNEIGHTBL };
 
 # Connect to mdnsd via mdnsd socket.
 unix_socket_connect(untrusted_app_30, mdnsd, mdnsd)

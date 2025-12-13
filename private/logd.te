@@ -12,6 +12,7 @@ neverallow logd {
   -runtime_event_log_tags_file
   # shell_data_file access is needed to dump bugreports
   -shell_data_file
+  -ashmem_compat_memfd
   userdebug_or_eng(`-coredump_file -misc_logd_file')
   with_native_coverage(`-method_trace_data_file')
 }:file { create write append };
@@ -58,7 +59,14 @@ r_dir_file(logd, proc_meminfo)
 
 allow logd self:global_capability_class_set { setuid setgid setpcap sys_nice audit_control };
 allow logd self:global_capability2_class_set syslog;
-allow logd self:netlink_audit_socket { create_socket_perms_no_ioctl nlmsg_write };
+allow logd self:netlink_audit_socket create_socket_perms_no_ioctl;
+
+# For kernel < 6.13
+allow logd self:netlink_audit_socket nlmsg_write;
+# For kernel >= 6.13
+allow logd self:netlink_audit_socket nlmsg;
+allowxperm logd self:netlink_audit_socket nlmsg { AUDIT_SET AUDIT_USER_AVC };
+
 allow logd kernel:system syslog_read;
 allow logd kmsg_device:chr_file { getattr w_file_perms };
 allow logd system_data_file:{ file lnk_file } r_file_perms;
@@ -89,6 +97,9 @@ dontaudit domain runtime_event_log_tags_file:file { map open read };
 
 # Logd sets defaults if certain properties are empty.
 set_prop(logd, logd_prop)
+
+# Allow logd to use io_uring
+io_uring_use(logd)
 
 ###
 ### Neverallow rules

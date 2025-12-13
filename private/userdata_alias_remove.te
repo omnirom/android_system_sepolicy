@@ -1,0 +1,34 @@
+# The userdata_alias_remove service run by init.
+#
+# It will release the space occupied by the device aliasing file
+# after done using it. (refer to the below for device aliasing)
+# The device aliasing file will be created in /data/userdata_exp.*
+# as a place holder.
+#
+# - Device aliasing feature -
+# f2fs can utilize a special file called a "device aliasing file." This file allows
+# the entire storage device to be mapped with a single, large extent, not using
+# the usual f2fs node structures. This mapped area is pinned and primarily intended
+# for holding the space.
+#
+# Essentially, this mechanism allows a portion of the f2fs area to be temporarily
+# reserved and used by another filesystem or for different purposes. Once that
+# external usage is complete, the device aliasing file can be deleted, releasing
+# the reserved space back to F2FS for its own use.
+
+type userdata_alias_remove, domain;
+type userdata_alias_remove_exec, system_file_type, exec_type, file_type;
+
+typeattribute userdata_alias_remove coredomain;
+
+init_daemon_domain(userdata_alias_remove)
+
+allow userdata_alias_remove exp_partition_data_file:file { unlink getattr };
+allow userdata_alias_remove system_data_root_file:dir { remove_name write };
+allow userdata_alias_remove proc_bootconfig:file { read open getattr };
+allow userdata_alias_remove proc_cmdline:file { read open getattr };
+allow userdata_alias_remove block_device:dir search;
+allow userdata_alias_remove gsi_metadata_file:dir search;
+
+# userdata_alias_remove script is allowed to read these properties
+get_prop(userdata_alias_remove, userdata_alias_remove_prop)

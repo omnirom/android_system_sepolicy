@@ -1,0 +1,8 @@
+# Disk prefetch
+starting_at_board_api(202604, `
+  type prefetch, coredomain, domain;
+')
+
+# system/sepolicy/public is for vendor-facing type and attribute definitions.
+# DO NOT ADD allow, neverallow, or dontaudit statements here.
+# Instead, add such policy rules to system/sepolicy/private/*.te.

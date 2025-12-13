@@ -57,6 +57,10 @@ r_dir_file(simpleperf, vendor_app_file);
 allow simpleperf shell_data_file:file r_file_perms;
 allow simpleperf shell_data_file:dir r_dir_perms;
 
+# Allow simpleperf to read ETM perf event type.
+allow simpleperf sysfs:dir r_dir_perms;
+r_dir_file(simpleperf, sysfs_devices_cs_etm)
+
 # Neverallows:
 
 # Profiling must be confined to the scope of an individual app.

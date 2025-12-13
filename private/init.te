@@ -59,6 +59,9 @@ set_prop(init, powerctl_prop)
 
 set_prop(init, userspace_reboot_exported_prop)
 
+# Allow the media variant properties to be set in init.
+set_prop(init, media_variant_prop)
+
 # Second-stage init performs a test for whether the kernel has SELinux hooks
 # for the perf_event_open() syscall. This is done by testing for the syscall
 # outcomes corresponding to this policy.
@@ -160,6 +163,10 @@ allow init tmpfs:blk_file getattr;
 allow init block_device:{ dir blk_file lnk_file } relabelto;
 allow init dm_device:{ chr_file blk_file } relabelto;
 allow init dm_user_device:chr_file relabelto;
+# /dev/loop-control
+allow init tmpfs:chr_file relabelfrom;
+allow init loop_control_device:chr_file relabelto;
+
 allow init kernel:fd use;
 # restorecon for early mount device symlinks
 allow init tmpfs:lnk_file { getattr read relabelfrom };
@@ -284,7 +291,7 @@ allowxperm init system_data_root_file:dir ioctl F2FS_IOC_SHUTDOWN;
 allow init {
   fs_type
   enforce_debugfs_restriction(`-debugfs_type')
-}:filesystem ~relabelto;
+}:filesystem ~{ relabelto associate };
 
 # Allow init to mount/unmount debugfs in non-user builds.
 enforce_debugfs_restriction(`
@@ -715,7 +722,14 @@ allow init property_type:property_service set;
 # Send an SELinux userspace denial to the kernel audit subsystem,
 # so it can be picked up and processed by logd. These denials are
 # generated when an attempt to set a property is denied by policy.
-allow init self:netlink_audit_socket { create_socket_perms_no_ioctl nlmsg_relay };
+allow init self:netlink_audit_socket create_socket_perms_no_ioctl;
+
+# For kernel < 6.13
+allow init self:netlink_audit_socket nlmsg_relay;
+# For kernel >= 6.13
+allow init self:netlink_audit_socket nlmsg;
+allowxperm init self:netlink_audit_socket nlmsg AUDIT_USER_AVC;
+
 allow init self:global_capability_class_set audit_write;
 
 # Run "ifup lo" to bring up the localhost interface
@@ -853,7 +867,8 @@ neverallow * init:process ptrace;
 # init owns the root of /data
 # TODO(b/140259336) We want to remove vendor_init
 # TODO(b/141108496) We want to remove toolbox
-neverallow { domain -init -toolbox -vendor_init -vold } system_data_root_file:dir { write add_name remove_name };
+neverallow { domain -init -toolbox -vendor_init -vold } system_data_root_file:dir add_name;
+neverallow { domain -init -toolbox -vendor_init -vold -userdata_alias_remove } system_data_root_file:dir { write remove_name };
 
 # Only init is allowed to set userspace reboot related properties.
 neverallow { domain -init } userspace_reboot_exported_prop:property_service set;
@@ -879,3 +894,6 @@ neverallow { domain -init } property_service_version_prop:property_service set;
 
 # Only init can set keystore.boot_level
 neverallow { domain -init } keystore_listen_prop:property_service set;
+
+# Only init can set ro.init.mnt_ns.count
+neverallow { domain -init } init_mnt_ns_prop:property_service set;

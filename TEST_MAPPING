@@ -17,13 +17,5 @@
                 }
             ]
         }
-    ],
-    "avf-presubmit": [
-        {
-            "name": "ComposHostTestCases"
-        },
-        {
-            "name": "MicrodroidHostTestCases"
-        }
     ]
 }

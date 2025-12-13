@@ -6,3 +6,4 @@ hal_attribute_service(hal_uwb, hal_uwb_service)
 
 binder_call(hal_uwb_server, servicemanager)
 binder_call(hal_uwb_client, servicemanager)
+r_dir_file(hal_uwb, cgroup)

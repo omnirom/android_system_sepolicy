@@ -103,10 +103,21 @@ func (b *buildFiles) GenerateAndroidBuildActions(ctx android.ModuleContext) {
 		ver := path.Base(dir)
 		b.srcs[".plat_public_"+ver] = b.findSrcsInDirs(ctx, filepath.Join("system", "sepolicy", "prebuilts", "api", ver, "public"))
 		b.srcs[".plat_private_"+ver] = b.findSrcsInDirs(ctx, filepath.Join("system", "sepolicy", "prebuilts", "api", ver, "private"))
-		b.srcs[".system_ext_public_"+ver] = b.findSrcsInDirs(ctx, filepath.Join(ctx.DeviceConfig().SystemExtSepolicyPrebuiltApiDir(), "prebuilts", "api", ver, "public"))
-		b.srcs[".system_ext_private_"+ver] = b.findSrcsInDirs(ctx, filepath.Join(ctx.DeviceConfig().SystemExtSepolicyPrebuiltApiDir(), "prebuilts", "api", ver, "private"))
-		b.srcs[".product_public_"+ver] = b.findSrcsInDirs(ctx, filepath.Join(ctx.DeviceConfig().ProductSepolicyPrebuiltApiDir(), "prebuilts", "api", ver, "public"))
-		b.srcs[".product_private_"+ver] = b.findSrcsInDirs(ctx, filepath.Join(ctx.DeviceConfig().ProductSepolicyPrebuiltApiDir(), "prebuilts", "api", ver, "private"))
+
+		// Export tags by assigning empty slices, even if prebuilt dirs are not set
+		b.srcs[".system_ext_public_"+ver] = android.Paths{}
+		b.srcs[".system_ext_private_"+ver] = android.Paths{}
+		b.srcs[".product_public_"+ver] = android.Paths{}
+		b.srcs[".product_private_"+ver] = android.Paths{}
+
+		for _, dir := range ctx.DeviceConfig().SystemExtSepolicyPrebuiltApiDirs() {
+			b.srcs[".system_ext_public_"+ver] = append(b.srcs[".system_ext_public_"+ver], b.findSrcsInDirs(ctx, filepath.Join(dir, "prebuilts", "api", ver, "public"))...)
+			b.srcs[".system_ext_private_"+ver] = append(b.srcs[".system_ext_private_"+ver], b.findSrcsInDirs(ctx, filepath.Join(dir, "prebuilts", "api", ver, "private"))...)
+		}
+		for _, dir := range ctx.DeviceConfig().ProductSepolicyPrebuiltApiDirs() {
+			b.srcs[".product_public_"+ver] = append(b.srcs[".product_public_"+ver], b.findSrcsInDirs(ctx, filepath.Join(dir, "prebuilts", "api", ver, "public"))...)
+			b.srcs[".product_private_"+ver] = append(b.srcs[".product_private_"+ver], b.findSrcsInDirs(ctx, filepath.Join(dir, "prebuilts", "api", ver, "private"))...)
+		}
 	}
 
 	b.setOutputFiles(ctx)

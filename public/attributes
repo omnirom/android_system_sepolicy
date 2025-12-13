@@ -164,7 +164,7 @@ attribute ephemeral_app_api_service;
 # services which export only system_api
 attribute system_api_service;
 
-# services which are explicitly disallowed for untrusted apps to access
+# services that untrusted apps are neverallowed to access
 attribute protected_service;
 
 # All types used for services managed by servicemanager.
@@ -183,7 +183,7 @@ attribute same_process_hwservice;
 # All HwBinder services guaranteed to be offered only by core domain components
 attribute coredomain_hwservice;
 
-# All HwBinder services that untrusted apps can't directly access
+# All HwBinder services that untrusted apps are neverallowed to access
 attribute protected_hwservice;
 
 # All types used for services managed by vndservicemanager
@@ -250,7 +250,6 @@ expandattribute coredomain_socket false;
 attribute socket_between_core_and_vendor_violators;
 expandattribute socket_between_core_and_vendor_violators false;
 
-starting_at_board_api(202504, `
 # All vsock communication is required to go through AVF so that we can
 # have a consistent permission model for which is allowed to talk to
 # which. This breaks Treble as well as updatability of VMs and
@@ -258,7 +257,6 @@ starting_at_board_api(202504, `
 # TODO(b/347661724): Remove this once there are no violations.
 attribute unconstrained_vsock_violators;
 expandattribute unconstrained_vsock_violators false;
-')
 
 # All vendor domains which violate the requirement of not executing
 # system processes
@@ -344,6 +342,9 @@ hal_attribute(audiocontrol);
 hal_attribute(authgraph);
 hal_attribute(authsecret);
 hal_attribute(bluetooth);
+starting_at_board_api(202604, `
+hal_attribute(bluetooth_lpp);
+') # starting_at_board_api(202604)
 hal_attribute(bootctl);
 hal_attribute(broadcastradio);
 hal_attribute(camera);
@@ -366,9 +367,7 @@ hal_attribute(graphics_allocator);
 hal_attribute(graphics_composer);
 hal_attribute(health);
 hal_attribute(health_storage);
-starting_at_board_api(202504, `
-    hal_attribute(hwcrypto);
-')
+hal_attribute(hwcrypto);
 hal_attribute(identity);
 hal_attribute(input_classifier);
 hal_attribute(input_processor);
@@ -379,9 +378,7 @@ hal_attribute(keymint);
 hal_attribute(light);
 hal_attribute(lowpan);
 hal_attribute(macsec);
-starting_at_board_api(202504, `
-    hal_attribute(mediaquality);
-')
+hal_attribute(mediaquality);
 hal_attribute(memtrack);
 hal_attribute(neuralnetworks);
 hal_attribute(nfc);
@@ -467,11 +464,27 @@ attribute charger_type;
 attribute dalvik_config_prop_type;
 
 # All tee services that can be accessed by VMs
-starting_at_board_api(202504, `
-    attribute tee_service_type;
-')
+attribute tee_service_type;
 
 # HAL service used for custom smc filtering project
-starting_at_board_api(202504, `
-    hal_attribute(vm_capabilities);
-')
+hal_attribute(vm_capabilities);
+
+starting_at_board_api(202604, `
+# Domains violating Treble Labeling
+# debuggable builds ONLY. NOT ALLOWED on user builds.
+attribute treble_labeling_violators;
+expandattribute treble_labeling_violators false;
+
+# Domains loading mapper SPHAL
+attribute mapper_sphal_domain;
+expandattribute mapper_sphal_domain false;
+
+# Domains loading opengl SPHAL
+attribute opengl_sphal_domain;
+expandattribute opengl_sphal_domain false;
+
+# Domains loading vulkan SPHAL
+attribute vulkan_sphal_domain;
+expandattribute vulkan_sphal_domain false;
+
+') # starting_at_board_api(202604)

@@ -71,7 +71,23 @@ allow snapuserd proc_stat:file r_file_perms;
 # io_uring. An Alternative would be to up the memlock rlimit for the snapuserd service.
 allow snapuserd self:capability ipc_lock;
 io_uring_use(snapuserd)
-
+# This allows snapuserd to talk to ublk char device /dev/ublkcN
+allow snapuserd ublk_control_device:chr_file rw_file_perms;
+# Allow io_uring cmd over ublk_control_device /dev/ublk-control
+allow snapuserd ublk_control_device:io_uring cmd;
+# For inotify for WaitForFile on /dev/ublkcN and /dev/block/ublkbN devices
+allow snapuserd device:dir { read watch };
+# this allows snapuserd to talk to init over socketpair() when ueventd is not
+# yet available early in the boot.
+allow snapuserd kernel:unix_stream_socket { read write };
+# This allows snapuserd to create dm-linear device on top of /dev/block/ublkbN
+# And also create privileged ublk block device so we can use performance feature
+# UBLK_F_USER_COPY
+allow snapuserd self:capability sys_admin;
+# Below access happens in permissive mode before sepolicy enfourced
+# Adding dontaudit to avoid the console spam
+dontaudit snapuserd tmpfs:chr_file rw_file_perms;
+dontaudit snapuserd tmpfs:io_uring cmd;
 # Disallow other domains controlling snapuserd.
 neverallow {
   domain

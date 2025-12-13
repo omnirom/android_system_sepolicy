@@ -54,7 +54,31 @@ ro.boottime.microdroid_manager        u:object_r:boottime_prop:s0 exact int
 ro.boottime.ueventd                   u:object_r:boottime_prop:s0 exact int
 ro.boottime.zipfuse                   u:object_r:boottime_prop:s0 exact int
 
-ro.build.fingerprint u:object_r:fingerprint_prop:s0 exact string
+# ro.build.fingerprint is either set in /system/build.prop, or is
+# set at runtime by system_server.
+ro.build.fingerprint    u:object_r:fingerprint_prop:s0 exact string
+ro.build.id                               u:object_r:build_prop:s0 exact string
+ro.build.product                          u:object_r:build_prop:s0 exact string
+ro.build.tags                             u:object_r:build_prop:s0 exact string
+ro.build.type                             u:object_r:build_prop:s0 exact string
+ro.build.version.codename                 u:object_r:build_prop:s0 exact string
+ro.build.version.incremental              u:object_r:build_prop:s0 exact string
+ro.build.version.release                  u:object_r:build_prop:s0 exact string
+ro.build.version.release_or_codename      u:object_r:build_prop:s0 exact string
+ro.build.version.sdk                      u:object_r:build_prop:s0 exact int
+ro.build.version.sdk_full                 u:object_r:build_prop:s0 exact int
+ro.build.version.security_patch           u:object_r:build_prop:s0 exact string
+ro.build.version.known_codenames          u:object_r:build_prop:s0 exact string
+
+# These 5 properties are set by property_service
+ro.product.brand                  u:object_r:build_prop:s0 exact string
+ro.product.device                 u:object_r:build_prop:s0 exact string
+ro.product.manufacturer           u:object_r:build_prop:s0 exact string
+ro.product.model                  u:object_r:build_prop:s0 exact string
+ro.product.name                   u:object_r:build_prop:s0 exact string
+
+ro.product.cpu.abi                u:object_r:build_prop:s0 exact string
+ro.product.cpu.abilist            u:object_r:build_prop:s0 exact string
 
 apexd.status      u:object_r:apexd_prop:s0 exact enum starting activated ready
 ro.apex.updatable u:object_r:apexd_prop:s0 exact bool
@@ -73,6 +97,9 @@ init.svc.ueventd            u:object_r:init_service_status_private_prop:s0 exact
 init.svc.zipfuse            u:object_r:init_service_status_private_prop:s0 exact string
 
 init.svc.adbd       u:object_r:init_service_status_prop:s0 exact string
+
+# The property to hold the number of mount namespaces created by init
+ro.init.mnt_ns.count   u:object_r:init_mnt_ns_prop:s0 exact string
 
 ro.boot.adb.enabled                u:object_r:bootloader_prop:s0 exact bool
 ro.boot.avb_version                u:object_r:bootloader_prop:s0 exact string
@@ -97,13 +124,6 @@ ro.bootmode   u:object_r:bootloader_prop:s0 exact string
 ro.hardware   u:object_r:bootloader_prop:s0 exact string
 ro.revision   u:object_r:bootloader_prop:s0 exact string
 
-ro.build.id                     u:object_r:build_prop:s0 exact string
-ro.build.version.codename       u:object_r:build_prop:s0 exact string
-ro.build.version.release        u:object_r:build_prop:s0 exact string
-ro.build.version.sdk            u:object_r:build_prop:s0 exact int
-ro.build.version.security_patch u:object_r:build_prop:s0 exact string
-ro.build.version.known_codenames u:object_r:build_prop:s0 exact string
-ro.product.cpu.abilist          u:object_r:build_prop:s0 exact string
 ro.adb.secure                   u:object_r:build_prop:s0 exact bool
 
 ro.debuggable                   u:object_r:debuggable_prop:s0 exact bool
@@ -115,6 +135,7 @@ apex_config.done u:object_r:apex_config_prop:s0 exact bool
 microdroid_manager.apk_root_hash u:object_r:microdroid_manager_roothash_prop:s0 exact string
 microdroid_manager.apk.mounted u:object_r:microdroid_manager_zipfuse_prop:s0 exact bool
 microdroid_manager.extra_apk.mounted. u:object_r:microdroid_manager_zipfuse_prop:s0 prefix bool
+microdroid_manager.tenant_apk.mounted. u:object_r:microdroid_manager_zipfuse_prop:s0 prefix bool
 
 microdroid_manager.authfs.enabled u:object_r:microdroid_config_prop:s0 exact bool
 microdroid_manager.export_tombstones.enabled u:object_r:microdroid_config_prop:s0 exact bool
@@ -122,8 +143,12 @@ microdroid_manager.export_tombstones.enabled u:object_r:microdroid_config_prop:s
 microdroid_manager.config_done u:object_r:microdroid_lifecycle_prop:s0 exact bool
 microdroid_manager.init_done u:object_r:microdroid_lifecycle_prop:s0 exact bool
 
-# servicemanager property to avoid waiting for servicemanager process
-servicemanager.installed u:object_r:servicemanager_prop:s0 exact bool
+microdroid_manager.encrypted_store.setup u:object_r:microdroid_encrypted_store_setup_prop:s0 exact bool
+microdroid_manager.encrypted_store.status u:object_r:microdroid_encrypted_store_status_prop:s0 exact enum mounted ready
+
+pageout_bomb.go u:object_r:pageout_bomb_prop:s0 exact bool
+
+servicemanager.ready u:object_r:servicemanager_prop:s0 exact bool
 
 init_debug_policy.adbd.enabled u:object_r:init_debug_policy_prop:s0 exact bool
 
@@ -155,7 +180,14 @@ persist.sys.timezone u:object_r:timezone_prop:s0 exact string
 
 ro.vndk.version  u:object_r:build_prop:s0 exact string
 
-heapprofd.enable u:object_r:heapprofd_prop:s0 exact bool
+# heapprofd properties
+heapprofd. u:object_r:heapprofd_prop:s0
+persist.heapprofd.enable u:object_r:heapprofd_enabled_prop:s0
+
+persist.traced.enable   u:object_r:traced_enabled_prop:s0
+persist.traced_perf.enable u:object_r:traced_perf_enabled_prop:s0
+traced.lazy.               u:object_r:traced_lazy_prop:s0
+traced_relay.relay_port           u:object_r:traced_relay_relay_port_prop:s0 exact string
 
 # ART properties for CompOS.
 dalvik.vm.                                  u:object_r:dalvik_config_prop:s0 prefix
@@ -177,6 +209,8 @@ dalvik.vm.restore-dex2oat-threads             u:object_r:dalvik_dynamic_config_p
 
 apexd.payload_metadata.path u:object_r:apexd_payload_metadata_prop:s0 exact string
 
+tombstoned.max_tombstone_count u:object_r:tombstone_config_prop:s0 exact int
+
 # These non_existing_prop properties are unused in microdroid, but added here to suppress libc's
 # access denial logs.
 libc.debug.gwp_asan.              u:object_r:non_existing_prop:s0 prefix string
@@ -188,9 +222,6 @@ persist.device_config.            u:object_r:non_existing_prop:s0 prefix string
 persist.sys.test_harness          u:object_r:non_existing_prop:s0 exact bool
 ro.arch                           u:object_r:non_existing_prop:s0 exact string
 ro.boot.vsock_tombstone_port      u:object_r:non_existing_prop:s0 exact int
-ro.product.device                 u:object_r:non_existing_prop:s0 exact string
-ro.product.model                  u:object_r:non_existing_prop:s0 exact string
-ro.product.name                   u:object_r:non_existing_prop:s0 exact string
 ro.product.vndk.version           u:object_r:non_existing_prop:s0 exact string
 ro.secure                         u:object_r:non_existing_prop:s0 exact bool
 ro.serialno                       u:object_r:non_existing_prop:s0 exact string

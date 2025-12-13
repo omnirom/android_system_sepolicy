@@ -55,15 +55,6 @@ allow untrusted_app_all asec_public_file:file { execute };
 allow untrusted_app_all shell_data_file:file r_file_perms;
 allow untrusted_app_all shell_data_file:dir r_dir_perms;
 
-# Allow traceur to pass file descriptors through a content provider to untrusted apps
-# for the purpose of sharing files through e.g. gmail
-allow untrusted_app_all trace_data_file:file { getattr read };
-
-# untrusted apps should not be able to open trace data files, they should depend
-# upon traceur to pass a file descriptor
-neverallow untrusted_app_all trace_data_file:dir *;
-neverallow untrusted_app_all trace_data_file:file { no_w_file_perms open };
-
 # neverallow untrusted apps accessing debugfs_tracing
 neverallow untrusted_app_all debugfs_tracing:file no_rw_file_perms;
 
@@ -151,6 +142,9 @@ dontaudit untrusted_app_all {
   proc_vmstat
   proc_zoneinfo
 }:file read;
+
+# Ignore access to userdebug_or_eng_prop
+dontaudit untrusted_app_all userdebug_or_eng_prop:file read;
 
 # Allow the allocation and use of ptys
 # Used by: https://play.google.com/store/apps/details?id=jackpal.androidterm

@@ -4,3 +4,6 @@
 # An example tee_service that can be used to test end-to-end integration of custom
 # vendor-private smcs filtering feature on a device with pkvm hypervisor.
 type test_pkvm_tee_service, tee_service_type;
+
+# Represents a pVM capability to talk to TEE using FF-A.
+type guest_ffa_tee_service, tee_service_type;

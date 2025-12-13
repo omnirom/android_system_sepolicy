@@ -149,6 +149,10 @@ r_dir_file(artd, dex2oat);
 # that don't have write permissions on memfds.
 allow artd artd_tmpfs:file open;
 
+# Allow artd and its subprocesses to redirect standard streams to system server.
+allow { artd artd_subprocess_type } system_server:fd use;
+allow { artd artd_subprocess_type } system_server:fifo_file { write };
+
 # For Pre-reboot Dexopt.
 
 # Allow init to execute artd through art_exec.

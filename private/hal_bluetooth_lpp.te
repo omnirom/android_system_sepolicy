@@ -1,0 +1,6 @@
+# Binder IPC from clients into server, and callbacks
+binder_call(hal_bluetooth_lpp_client, hal_bluetooth_lpp_server)
+binder_call(hal_bluetooth_lpp_server, hal_bluetooth_lpp_client)
+binder_use(hal_bluetooth_lpp_server)
+
+hal_attribute_service(hal_bluetooth_lpp, hal_bluetooth_lpp_service)

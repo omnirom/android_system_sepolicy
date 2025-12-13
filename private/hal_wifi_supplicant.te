@@ -11,10 +11,11 @@ allowxperm hal_wifi_supplicant self:udp_socket ioctl priv_sock_ioctls;
 r_dir_file(hal_wifi_supplicant, sysfs_type)
 r_dir_file(hal_wifi_supplicant, proc_net_type)
 
-allow hal_wifi_supplicant self:global_capability_class_set { setuid net_admin setgid net_raw };
+allow hal_wifi_supplicant self:global_capability_class_set { net_admin net_raw until_board_api(202604, `setuid setgid') };
 allow hal_wifi_supplicant cgroup:dir create_dir_perms;
 allow hal_wifi_supplicant cgroup_v2:dir create_dir_perms;
 allow hal_wifi_supplicant self:netlink_route_socket nlmsg_write;
+allowxperm hal_wifi_supplicant self:netlink_route_socket nlmsg priv_route_socket_nlmsgs;
 allow hal_wifi_supplicant self:netlink_socket create_socket_perms_no_ioctl;
 allow hal_wifi_supplicant self:netlink_generic_socket create_socket_perms_no_ioctl;
 allow hal_wifi_supplicant self:packet_socket create_socket_perms;

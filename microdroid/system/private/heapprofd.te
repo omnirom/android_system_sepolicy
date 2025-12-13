@@ -1,0 +1,39 @@
+# Android heap profiling daemon. go/heapprofd.
+type heapprofd_exec, exec_type, file_type, system_file_type;
+type heapprofd_tmpfs, file_type;
+
+init_daemon_domain(heapprofd)
+tmpfs_domain(heapprofd)
+
+set_prop(heapprofd, heapprofd_prop);
+
+# Allow sending signals to processes. This excludes SIGKILL, SIGSTOP and
+# SIGCHLD, which are controlled by separate permissions.
+allow heapprofd self:capability kill;
+
+# When scanning /proc/[pid]/cmdline to find matching processes for by-name
+# profiling, only allowlisted domains will be allowed by SELinux. Avoid
+# spamming logs with denials for entries that we can not access.
+dontaudit heapprofd domain:dir { search open };
+
+# Write trace data to the Perfetto traced daemon. This requires connecting to
+# its producer socket and obtaining a (per-process) tmpfs fd.
+perfetto_producer(heapprofd)
+
+# When handling profiling for all processes, heapprofd needs to read
+# executables/libraries/etc to do stack unwinding.
+r_dir_file(heapprofd, nativetest_data_file)
+r_dir_file(heapprofd, system_file_type)
+r_dir_file(heapprofd, shell_test_data_file)
+
+# Some dex files are not world-readable.
+# We are still constrained by the SELinux rules above.
+allow heapprofd self:global_capability_class_set dac_read_search;
+
+# Never allow profiling privileged or otherwise incompatible domains.
+# Corresponding allow-rule is in private/domain.te.
+never_profile_heap(`{
+  apexd
+  init
+  kernel
+}')

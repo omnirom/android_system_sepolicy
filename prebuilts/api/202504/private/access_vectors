@@ -376,6 +376,11 @@ class system
 	syslog_console
 	module_request
 	module_load
+	firmware_load
+	kexec_image_load
+	kexec_initramfs_load
+	policy_load
+	x509_certificate_load
 }
 
 #
@@ -398,6 +403,7 @@ inherits socket
 	nlmsg_write
 	nlmsg_readpriv
 	nlmsg_getneigh
+	nlmsg
 }
 
 class netlink_tcpdiag_socket
@@ -405,6 +411,7 @@ inherits socket
 {
 	nlmsg_read
 	nlmsg_write
+	nlmsg
 }
 
 class netlink_nflog_socket
@@ -415,6 +422,7 @@ inherits socket
 {
 	nlmsg_read
 	nlmsg_write
+	nlmsg
 }
 
 class netlink_selinux_socket
@@ -428,6 +436,7 @@ inherits socket
 	nlmsg_relay
 	nlmsg_readpriv
 	nlmsg_tty_audit
+	nlmsg
 }
 
 class netlink_dnrt_socket

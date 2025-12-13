@@ -148,7 +148,7 @@ neverallow all_untrusted_apps *:vsock_socket ~{ getattr getopt read write };
 
 # Disallow sending RTM_GETLINK messages on netlink sockets.
 neverallow all_untrusted_apps domain:netlink_route_socket { bind nlmsg_readpriv };
-neverallow priv_app domain:netlink_route_socket { bind nlmsg_readpriv };
+neverallowxperm all_untrusted_apps domain:netlink_route_socket nlmsg RTM_GETLINK;
 
 # Disallow sending RTM_GETNEIGH{TBL} messages on netlink sockets.
 neverallow {
@@ -158,6 +158,13 @@ neverallow {
   -untrusted_app_29
   -untrusted_app_30
 } domain:netlink_route_socket nlmsg_getneigh;
+neverallowxperm {
+  all_untrusted_apps
+  -untrusted_app_25
+  -untrusted_app_27
+  -untrusted_app_29
+  -untrusted_app_30
+} domain:netlink_route_socket nlmsg RTM_GETNEIGH;
 
 # Do not allow untrusted apps access to /cache
 neverallow { all_untrusted_apps -mediaprovider } { cache_file cache_recovery_file }:dir ~{ r_dir_perms };
@@ -322,3 +329,10 @@ neverallow all_untrusted_apps domain:anon_inode *;
 
 # Do not allow untrusted app access to hidraw devices.
 neverallow all_untrusted_apps hidraw_device:chr_file *;
+
+# Untrusted apps don't have access to native serial service or serial ports. Otherwise
+# they may circumvent the access control.
+neverallow all_untrusted_apps { serial_device usb_serial_device}:chr_file open;
+starting_at_board_api(202602, `
+    neverallow all_untrusted_apps native_serial_service:service_manager find;
+')

@@ -17,3 +17,5 @@ add_service(hal_sensors_server, hal_sensors_service)
 binder_call(hal_sensors_server, servicemanager)
 
 allow hal_sensors_client hal_sensors_service:service_manager find;
+
+get_prop(hal_sensors_server, sensors_hal_prop)

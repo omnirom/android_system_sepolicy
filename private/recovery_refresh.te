@@ -26,6 +26,7 @@ neverallow recovery_refresh { app_data_file_type system_data_file }:dir_file_cla
 # recovery_refresh is not allowed to write anywhere
 neverallow recovery_refresh {
   file_type
+  -ashmem_compat_memfd
   userdebug_or_eng(`-coredump_file')
   with_native_coverage(`-method_trace_data_file')
 }:file write;

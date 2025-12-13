@@ -47,6 +47,7 @@
     hal_tv_hdmi_earc_service
     hal_wifi_service
     healthconnect_service
+    hidraw_device
     hypervisor_restricted_prop
     isolated_compute_app
     keystore_config_prop

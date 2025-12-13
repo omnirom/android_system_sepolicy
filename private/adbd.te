@@ -8,6 +8,9 @@ init_daemon_domain(adbd)
 
 domain_auto_trans(adbd, shell_exec, shell)
 
+# Allow adbd inside vm to forward vm's vsock.
+allow adbd self:vsock_socket { create_socket_perms_no_ioctl listen accept };
+
 # Allow adb to setcon() to tradeinmode.
 allow adbd self:process setcurrent;
 allow adbd adbd_tradeinmode:process dyntransition;
@@ -146,6 +149,9 @@ allow adbd config_gz:file r_file_perms;
 
 # For CTS listening ports test.
 allow adbd proc_net_tcp_udp:file r_file_perms;
+
+# For CTS access to /proc/cmdline.
+allow adbd proc_cmdline:file r_file_perms;
 
 allow adbd gpu_service:service_manager find;
 allow adbd surfaceflinger_service:service_manager find;

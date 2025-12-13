@@ -3,6 +3,7 @@
 neverallow {
   halserverdomain
   -hal_bluetooth_server
+  -hal_bluetooth_lpp_server
   -hal_can_controller_server
   -hal_wifi_server
   -hal_wifi_hostapd_server
@@ -35,6 +36,7 @@ neverallow {
   -hal_uwb_vendor_server
   -hal_nlinterceptor_server
   -hal_bluetooth_server
+  -hal_bluetooth_lpp_server
   -hal_tv_tuner_server
 } domain:{ udp_socket rawip_socket } *;
 
@@ -49,6 +51,7 @@ neverallow {
   -hal_telephony_server
   -hal_nlinterceptor_server
   -hal_bluetooth_server
+  -hal_bluetooth_lpp_server
   -hal_tv_tuner_server
 } {
   domain

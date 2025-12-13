@@ -101,6 +101,7 @@ neverallow {
   -update_engine_common
   -recovery
   -fastbootd
+  -apexd
 } gsid_prop:property_service set;
 
 # gsid needs to store images on /data, but cannot use file I/O. If it did, the

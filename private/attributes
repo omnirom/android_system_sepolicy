@@ -11,16 +11,6 @@ attribute mlsvendorcompat;
 attribute system_and_vendor_property_type;
 expandattribute system_and_vendor_property_type false;
 
-# HALs
-until_board_api(202504, `
-    hal_attribute(mediaquality);
-')
-
-until_board_api(202504, `
-attribute unconstrained_vsock_violators;
-expandattribute unconstrained_vsock_violators false;
-')
-
 # All SDK sandbox domains
 attribute sdk_sandbox_all;
 # The SDK sandbox domains for the current SDK level.
@@ -33,14 +23,18 @@ attribute adbd_common;
 attribute update_provider;
 expandattribute update_provider false;
 
-until_board_api(202504, `
-    attribute tee_service_type;
-')
+until_board_api(202604, `
+attribute treble_labeling_violators;
+expandattribute treble_labeling_violators false;
 
-until_board_api(202504, `
-    hal_attribute(vm_capabilities);
-')
+attribute mapper_sphal_domain;
+expandattribute mapper_sphal_domain false;
 
-until_board_api(202504, `
-    hal_attribute(hwcrypto);
-')
+attribute opengl_sphal_domain;
+expandattribute opengl_sphal_domain false;
+
+attribute vulkan_sphal_domain;
+expandattribute vulkan_sphal_domain false;
+
+hal_attribute(bluetooth_lpp);
+') # until_board_api(202604)

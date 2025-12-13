@@ -17,6 +17,7 @@ allow system_server_startup self:process setcurrent;
 allow system_server_startup system_server:process dyntransition;
 
 # Child of the zygote.
+allow system_server zygote:fd use;
 allow system_server_startup zygote:process sigchld;
 
 # Allow query ART device config properties

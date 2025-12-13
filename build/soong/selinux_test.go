@@ -73,7 +73,7 @@ func TestFlagCollector(t *testing.T) {
 	).RunTest(t).TestContext
 
 	collectorModule := ctx.ModuleForTests(t, "se_flags_collector", "").Module()
-	collectorData, ok := android.OtherModuleProvider(ctx.OtherModuleProviderAdaptor(), collectorModule, buildFlagsProviderKey)
+	collectorData, ok := android.OtherModuleProvider(ctx.OtherModuleProviderAdaptor(), collectorModule, buildFlagsInfoProvider)
 	if !ok {
 		t.Errorf("se_flags_collector must provide buildFlags")
 		return

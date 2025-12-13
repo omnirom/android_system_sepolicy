@@ -1,0 +1,12 @@
+# SELinux policy for the traced_relay daemon running inside Microdroid.
+
+type traced_relay, domain, coredomain;
+type traced_relay_exec, system_file_type, exec_type, file_type;
+
+# Allow init to exec traced_relay daemon
+init_daemon_domain(traced_relay)
+
+get_prop(traced_relay, traced_relay_relay_port_prop)
+
+# traced_relay communicates with traced on host when tracing is enabled.
+allow traced_relay self:vsock_socket { connect create getopt read setopt write shutdown };

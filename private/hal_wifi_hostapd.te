@@ -22,6 +22,7 @@ allow hal_wifi_hostapd_server self:netlink_socket create_socket_perms_no_ioctl;
 allow hal_wifi_hostapd_server self:netlink_generic_socket create_socket_perms_no_ioctl;
 allow hal_wifi_hostapd_server self:packet_socket create_socket_perms_no_ioctl;
 allow hal_wifi_hostapd_server self:netlink_route_socket nlmsg_write;
+allowxperm hal_wifi_hostapd_server self:netlink_route_socket nlmsg priv_route_socket_nlmsgs;
 
 ###
 ### neverallow rules

@@ -4,11 +4,16 @@ hal_server_domain(hal_widevine_system, hal_drm)
 type hal_widevine_system_exec, exec_type, system_file_type, file_type;
 init_daemon_domain(hal_widevine_system)
 
-allow hal_widevine_system self:vsock_socket { create_socket_perms_no_ioctl };
-
 get_prop(hal_widevine_system, drm_config_prop)
 get_prop(hal_widevine_system, trusty_widevine_vm_sys_prop)
 
 allow hal_widevine_system mediadrm_system_data_file:dir { create search add_name rw_dir_perms };
 allow hal_widevine_system mediadrm_system_data_file:file { getattr create open read write };
 
+# allow hal_widevine_system to find trusty_widevine_comm_service and its accessor
+allow hal_widevine_system accessor_trusty_widevine_comm_service:service_manager { find };
+allow hal_widevine_system trusty_widevine_comm_service:service_manager { find };
+
+# allow hal_widevine_system to use file descriptors from early_virtmgr
+allow hal_widevine_system early_virtmgr:fd { use };
+allow hal_widevine_system early_virtmgr:vsock_socket { getattr getopt read write };

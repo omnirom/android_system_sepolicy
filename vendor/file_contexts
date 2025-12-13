@@ -23,6 +23,9 @@
 /(vendor|system/vendor)/bin/hw/android\.hardware\.bluetooth\.ranging-service\.default      u:object_r:hal_bluetooth_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.bluetooth\.lmp_event-service\.default    u:object_r:hal_bluetooth_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.bluetooth\.socket-service\.default       u:object_r:hal_bluetooth_default_exec:s0
+starting_at_board_api(202604, `
+/(vendor|system/vendor)/bin/hw/android\.hardware\.bluetooth\.gatt-service\.default         u:object_r:hal_bluetooth_lpp_default_exec:s0
+') # starting_at_board_api(202604)
 /(vendor|system/vendor)/bin/hw/android\.hardware\.biometrics\.face@1\.[0-9]+-service\.example u:object_r:hal_face_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.biometrics\.face-service\.example u:object_r:hal_face_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.biometrics\.face-service\.default u:object_r:hal_face_default_exec:s0
@@ -40,7 +43,7 @@
 /(vendor|system/vendor)/bin/hw/android\.hardware\.camera\.provider(@2\.[0-9]+|-V[0-9]+)-external-service          u:object_r:hal_camera_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.camera\.provider(@2\.[0-9]+|-V[0-9]+)-external-service-lazy     u:object_r:hal_camera_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.configstore@1\.[0-9]+-service    u:object_r:hal_configstore_default_exec:s0
-/(vendor|sustem/vendor)/bin/hw/android\.hardware\.confirmationui@1\.0-service u:object_r:hal_confirmationui_default_exec:s0
+/(vendor|system/vendor)/bin/hw/android\.hardware\.confirmationui@1\.0-service u:object_r:hal_confirmationui_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.contexthub@1\.[0-9]+-service     u:object_r:hal_contexthub_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.contexthub-service\.example    u:object_r:hal_contexthub_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.drm@1\.0-service            u:object_r:hal_drm_default_exec:s0
@@ -83,9 +86,7 @@
 /(vendor|system/vendor)/bin/hw/android\.hardware\.lowpan@1\.0-service         u:object_r:hal_lowpan_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.macsec-service              u:object_r:hal_macsec_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.media\.c2-default-service   u:object_r:mediacodec_exec:s0
-starting_at_board_api(202504, `
-    /(vendor|system/vendor)/bin/hw/android\.hardware\.tv\.mediaquality-service\.example  u:object_r:hal_mediaquality_default_exec:s0
-')
+/(vendor|system/vendor)/bin/hw/android\.hardware\.tv\.mediaquality-service\.example  u:object_r:hal_mediaquality_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.memtrack@1\.0-service       u:object_r:hal_memtrack_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.memtrack-service.example    u:object_r:hal_memtrack_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.nfc@1\.0-service            u:object_r:hal_nfc_default_exec:s0

@@ -22,11 +22,6 @@ allow linkerconfig apex_info_file:file r_file_perms;
 # Allow linkerconfig to read apex_manifest.pb file from vendor apex
 r_dir_file(linkerconfig, vendor_apex_metadata_file)
 
-# Allow linkerconfig to be called in the otapreopt_chroot
-allow linkerconfig otapreopt_chroot:fd use;
-allow linkerconfig postinstall_apex_mnt_dir:dir r_dir_perms;
-allow linkerconfig postinstall_apex_mnt_dir:file r_file_perms;
-
 # Allow for use in Pre-reboot Dexopt.
 allow linkerconfig dexopt_chroot_setup:fd use;
 
@@ -35,6 +30,5 @@ neverallow {
   -dexopt_chroot_setup
   -init
   -linkerconfig
-  -otapreopt_chroot
   userdebug_or_eng(`-overlay_remounter')
 } linkerconfig_exec:file no_x_file_perms;

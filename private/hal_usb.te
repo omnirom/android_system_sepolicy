@@ -19,3 +19,13 @@ allow hal_usb sysfs:file open;
 allow hal_usb sysfs:file write;
 allow hal_usb sysfs:file getattr;
 
+# Allow USB HAL access to /sys/class/typec, /sys/bus/usb and
+# /sys/class/usb_power_delivery
+r_dir_file(hal_usb, sysfs_typec)
+r_dir_file(hal_usb, sysfs_usb)
+r_dir_file(hal_usb, sysfs_usb_pd)
+
+allow hal_usb sysfs_typec:file rw_file_perms;
+allow hal_usb sysfs_usb:file rw_file_perms;
+allow hal_usb sysfs_usb_pd:file rw_file_perms;
+

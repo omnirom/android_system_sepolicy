@@ -1,3 +1,8 @@
 ;; complement CIL file for compatibility between ToT policy and 202404 vendors.
 ;; will be compiled along with other normal policy files, on 202404 vendors.
 ;;
+
+(allow hal_wifi_supplicant self (capability (setuid)))
+(allow hal_wifi_supplicant self (cap_userns (setuid)))
+(allow hal_wifi_supplicant self (capability (setgid)))
+(allow hal_wifi_supplicant self (cap_userns (setgid)))

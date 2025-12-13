@@ -41,6 +41,9 @@ allow microdroid_payload self:vsock_socket {
 # Payload can read extra apks
 r_dir_file(microdroid_payload, extra_apk_file)
 
+# Payload can read tenant apks
+r_dir_file(microdroid_payload, tenant_apk_file)
+
 # Payload can read /proc/meminfo.
 allow microdroid_payload proc_meminfo:file r_file_perms;
 
@@ -56,6 +59,9 @@ allow microdroid_payload authfs_fuse:file create_file_perms;
 
 # Allow payload to communicate with microdroid manager
 unix_socket_connect(microdroid_payload, vm_payload_service, microdroid_manager)
+
+# Allow payload to communicate with microdroid manager through IServiceManager
+unix_socket_connect(microdroid_payload, rpc_servicemanager, microdroid_manager)
 
 # Payload can read, write into encrypted storage directory
 allow microdroid_payload encryptedstore_file:dir create_dir_perms;

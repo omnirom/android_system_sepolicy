@@ -87,12 +87,9 @@ file_contexts {
     },
 }
 
-// The platform file context without any extra added. This is used by CTS to
-// ensure that no entries are removed from the AOSP file.
-file_contexts {
-    name: "plat_file_contexts_cts",
-    defaults: ["contexts_flags_defaults"],
-    srcs: [":file_contexts_files{.plat_private}"],
+filegroup {
+    name: "plat_file_contexts_test_data",
+    srcs: ["file_contexts_test_data"],
 }
 
 file_contexts {
@@ -433,11 +430,20 @@ keystore2_key_contexts {
     soc_specific: true,
 }
 
+se_policy_binary {
+    name: "plat_precompiled_sepolicy",
+    srcs: [":plat_sepolicy.cil"],
+    installable: false,
+}
+
+// Use plat_precompiled_sepolicy instead of precompiled_sepolicy because
+// plat_seapp_contexts must be generic and cannot depend on other partitions
+// than system
 seapp_contexts {
     name: "plat_seapp_contexts",
     defaults: ["contexts_flags_defaults"],
     srcs: [":seapp_contexts_files{.plat_private}"],
-    sepolicy: ":precompiled_sepolicy",
+    sepolicy: ":plat_precompiled_sepolicy",
 }
 
 seapp_contexts {
@@ -527,7 +533,7 @@ file_contexts_test {
 file_contexts_test {
     name: "plat_file_contexts_data_test",
     srcs: [":file_contexts_files{.plat_private}"],
-    test_data: "plat_file_contexts_test",
+    test_data: "file_contexts_test_data",
 }
 
 file_contexts_test {

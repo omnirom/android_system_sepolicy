@@ -15,3 +15,8 @@
 
 (allow system_server vendor_hidraw_device (dir (open getattr read search ioctl lock watch watch_reads)))
 (allow system_server vendor_hidraw_device (chr_file (getattr open read ioctl lock map watch watch_reads append write)))
+
+(allow hal_wifi_supplicant self (capability (setuid)))
+(allow hal_wifi_supplicant self (cap_userns (setuid)))
+(allow hal_wifi_supplicant self (capability (setgid)))
+(allow hal_wifi_supplicant self (cap_userns (setgid)))

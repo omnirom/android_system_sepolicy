@@ -39,6 +39,7 @@ allowxperm fsck dev_type:blk_file ioctl {
   BLKDISCARDZEROES
   BLKROGET
   BLKREPORTZONE
+  BLKFINISHZONE
 };
 
 # To determine if it is safe to run fsck on a filesystem, e2fsck

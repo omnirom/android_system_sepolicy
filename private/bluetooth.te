@@ -18,6 +18,7 @@ allow bluetooth bluetooth_data_file:dir create_dir_perms;
 allow bluetooth bluetooth_data_file:notdevfile_class_set { create_file_perms link };
 allow bluetooth bluetooth_logs_data_file:dir rw_dir_perms;
 allow bluetooth bluetooth_logs_data_file:file create_file_perms;
+allow bluetooth bluetooth_logs_data_file:lnk_file {create getattr setattr read unlink};
 
 # Socket creation under /data/misc/bluedroid.
 allow bluetooth bluetooth_socket:sock_file create_file_perms;
@@ -55,7 +56,7 @@ neverallow { domain -bluetooth -init }
     binder_cache_bluetooth_server_prop:property_service set;
 set_prop(bluetooth, bluetooth_a2dp_offload_prop)
 set_prop(bluetooth, bluetooth_audio_hal_prop)
-set_prop(bluetooth, bluetooth_lea_mode_prop)
+set_prop(bluetooth, bluetooth_lea_prop)
 set_prop(bluetooth, bluetooth_prop)
 set_prop(bluetooth, exported_bluetooth_prop)
 set_prop(bluetooth, pan_result_prop)
@@ -80,6 +81,7 @@ allow bluetooth shell_data_file:file read;
 allow bluetooth self:global_capability_class_set sys_nice;
 
 hal_client_domain(bluetooth, hal_bluetooth)
+hal_client_domain(bluetooth, hal_bluetooth_lpp)
 hal_client_domain(bluetooth, hal_telephony)
 
 # Bluetooth A2DP offload requires binding with audio HAL

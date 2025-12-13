@@ -22,6 +22,9 @@ allow crash_dump exec_type:file r_file_perms;
 # Read all /vendor
 r_dir_file(crash_dump, vendor_file)
 
+# Talk to tombstoned
+unix_socket_connect(crash_dump, tombstoned_crash, tombstoned)
+
 # Allow crash_dump to write on vsock - required for writing tombstones in microdroid
 allow crash_dump self:vsock_socket { connect create write };
 
@@ -62,6 +65,10 @@ userdebug_or_eng(`
     apexd
   }:process { ptrace signal sigchld sigstop sigkill };
 ')
+
+# Allow crash dump to read bootstrap libraries
+allow crash_dump system_bootstrap_lib_file:dir { getattr search };
+allow crash_dump system_bootstrap_lib_file:file r_file_perms;
 
 neverallow crash_dump self:process ptrace;
 neverallow crash_dump no_crash_dump_domain:process ptrace;

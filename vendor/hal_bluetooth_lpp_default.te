@@ -1,0 +1,7 @@
+starting_at_board_api(202604, `
+type hal_bluetooth_lpp_default, domain;
+hal_server_domain(hal_bluetooth_lpp_default, hal_bluetooth_lpp)
+
+type hal_bluetooth_lpp_default_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(hal_bluetooth_lpp_default)
+') # starting_at_board_api(202604)

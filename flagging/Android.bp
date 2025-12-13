@@ -32,6 +32,7 @@ se_flags {
         "RELEASE_UNLOCKED_STORAGE_API",
         "RELEASE_BLUETOOTH_SOCKET_SERVICE",
         "RELEASE_SEPOLICY_RESTRICT_KERNEL_KEYRING_SEARCH",
+        "RELEASE_TELEPHONY_MODULE",
     ],
     export_to: ["all_selinux_flags"],
 }

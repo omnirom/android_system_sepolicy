@@ -176,6 +176,9 @@ allow mediaserver vendor_overlay_file:file { read getattr map };
 
 hal_client_domain(mediaserver, hal_allocator)
 
+# Media Quality Service
+allow mediaserver media_quality_service:service_manager { find };
+
 ###
 ### neverallow rules
 ###

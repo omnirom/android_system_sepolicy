@@ -91,9 +91,6 @@ se_policy_binary {
     name: "202504_plat_policy",
     srcs: [":202504_plat_policy.cil"],
     installable: false,
-    dist: {
-        targets: ["base-sepolicy-files-for-mapping"],
-    },
 }
 
 filegroup {

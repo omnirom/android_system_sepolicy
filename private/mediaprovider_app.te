@@ -76,3 +76,6 @@ allow mediaprovider_app bpfloader:bpf { map_read map_write prog_run };
 
 # boot animations on oem are stored with specific label
 allow mediaprovider_app bootanim_oem_file:file r_file_perms;
+
+# allow mediaprovider to use fds passed by other domains, for FUSE passthrough
+allow mediaprovider_app domain:fd use;

@@ -56,19 +56,9 @@
 # as the current dessert release, with additional auditing rules for the accesses
 # we are considering forbidding in the upcoming release.
 #
-# The sdk_sandbox_next and sdk_sandbox_audit domains are special domains for the
-# SDK sandbox process. sdk_sandbox_next defines the set of restrictions proposed
-# for the upcoming dessert release. sdk_sandbox_audit uses the same restrictions
-# as the current dessert release, with additional auditing rules for the accesses
-# we are considering forbidding in the upcoming release.
-#
 # isSdkSandboxNext=true means sdk sandbox processes will get
 # sdk_sandbox_next sepolicy applied to them.
 # An unspecified isSdkSandboxNext defaults to false.
-#
-# isSdkSandboxAudit=true means sdk sandbox processes will get
-# sdk_sandbox_audit sepolicy applied to them.
-# An unspecified isSdkSandboxAudit defaults to false.
 #
 # isSdkSandboxAudit=true means sdk sandbox processes will get
 # sdk_sandbox_audit sepolicy applied to them.
@@ -222,3 +212,5 @@ user=_app domain=untrusted_app_25 type=app_data_file levelFrom=user
 user=_app minTargetSdkVersion=28 fromRunAs=true domain=runas_app levelFrom=all
 user=_app fromRunAs=true domain=runas_app levelFrom=user
 user=_app isPrivApp=true name=com.android.virtualization.terminal domain=vmlauncher_app type=privapp_data_file levelFrom=all
+user=_app isPrivApp=true name=com.android.virtualization.terminal:* domain=vmlauncher_app type=privapp_data_file levelFrom=all
+user=_app isPrivApp=true name=com.google.android.adservices.api domain=adservices type=privapp_data_file levelFrom=all

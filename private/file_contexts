@@ -58,7 +58,6 @@
 
 # Postinstall directories
 /postinstall         u:object_r:postinstall_mnt_dir:s0
-/postinstall/apex    u:object_r:postinstall_apex_mnt_dir:s0
 
 /apex/(\.(bootstrap|default)-)?apex-info-list.xml u:object_r:apex_info_file:s0
 
@@ -198,6 +197,7 @@
 /dev/socket/wpa_wlan[0-9] u:object_r:wpa_socket:s0
 /dev/socket/zygote	u:object_r:zygote_socket:s0
 /dev/socket/zygote_secondary	u:object_r:zygote_socket:s0
+/dev/socket/zygote_next	u:object_r:zygote_next_socket:s0
 /dev/socket/usap_pool_primary	u:object_r:zygote_socket:s0
 /dev/socket/usap_pool_secondary	u:object_r:zygote_socket:s0
 /dev/spdif_out.*	u:object_r:audio_device:s0
@@ -210,11 +210,15 @@
 /dev/ttyUSB[0-9]*	u:object_r:usb_serial_device:s0
 /dev/ttyACM[0-9]*	u:object_r:usb_serial_device:s0
 /dev/tun		u:object_r:tun_device:s0
+/dev/udmabuf		u:object_r:udmabuf_device:s0
+/dev/ublkc[0-9]+	u:object_r:ublk_control_device:s0
 /dev/uhid		u:object_r:uhid_device:s0
 /dev/uinput		u:object_r:uhid_device:s0
 /dev/uio[0-9]*		u:object_r:uio_device:s0
 /dev/urandom		u:object_r:random_device:s0
 /dev/usb_accessory	u:object_r:usbaccessory_device:s0
+/dev/usb-ffs/aoa/ep1	u:object_r:usbaccessory_device:s0
+/dev/usb-ffs/aoa/ep2	u:object_r:usbaccessory_device:s0
 /dev/v4l-touch[0-9]*	u:object_r:input_device:s0
 /dev/vfio(/.*)?		u:object_r:vfio_device:s0
 /dev/vhost-vsock	u:object_r:kvm_device:s0
@@ -254,8 +258,6 @@
 /system/bin/fsck\.exfat	--	u:object_r:fsck_exec:s0
 /system/bin/fsck\.f2fs	--	u:object_r:fsck_exec:s0
 /system/bin/init		u:object_r:init_exec:s0
-# TODO(/123600489): merge mini-keyctl into toybox
-/system/bin/mini-keyctl	--	u:object_r:toolbox_exec:s0
 /system/bin/sload_f2fs	--	u:object_r:e2fs_exec:s0
 /system/bin/make_f2fs	--	u:object_r:e2fs_exec:s0
 /system/bin/fsck_msdos	--	u:object_r:fsck_exec:s0
@@ -273,6 +275,7 @@
 /system/bin/bootstat		u:object_r:bootstat_exec:s0
 /system/bin/app_process32	u:object_r:zygote_exec:s0
 /system/bin/app_process64	u:object_r:zygote_exec:s0
+/system/bin/zygote_next	u:object_r:zygote_next_exec:s0
 /system/bin/servicemanager	u:object_r:servicemanager_exec:s0
 /system/bin/surfaceflinger	u:object_r:surfaceflinger_exec:s0
 /system/bin/gpuservice	u:object_r:gpuservice_exec:s0
@@ -304,8 +307,6 @@
 /system/bin/mediatuner	        u:object_r:mediatuner_exec:s0
 /system/bin/mdnsd	u:object_r:mdnsd_exec:s0
 /system/bin/installd	u:object_r:installd_exec:s0
-/system/bin/otapreopt_chroot   u:object_r:otapreopt_chroot_exec:s0
-/system/bin/otapreopt_slot   u:object_r:otapreopt_slot_exec:s0
 /system/bin/credstore	u:object_r:credstore_exec:s0
 /system/bin/keystore	u:object_r:keystore_exec:s0
 /system/bin/keystore2	u:object_r:keystore_exec:s0
@@ -366,6 +367,7 @@
 /system/bin/hw/android\.frameworks\.bufferhub@1\.0-service    u:object_r:fwk_bufferhub_exec:s0
 /system/bin/hw/android\.system\.suspend-service               u:object_r:system_suspend_exec:s0
 /system/bin/memcgv2_activation_depth\.sh u:object_r:memcgv2_activation_depth_exec:s0
+/system/bin/omapi                       u:object_r:omapi_exec:s0
 /system/etc/aconfig(/.*)?               u:object_r:system_aconfig_storage_file:s0
 /system/etc/cgroups\.json               u:object_r:cgroup_desc_file:s0
 /system/etc/task_profiles/cgroups_[0-9]+\.json               u:object_r:cgroup_desc_file:s0
@@ -377,6 +379,7 @@
 /system/etc/perfetto(/.*)?              u:object_r:system_perfetto_config_file:s0
 /system/etc/seccomp_policy(/.*)?        u:object_r:system_seccomp_policy_file:s0
 /system/etc/security/cacerts(/.*)?      u:object_r:system_security_cacerts_file:s0
+/system/etc/selinux/ashmem_compat_memfd_context\.txt       u:object_r:ashmem_compat_memfd_context_file:s0
 /system/etc/selinux/mapping/[0-9]+\.[0-9]+(\.compat)?\.cil       u:object_r:sepolicy_file:s0
 /system/etc/selinux/plat_mac_permissions\.xml u:object_r:mac_perms_file:s0
 /system/etc/selinux/plat_property_contexts  u:object_r:property_contexts_file:s0
@@ -395,8 +398,7 @@
 /system/bin/vold_prepare_subdirs u:object_r:vold_prepare_subdirs_exec:s0
 /system/bin/stats                u:object_r:stats_exec:s0
 /system/bin/statsd               u:object_r:statsd_exec:s0
-/system/bin/bpfloader            u:object_r:bpfloader_exec:s0
-/system/bin/netbpfload           u:object_r:bpfloader_exec:s0
+/system/bin/bpfloader            u:object_r:bpfloader_platform_exec:s0
 /system/bin/watchdogd            u:object_r:watchdogd_exec:s0
 /system/bin/aconfigd-system      u:object_r:aconfigd_exec:s0
 /system/bin/apexd                u:object_r:apexd_exec:s0
@@ -548,6 +550,7 @@
 /(system_ext|system/system_ext)/bin/hwservicemanager         u:object_r:hwservicemanager_exec:s0
 /(system_ext|system/system_ext)/bin/hw/android\.hidl\.allocator@1\.0-service u:object_r:hal_allocator_default_exec:s0
 /(system_ext|system/system_ext)/bin/rkp_cert_processor       u:object_r:rkp_cert_processor_exec:s0
+/(system_ext|system/system_ext)/bin/serialservice            u:object_r:serialservice_exec:s0
 
 /(system_ext|system/system_ext)/bin/canhalconfigurator(-aidl)? u:object_r:canhalconfigurator_exec:s0
 
@@ -556,6 +559,7 @@
 /(system_ext|system/system_ext)/etc/aconfig(/.*)?                u:object_r:system_aconfig_storage_file:s0
 /(system_ext|system/system_ext)/etc/selinux/system_ext_tee_service_contexts  u:object_r:tee_service_contexts_file:s0
 /(system_ext|system/system_ext)/bin/hw/android\.hardware\.drm-service\.widevine\.system   u:object_r:hal_widevine_system_exec:s0
+/(system_ext|system/system_ext)/bin/userdata_alias_remove u:object_r:userdata_alias_remove_exec:s0
 
 #############################
 # VendorDlkm files
@@ -587,6 +591,7 @@
 #
 /data		u:object_r:system_data_root_file:s0
 /data/(.*)?		u:object_r:system_data_file:s0
+/data/userdata_exp\.[^/]+ u:object_r:exp_partition_data_file:s0
 /data/system/environ(/.*)? u:object_r:environ_system_data_file:s0
 /data/system/packages\.list u:object_r:packages_list_file:s0
 /data/system/game_mode_intervention\.list u:object_r:game_mode_intervention_list_file:s0
@@ -599,7 +604,6 @@
 /data/system/mediadrm(/.*)?		u:object_r:mediadrm_system_data_file:s0
 /data/resource-cache(/.*)? u:object_r:resourcecache_data_file:s0
 /data/dalvik-cache(/.*)? u:object_r:dalvikcache_data_file:s0
-/data/ota(/.*)? u:object_r:ota_data_file:s0
 /data/ota_package(/.*)? u:object_r:ota_package_file:s0
 /data/adb(/.*)?		u:object_r:adb_data_file:s0
 /data/anr(/.*)?		u:object_r:anr_data_file:s0
@@ -712,9 +716,11 @@
 /data/misc/sms(/.*)?            u:object_r:radio_data_file:s0
 /data/misc/snapshotctl_log(/.*)?      u:object_r:snapshotctl_log_data_file:s0
 /data/misc/stats-active-metric(/.*)? u:object_r:stats_data_file:s0
+/data/misc/stats-atoms(/.*)?    u:object_r:statsd_atoms_list_file:s0
 /data/misc/stats-data(/.*)?     u:object_r:stats_data_file:s0
 /data/misc/stats-service(/.*)?  u:object_r:stats_config_data_file:s0
 /data/misc/stats-metadata(/.*)? u:object_r:stats_data_file:s0
+/data/misc/surfaceflinger(/.*)? u:object_r:surfaceflinger_data_file:s0
 /data/misc/systemkeys(/.*)?     u:object_r:systemkeys_data_file:s0
 /data/misc/textclassifier(/.*)?       u:object_r:textclassifier_data_file:s0
 /data/misc/train-info(/.*)?     u:object_r:stats_data_file:s0
@@ -753,6 +759,9 @@
 
 # checkin data files
 /data/misc_ce/[0-9]+/checkin(/.*)? u:object_r:checkin_data_file:s0
+
+# Gatekeeper data
+/data/vendor/gatekeeper(/.*)? u:object_r:gatekeeper_vendor_data_file:s0
 
 # Fingerprint data
 /data/system/users/[0-9]+/fpdata(/.*)? u:object_r:fingerprintd_data_file:s0
@@ -855,6 +864,9 @@
 # Backup service temporary per-user data for inter-change with apps
 /data/system_ce/[0-9]+/backup_stage(/.*)?	u:object_r:backup_data_file:s0
 
+# AppSearch files (https://developer.android.com/develop/ui/views/search/appsearch)
+/data/system_ce/[0-9]+/appsearch(/.*)?          u:object_r:appsearch_data_file:s0
+
 #############################
 # efs files
 #
@@ -941,7 +953,6 @@
 # /postinstall file contexts
 /(system|product)/bin/check_dynamic_partitions  u:object_r:postinstall_exec:s0
 /(system|product)/bin/otapreopt_script          u:object_r:postinstall_exec:s0
-/(system|product)/bin/otapreopt                 u:object_r:postinstall_dexopt_exec:s0
 
 #############################
 # For Pre-reboot Dexopt (see art/dexopt_chroot_setup/README.md)

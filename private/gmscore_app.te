@@ -63,6 +63,7 @@ dontaudit gmscore_app sysfs_net:dir r_dir_perms;
 dontaudit gmscore_app { wifi_prop wifi_hal_prop }:file r_file_perms;
 dontaudit gmscore_app mirror_data_file:dir search;
 dontaudit gmscore_app mnt_vendor_file:dir search;
+dontaudit gmscore_app system_adbd_prop:file r_file_perms;
 
 # Access the network
 net_domain(gmscore_app)
@@ -153,6 +154,9 @@ get_prop(gmscore_app, dck_prop)
 # Allow GMSCore to read RKP properties for the purpose of GTS testing.
 get_prop(gmscore_app, remote_prov_prop)
 
+# Allow GMSCore to check 16k pages developer option status
+get_prop(gmscore_app, enable_16k_pages_prop)
+
 # Allow GmsCore to read Quick Start properties and prevent access from other
 # policies.
 get_prop(gmscore_app, quick_start_prop)
@@ -160,6 +164,12 @@ neverallow { domain -init -dumpstate -vendor_init -gmscore_app } quick_start_pro
 
 # Allow GmsCore to read Bluetotoh Power Off Finder property
 get_prop(gmscore_app, bluetooth_finder_prop)
+
+# Allow GmsCore to read device-specific USB APM properties
+get_prop(system_server, usb_disable_when_locked_prop)
+
+# Allow GmsCore to read le_aduio_allowlist
+get_prop(gmscore_app, bluetooth_lea_prop)
 
 # Do not allow getting permission-protected network information from sysfs.
 neverallow gmscore_app sysfs_net:file *;
@@ -181,3 +191,6 @@ neverallow gmscore_app *:{
   bluetooth_socket iucv_socket rxrpc_socket isdn_socket phonet_socket ieee802154_socket caif_socket
   alg_socket nfc_socket kcm_socket qipcrtr_socket smc_socket xdp_socket
 } *;
+
+# b/432072113: Allow GMSCore to read wallet properties
+get_prop(gmscore_app, wallet_prop)

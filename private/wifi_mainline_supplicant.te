@@ -28,6 +28,7 @@ allowxperm wifi_mainline_supplicant self:packet_socket ioctl { unpriv_sock_ioctl
 
 # Netlink sockets
 allow wifi_mainline_supplicant self:netlink_route_socket { bind create read write nlmsg_readpriv nlmsg_write };
+allowxperm wifi_mainline_supplicant self:netlink_route_socket nlmsg priv_route_socket_nlmsgs;
 allow wifi_mainline_supplicant self:netlink_socket create_socket_perms_no_ioctl;
 allow wifi_mainline_supplicant self:netlink_generic_socket create_socket_perms_no_ioctl;
 

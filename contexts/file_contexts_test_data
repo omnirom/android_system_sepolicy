@@ -40,7 +40,6 @@
 /mnt/vm                                                           vm_data_file
 
 /postinstall                                                      postinstall_mnt_dir
-/postinstall/apex                                                 postinstall_apex_mnt_dir
 
 /apex/.bootstrap-apex-info-list.xml                               apex_info_file
 /apex/.default-apex-info-list.xml                                 apex_info_file
@@ -236,6 +235,7 @@
 /dev/socket/wpa_wlan9                                             wpa_socket
 /dev/socket/zygote                                                zygote_socket
 /dev/socket/zygote_secondary                                      zygote_socket
+/dev/socket/zygote_next                                           zygote_next_socket
 /dev/socket/usap_pool_primary                                     zygote_socket
 /dev/socket/usap_pool_secondary                                   zygote_socket
 /dev/spdif_out                                                    audio_device
@@ -263,6 +263,10 @@
 /dev/ttyACM0                                                      usb_serial_device
 /dev/ttyACM99                                                     usb_serial_device
 /dev/tun                                                          tun_device
+/dev/udmabuf                                                      udmabuf_device
+/dev/ublkc1                                                       ublk_control_device
+/dev/ublkc0                                                       ublk_control_device
+/dev/ublkc19                                                      ublk_control_device
 /dev/uhid                                                         uhid_device
 /dev/uinput                                                       uhid_device
 /dev/uio                                                          uio_device
@@ -270,6 +274,8 @@
 /dev/uio9                                                         uio_device
 /dev/urandom                                                      random_device
 /dev/usb_accessory                                                usbaccessory_device
+/dev/usb-ffs/aoa/ep1                                              usbaccessory_device
+/dev/usb-ffs/aoa/ep2                                              usbaccessory_device
 /dev/v4l-touch                                                    input_device
 /dev/v4l-touch0                                                   input_device
 /dev/v4l-touch10                                                  input_device
@@ -320,7 +326,6 @@
 /system/bin/fsck.exfat                                            fsck_exec
 /system/bin/fsck.f2fs                                             fsck_exec
 /system/bin/init                                                  init_exec
-/system/bin/mini-keyctl                                           toolbox_exec
 /system/bin/sload_f2fs                                            e2fs_exec
 /system/bin/make_f2fs                                             e2fs_exec
 /system/bin/fsck_msdos                                            fsck_exec
@@ -339,6 +344,7 @@
 /system/bin/bootstat                                              bootstat_exec
 /system/bin/app_process32                                         zygote_exec
 /system/bin/app_process64                                         zygote_exec
+/system/bin/zygote_next                                           zygote_next_exec
 /system/bin/pbtombstone                                           pbtombstone_exec
 /system/bin/servicemanager                                        servicemanager_exec
 /system/bin/surfaceflinger                                        surfaceflinger_exec
@@ -371,8 +377,6 @@
 /system/bin/mdnsd                                                 mdnsd_exec
 /system/bin/ot-ctl                                                ot_ctl_exec
 /system/bin/installd                                              installd_exec
-/system/bin/otapreopt_chroot                                      otapreopt_chroot_exec
-/system/bin/otapreopt_slot                                        otapreopt_slot_exec
 /system/bin/credstore                                             credstore_exec
 /system/bin/keystore                                              keystore_exec
 /system/bin/keystore2                                             keystore_exec
@@ -452,6 +456,7 @@
 /system/etc/seccomp_policy/crash_dump.x86.policy                  system_seccomp_policy_file
 /system/etc/security/cacerts                                      system_security_cacerts_file
 /system/etc/security/cacerts/123                                  system_security_cacerts_file
+/system/etc/selinux/ashmem_compat_memfd_context.txt               ashmem_compat_memfd_context_file
 /system/etc/selinux/mapping/30.0.cil                              sepolicy_file
 #/system/etc/selinux/mapping/30.compat.0.cil                      sepolicy_file
 /system/etc/selinux/plat_mac_permissions.xml                      mac_perms_file
@@ -474,8 +479,7 @@
 /system/bin/vold_prepare_subdirs                                  vold_prepare_subdirs_exec
 /system/bin/stats                                                 stats_exec
 /system/bin/statsd                                                statsd_exec
-/system/bin/bpfloader                                             bpfloader_exec
-/system/bin/netbpfload                                            bpfloader_exec
+/system/bin/bpfloader                                             bpfloader_platform_exec
 /system/bin/watchdogd                                             watchdogd_exec
 /system/bin/apexd                                                 apexd_exec
 /system/bin/gsid                                                  gsid_exec
@@ -493,6 +497,7 @@
 /system/bin/uprobestats                                           uprobestats_exec
 /system/bin/trace_redactor                                        trace_redactor_exec
 /system/bin/bert_collector                                        bert_collector_exec
+/system/bin/omapi                                                 omapi_exec
 
 /vendor                                                           vendor_file
 /vendor/does_not_exist                                            vendor_file
@@ -810,6 +815,11 @@
 
 /system_ext/bin/hw/android.hardware.drm-service.widevine.system          hal_widevine_system_exec
 /system/system_ext/bin/hw/android.hardware.drm-service.widevine.system   hal_widevine_system_exec
+/system_ext/bin/userdata_alias_remove                             userdata_alias_remove_exec
+/system/system_ext/bin/userdata_alias_remove                      userdata_alias_remove_exec
+
+/system_ext/bin/serialservice                                     serialservice_exec
+/system/system_ext/bin/serialservice                              serialservice_exec
 
 /vendor_dlkm                                                      vendor_file
 /vendor_dlkm/does_not_exist                                       vendor_file
@@ -863,8 +873,6 @@
 /data/resource-cache/test                                         resourcecache_data_file
 /data/dalvik-cache                                                dalvikcache_data_file
 /data/dalvik-cache/test                                           dalvikcache_data_file
-/data/ota                                                         ota_data_file
-/data/ota/test                                                    ota_data_file
 /data/ota_package                                                 ota_package_file
 /data/ota_package/test                                            ota_package_file
 /data/adb                                                         adb_data_file
@@ -945,6 +953,7 @@
 /data/user_de                                                     system_userdir_file
 /data/storage_area                                                system_userdir_file
 /data/misc_ce/0/storage_area_keys                                 storage_area_key_file
+/data/userdata_exp.test                                           exp_partition_data_file
 
 /data/misc/adb                                                    adb_keys_file
 /data/misc/adb/test                                               adb_keys_file
@@ -1064,12 +1073,16 @@
 /data/misc/snapshotctl_log/test                                   snapshotctl_log_data_file
 /data/misc/stats-active-metric                                    stats_data_file
 /data/misc/stats-active-metric/test                               stats_data_file
+/data/misc/stats-atoms                                            statsd_atoms_list_file
+/data/misc/stats-atoms/test                                       statsd_atoms_list_file
 /data/misc/stats-data                                             stats_data_file
 /data/misc/stats-data/test                                        stats_data_file
 /data/misc/stats-service                                          stats_config_data_file
 /data/misc/stats-service/test                                     stats_config_data_file
 /data/misc/stats-metadata                                         stats_data_file
 /data/misc/stats-metadata/test                                    stats_data_file
+/data/misc/surfaceflinger                                         surfaceflinger_data_file
+/data/misc/surfaceflinger/test                                    surfaceflinger_data_file
 /data/misc/systemkeys                                             systemkeys_data_file
 /data/misc/systemkeys/test                                        systemkeys_data_file
 /data/misc/textclassifier                                         textclassifier_data_file
@@ -1130,6 +1143,7 @@
 /data/misc_ce/0/checkin                                           checkin_data_file
 /data/misc_ce/99/checkin/test                                     checkin_data_file
 
+/data/vendor/gatekeeper/test                                      gatekeeper_vendor_data_file
 /data/system/users/0/fpdata                                       fingerprintd_data_file
 /data/system/users/99/fpdata/test                                 fingerprintd_data_file
 /data/vendor_de/0/fpdata                                          fingerprint_vendor_data_file
@@ -1223,6 +1237,8 @@
 
 /data/system_ce/0/shortcut_service/bitmaps                        shortcut_manager_icons
 /data/system_ce/9/shortcut_service/bitmaps/test                   shortcut_manager_icons
+
+/data/system_ce/0/appsearch/appsearch_storage                     appsearch_data_file
 
 /data/system/users/10/photo.png                                   icon_file
 
@@ -1341,8 +1357,6 @@
 /product/bin/check_dynamic_partitions                             postinstall_exec
 /system/bin/otapreopt_script                                      postinstall_exec
 /product/bin/otapreopt_script                                     postinstall_exec
-/system/bin/otapreopt                                             postinstall_dexopt_exec
-/product/bin/otapreopt                                            postinstall_dexopt_exec
 /data/misc/uprobestats-configs                                    uprobestats_configs_data_file
 /data/misc/uprobestats-configs/test                               uprobestats_configs_data_file
 

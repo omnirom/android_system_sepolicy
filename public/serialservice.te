@@ -1,7 +1,8 @@
-# otapreopt_chroot seclabel
+# Native serial service that interacts with kernel interfaces to support wired serial ports
 
-# TODO: Only present to allow mediatek/wembley-sepolicy to see it for validation reasons.
-until_board_api(202504, `type otapreopt_chroot, domain;')
+starting_at_board_api(202602, `
+    type serialservice, domain;
+')
 
 # system/sepolicy/public is for vendor-facing type and attribute definitions.
 # DO NOT ADD allow, neverallow, or dontaudit statements here.

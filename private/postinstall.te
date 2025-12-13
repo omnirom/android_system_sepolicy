@@ -1,6 +1,5 @@
 typeattribute postinstall coredomain;
 type postinstall_exec, system_file_type, exec_type, file_type;
-domain_auto_trans(postinstall, otapreopt_chroot_exec, otapreopt_chroot)
 
 allow postinstall rootfs:dir r_dir_perms;
 
@@ -28,20 +27,9 @@ recovery_only(`
   allow postinstall rootfs:file rx_file_perms;
 ')
 
-#
-# For OTA dexopt.
-#
-
 # Allow postinstall scripts to talk to the system server.
 binder_use(postinstall)
 binder_call(postinstall, system_server)
-
-# Need to talk to the otadexopt service.
-allow postinstall otadexopt_service:service_manager find;
-
-# Allow postinstall scripts to trigger f2fs garbage collection
-allow postinstall sysfs_fs_f2fs:file rw_file_perms;
-allow postinstall sysfs_fs_f2fs:dir r_dir_perms;
 
 ###
 ### Neverallow rules

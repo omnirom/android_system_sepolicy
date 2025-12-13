@@ -47,6 +47,7 @@ userdebug_or_eng(`
   dontaudit su domain:anon_inode *;
   dontaudit su domain:{ process process2 } *;
   dontaudit su domain:fd *;
+  dontaudit su domain:filesystem *;
   dontaudit su domain:dir *;
   dontaudit su domain:lnk_file *;
   dontaudit su domain:{ fifo_file file } *;

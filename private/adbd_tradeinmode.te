@@ -20,6 +20,11 @@ allow adbd_tradeinmode functionfs:file rw_file_perms;
 allow adbd_tradeinmode proc_uptime:file r_file_perms;
 allow adbd_tradeinmode rootfs:dir r_dir_perms;
 
+# Allow adbd_tradeinmode to accept an incoming vsock connection, so that
+# we can use it over vsock for cuttlefish. Note however that `connect` is
+# not allowed, which is enforced using a neverallow rule in adbd_common.te.
+allow adbd_tradeinmode self:vsock_socket { create read getattr write setattr lock accept append bind listen getopt setopt shutdown map };
+
 set_prop(adbd_tradeinmode, ffs_control_prop)
 
 # Allow changing persist.adb.tradeinmode when testing.

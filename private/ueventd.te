@@ -78,6 +78,9 @@ get_prop(ueventd, apexd_prop)
 # Allow ueventd to correctly label the symlinks it creates
 allow ueventd block_device:lnk_file relabelfrom;
 
+# Allow ueventd to process fstab if necessary to find boot devices.
+read_fstab(ueventd)
+
 #####
 ##### neverallow rules
 #####

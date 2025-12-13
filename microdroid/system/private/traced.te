@@ -32,8 +32,20 @@ allow traced perfetto_traces_data_file:dir rw_dir_perms;
 # have perfetto_producer() macro applied to them.
 # perfetto_tmpfs excluded as it should never need to use the producer-supplied
 # shared memory scheme.
-allow traced traced_probes_tmpfs:file { getattr map read write };
+allow traced {
+  heapprofd_tmpfs
+  traced_probes_tmpfs
+}:file { getattr map read write };
 
+# Allow traced to detect if a process is frozen (b/381089063).
+allow traced cgroup_v2:file r_file_perms;
+
+# Allow to lazily start producers.
+set_prop(traced, traced_lazy_prop)
+allow traced_probes proc_kallsyms:file read;
+# traced_probes communicates with traced_relay over UDS to transfer traces
+# captured on guest back to host.
+allow traced_probes traced_relay:unix_stream_socket connectto;
 
 ###
 ### Neverallow rules

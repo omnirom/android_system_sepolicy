@@ -78,17 +78,20 @@ type cilCompatMap struct {
 	installPath   android.InstallPath
 }
 
-type CilCompatMapGenerator interface {
-	GeneratedMapFile() android.OptionalPath
+type CilCompatMapGeneratorInfo struct {
+	GeneratedMapFile android.OptionalPath
 }
+
+var CilCompatMapGeneratorInfoProvider = blueprint.NewProvider[CilCompatMapGeneratorInfo]()
 
 func expandTopHalf(ctx android.ModuleContext) android.OptionalPath {
 	var topHalf android.OptionalPath
-	ctx.VisitDirectDeps(func(dep android.Module) {
+	ctx.VisitDirectDepsProxy(func(dep android.ModuleProxy) {
 		depTag := ctx.OtherModuleDependencyTag(dep)
 		switch depTag {
 		case TopHalfDepTag:
-			topHalf = dep.(CilCompatMapGenerator).GeneratedMapFile()
+			info := android.OtherModuleProviderOrDefault(ctx, dep, CilCompatMapGeneratorInfoProvider)
+			topHalf = info.GeneratedMapFile
 		}
 	})
 	return topHalf
@@ -131,7 +134,7 @@ func (c *cilCompatMap) GenerateAndroidBuildActions(ctx android.ModuleContext) {
 	topHalf := expandTopHalf(ctx)
 	if topHalf.Valid() {
 		out := android.PathForModuleGen(ctx, c.Name())
-		ctx.ModuleBuild(pctx, android.ModuleBuildParams{
+		ctx.Build(pctx, android.BuildParams{
 			Rule:   combineMapsRule,
 			Output: out,
 			Implicits: []android.Path{
@@ -152,6 +155,14 @@ func (c *cilCompatMap) GenerateAndroidBuildActions(ctx android.ModuleContext) {
 	if c.installSource.Valid() {
 		ctx.SetOutputFiles(android.Paths{c.installSource.Path()}, "")
 	}
+
+	android.SetProvider(ctx, CilCompatMapGeneratorInfoProvider, CilCompatMapGeneratorInfo{
+		GeneratedMapFile: c.installSource,
+	})
+
+	moduleInfoJSON := ctx.ModuleInfoJSON()
+	moduleInfoJSON.Class = []string{"ETC"}
+	moduleInfoJSON.SystemSharedLibs = []string{"none"}
 }
 
 func (c *cilCompatMap) DepsMutator(ctx android.BottomUpMutatorContext) {
@@ -176,10 +187,4 @@ func (c *cilCompatMap) AndroidMkEntries() []android.AndroidMkEntries {
 			},
 		},
 	}}
-}
-
-var _ CilCompatMapGenerator = (*cilCompatMap)(nil)
-
-func (c *cilCompatMap) GeneratedMapFile() android.OptionalPath {
-	return c.installSource
 }

@@ -1,3 +1,4 @@
+divert(-1)
 #####################################
 # Common groupings of object classes.
 #
@@ -49,3 +50,4 @@ define(`create_socket_perms', `{ create rw_socket_perms }')
 define(`create_socket_perms_no_ioctl', `{ create rw_socket_perms_no_ioctl }')
 define(`rw_stream_socket_perms', `{ rw_socket_perms listen accept }')
 define(`create_stream_socket_perms', `{ create rw_stream_socket_perms }')
+divert(0)

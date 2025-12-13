@@ -47,6 +47,10 @@ allow virtualizationservice permission_service:service_manager find;
 binder_call(virtualizationservice, remote_provisioning_service_server)
 allow virtualizationservice remote_provisioning_service:service_manager find;
 
+# Allow virtualizationservice to retrieve information about IVirtualMachine from virtmgr
+# for accounting purpose
+binder_call(virtualizationservice, virtualizationmanager)
+
 # Allow virtualizationservice to manage VM secrets via Secretkeeper.
 hal_client_domain(virtualizationservice, hal_secretkeeper)
 
@@ -89,6 +93,14 @@ allow virtualizationservice apex_virt_data_file:file create_file_perms;
 # such as the guest tombstone server.
 allow virtualizationservice self:vsock_socket { create read getattr write setattr lock append bind getopt setopt shutdown map listen accept };
 neverallow { domain -virtualizationservice -dumpstate } virtualizationservice:vsock_socket *;
+
+# Connect to guests for dump service.
+# TODO(b/423899247): use IGuestAgent rather than direct vsock connection.
+allow virtualizationservice self:vsock_socket connect;
+
+# Allow virtualizationservice to dump to dumpstate.
+allow virtualizationservice dumpstate:fd use;
+allow virtualizationservice dumpstate:fifo_file write;
 
 # Allow virtualizationservice to read/write its own sysprop. Only the process can do so.
 set_prop(virtualizationservice, virtualizationservice_prop)

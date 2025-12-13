@@ -12,6 +12,7 @@
 allow isolated_app_all { app_data_file privapp_data_file sdk_sandbox_data_file}:file { append read write getattr lock map };
 
 allow isolated_app_all activity_service:service_manager find;
+allow isolated_app_all activity_structured_service:service_manager find;
 allow isolated_app_all display_service:service_manager find;
 
 # Google Breakpad (crash reporter for Chrome) relies on ptrace
@@ -60,11 +61,12 @@ neverallow isolated_app_all vndbinder_device:chr_file *;
 neverallow { isolated_app_all -isolated_compute_app } *:service_manager ~find;
 
 # b/17487348
-# Isolated apps can only access three services,
-# activity_service, display_service, webviewupdate_service.
+# Isolated apps can only access four services,
+# activity_service, activity_structured_service, display_service, webviewupdate_service.
 neverallow { isolated_app_all -isolated_compute_app } {
     service_manager_type
     -activity_service
+    -activity_structured_service
     -display_service
     -webviewupdate_service
 }:service_manager find;

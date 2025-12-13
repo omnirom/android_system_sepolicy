@@ -43,6 +43,10 @@ allow zipfuse kmsg_debug_device:chr_file w_file_perms;
 r_dir_file(zipfuse, extra_apk_file)
 allow zipfuse extra_apk_file:dir mounton;
 
+# allow zipfuse to handle tenant apks
+r_dir_file(zipfuse, tenant_apk_file)
+allow zipfuse tenant_apk_file:dir mounton;
+
 # zipfuse is forked from microdroid_manager
 allow zipfuse microdroid_manager:fd use;
 
@@ -52,5 +56,6 @@ set_prop(zipfuse, microdroid_manager_zipfuse_prop)
 # Only microdroid_manager can run zipfuse
 neverallow { domain -microdroid_manager } zipfuse:process { transition dyntransition };
 
-# only zipfuse can mount on extra_apk_file
+# only zipfuse can mount on extra_apk_file & tenant_apk_file
 neverallow { domain -zipfuse } extra_apk_file:dir mounton;
+neverallow { domain -zipfuse } tenant_apk_file:dir mounton;

@@ -1,0 +1,14 @@
+type pageout_bomb, domain;
+type pageout_bomb_exec, exec_type, file_type;
+
+init_daemon_domain(pageout_bomb)
+
+# Allow logging to kmsg.
+allow pageout_bomb kmsg_device:chr_file w_file_perms;
+
+# Allow process_madvise
+allow pageout_bomb self:global_capability_class_set sys_nice;
+
+# Allow reading /proc/PID/maps of other processes
+allow pageout_bomb self:global_capability_class_set sys_ptrace;
+r_dir_file(pageout_bomb, domain)

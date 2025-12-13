@@ -6,31 +6,39 @@ userdebug_or_eng(`
   domain_auto_trans(kernel, overlay_remounter_exec, overlay_remounter)
 ')
 
-# Allow the kernel to read otapreopt_chroot's file descriptors and files under
-# /postinstall, as it uses apexd logic to mount APEX packages in /postinstall/apex.
-allow kernel otapreopt_chroot:fd use;
-allow kernel postinstall_file:file read;
-
 # The following sections are for the transition period during a Virtual A/B
 # OTA. Once sepolicy is loaded, snapuserd must be re-launched in the correct
 # context, and with properly labelled devices. This must be done before
 # enabling enforcement, eg, in permissive mode while still in the kernel
 # context.
+# TODO: b/432557455 Try to change some of these to dontaudit
 allow kernel tmpfs:blk_file { getattr relabelfrom };
-allow kernel tmpfs:chr_file { getattr relabelfrom };
+allow kernel tmpfs:chr_file { create getattr setattr relabelfrom };
 allow kernel tmpfs:lnk_file { getattr relabelfrom };
 allow kernel tmpfs:dir { open read relabelfrom };
 
 allow kernel block_device:blk_file relabelto;
 allow kernel block_device:lnk_file relabelto;
 allow kernel dm_device:chr_file relabelto;
-allow kernel dm_device:blk_file relabelto;
+allow kernel dm_device:blk_file { getattr open read relabelto };
 allow kernel dm_user_device:dir { read open search relabelto };
 allow kernel dm_user_device:chr_file relabelto;
 allow kernel kmsg_device:chr_file relabelto;
 allow kernel null_device:chr_file relabelto;
 allow kernel random_device:chr_file relabelto;
 allow kernel snapuserd_exec:file relabelto;
+
+# Continuation of the previous section as these are also needed for
+# transition period during Virtual A/B OTA with ublk.
+# These happen in permissive mode before enforcement, so this avoids
+# the console spam.
+dontaudit kernel sysfs_dm:dir r_dir_perms;
+dontaudit kernel sysfs_ublk:dir r_dir_perms;
+dontaudit kernel sysfs_ublk:file { open write };
+dontaudit kernel ublk_block_device:blk_file { r_file_perms relabelto };
+dontaudit kernel ublk_control_device:chr_file { getattr relabelto };
+dontaudit kernel ublk_control_device:io_uring cmd;
+dontaudit kernel tmpfs:blk_file { create setattr };
 
 allow kernel kmsg_device:chr_file write;
 allow kernel gsid:fd use;
@@ -149,6 +157,13 @@ allow kernel system_file:file execute;
 recovery_only(`
   allow kernel rootfs:file execute;
 ')
+
+# On kernel 6.15+, when relying on the sysfs fallback method to load firmware,
+# the kernel will attempt to read the data provided by ueventd. This data is
+# not associated with a file security context (see firmware_fallback_sysfs and
+# security_kernel_load_data). This permission can be removed/restricted to
+# prevent the usage of the sysfs fallback method.
+allow kernel self:system firmware_load;
 
 # required by VTS lidbm unit test
 allow kernel appdomain_tmpfs:file { read write };

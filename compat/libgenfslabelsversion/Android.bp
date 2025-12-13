@@ -26,6 +26,7 @@ rust_defaults {
     crate_name: "genfslabelsversion",
     srcs: ["src/lib.rs"],
     apex_available: ["//apex_available:platform"],
+    recovery_available: true,
 }
 
 rust_ffi_static {

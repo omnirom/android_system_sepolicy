@@ -29,6 +29,7 @@ unix_socket_send(uprobestats, statsdw, statsd)
 binder_use(uprobestats)
 allow uprobestats activity_service:service_manager find;
 allow uprobestats dynamic_instrumentation_service:service_manager find;
+allow uprobestats uprobestats_service:service_manager find;
 binder_call(uprobestats, system_server);
 
 # Allow uprobestats to talk to native package manager

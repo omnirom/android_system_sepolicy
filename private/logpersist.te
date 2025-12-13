@@ -56,6 +56,7 @@ neverallow * logpersist:process dyntransition;
 # logpersist is allowed to write to /data/misc/log for userdebug and eng builds
 neverallow logpersist {
   file_type
+  -ashmem_compat_memfd
   userdebug_or_eng(`-misc_logd_file -coredump_file')
   with_native_coverage(`-method_trace_data_file')
 }:file { create write append };

@@ -5,5 +5,29 @@
 (typeattribute new_objects)
 (typeattributeset new_objects
   ( new_objects
+    activity_structured_service
+    gatekeeper_vendor_data_file
+    hal_bluetooth_lpp_service
+    hal_frp_service
+    init_dev_config
+    init_dev_config_exec
+    native_binder_stats_prop
+    native_serial_service
     pbtombstone_exec
+    prefetch
+    task_continuity_service
+    trusty_coverage_prop
+    omapi
+    omapi_exec
+    omapi_service
+    serialservice
+    serialservice_exec
+    sysfs_thunderbolt
+    sysfs_typec
+    sysfs_usb_pd
+    usb_disable_when_locked_prop
+    virtualizationservice_data_file
+    wallet_prop
+    anomaly_detector_service
+    uprobestats_service
   ))

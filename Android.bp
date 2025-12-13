@@ -72,6 +72,8 @@ se_build_files {
         "attributes",
         "ioctl_defines",
         "ioctl_macros",
+        "nlmsg_defines",
+        "nlmsg_macros",
         "*.te",
         "roles_decl",
         "roles",
@@ -93,6 +95,7 @@ phony {
     // TODO(b/329208946): migrate selinux_policy_system to Soong
     name: "selinux_policy_system_soong",
     required: [
+        "ashmem_compat_memfd_context.txt",
         "plat_bug_map",
         "plat_file_contexts",
         "plat_hwservice_contexts",
@@ -107,26 +110,20 @@ phony {
         "plat_service_contexts",
         "secilc",
         "plat_29.0.cil",
-        "29.0.compat.cil",
         "plat_30.0.cil",
-        "30.0.compat.cil",
         "plat_31.0.cil",
-        "31.0.compat.cil",
         "plat_32.0.cil",
-        "32.0.compat.cil",
         "plat_33.0.cil",
-        "33.0.compat.cil",
         "plat_34.0.cil",
+        "plat_202404.cil",
+        "29.0.compat.cil",
+        "30.0.compat.cil",
+        "31.0.compat.cil",
+        "32.0.compat.cil",
+        "33.0.compat.cil",
         "34.0.compat.cil",
+        "202404.compat.cil",
     ] + select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
-        "202404": [],
-        default: [
-            "plat_202404.cil",
-            "202404.compat.cil",
-        ],
-    }) + select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
-        // TODO(b/391513934): clean up once we can simplify complex select statements.
-        "202404": [],
         "202504": [],
         default: [
             "plat_202504.cil",
@@ -371,6 +368,9 @@ se_versioned_policy {
     mapping: true,
     version: "current",
     relative_install_path: "mapping", // install to /system/etc/selinux/mapping
+    dist: {
+        targets: ["sepolicy_finalize"],
+    },
 }
 
 se_versioned_policy {
@@ -570,6 +570,14 @@ sepolicy_vers {
     vendor: true,
 }
 
+// We output the ashmem compat memfd context here, so that libcutils can read
+// it when assigning contexts to memfds.
+prebuilt_etc {
+    name: "ashmem_compat_memfd_context.txt",
+    src: "ashmem_compat_memfd_context.txt",
+    relative_install_path: "selinux",
+}
+
 genrule {
     name: "genfs_labels_version.txt.gen",
     out: ["genfs_labels_version.txt"],
@@ -657,23 +665,35 @@ soong_config_module_type {
 }
 
 filegroup {
-    name: "precompiled_sepolicy_srcs",
+    name: "precompiled_sepolicy_without_vendor_srcs",
     device_common_srcs: [
         ":plat_sepolicy.cil",
-        ":plat_pub_versioned.cil",
         ":system_ext_sepolicy.cil",
         ":product_sepolicy.cil",
+    ],
+    device_first_srcs: select(soong_config_variable("ANDROID", "BOARD_GENFS_LABELS_VERSION"), {
+        any @ ver: [":plat_sepolicy_genfs_" + ver + ".cil"],
+        default: [],
+    }),
+}
+
+se_policy_binary {
+    name: "precompiled_sepolicy_without_vendor",
+    srcs: [":precompiled_sepolicy_without_vendor_srcs"],
+    installable: false, // used only for Treble labeling tests
+}
+
+filegroup {
+    name: "precompiled_sepolicy_srcs",
+    srcs: [":precompiled_sepolicy_without_vendor_srcs"],
+    device_common_srcs: [
+        ":plat_pub_versioned.cil",
         ":vendor_sepolicy.cil",
         ":odm_sepolicy.cil",
         ":plat_mapping_file",
         ":system_ext_mapping_file",
         ":product_mapping_file",
     ],
-    device_first_srcs: select(soong_config_variable("ANDROID", "BOARD_GENFS_LABELS_VERSION"), {
-        "202404": [],
-        any @ ver: [":plat_sepolicy_genfs_" + ver + ".cil"],
-        default: [],
-    }),
     // Make precompiled_sepolicy_srcs as public so that OEMs have access to them.
     // Useful when some partitions need to be bind mounted across VM boundaries.
     visibility: ["//visibility:public"],
@@ -695,9 +715,6 @@ precompiled_se_policy_binary {
     required: [
         "sepolicy_neverallows",
     ],
-    dist: {
-        targets: ["base-sepolicy-files-for-mapping"],
-    },
 }
 
 // policy for recovery
@@ -746,6 +763,7 @@ se_policy_conf {
     build_variant: "user",
     cts: true,
     exclude_build_test: true,
+    only_neverallow_rules: true,
     dist: {
         targets: ["sepolicy_finalize"],
     },
@@ -783,7 +801,7 @@ se_policy_binary {
     srcs: [":base_plat_sepolicy.cil"],
     installable: false,
     dist: {
-        targets: ["base-sepolicy-files-for-mapping"],
+        targets: ["sepolicy_finalize"],
     },
 }
 
@@ -833,13 +851,14 @@ se_policy_cil {
     secilc_check: false,
     installable: false,
     dist: {
-        targets: ["base-sepolicy-files-for-mapping"],
+        targets: ["sepolicy_finalize"],
     },
 }
 
 se_versioned_policy {
     name: "base_plat_mapping_file",
     base: ":base_plat_pub_policy.cil",
+    stem: "base_plat_mapping_file.cil",
     mapping: true,
     version: "current",
     relative_install_path: "mapping", // install to /system/etc/selinux/mapping
@@ -1031,14 +1050,8 @@ phony {
         "system_ext_32.0.cil",
         "system_ext_33.0.cil",
         "system_ext_34.0.cil",
+        "system_ext_202404.cil",
     ] + select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
-        "202404": [],
-        default: [
-            "system_ext_202404.cil",
-        ],
-    }) + select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
-        // TODO(b/391513934): clean up once we can simplify complex select statements.
-        "202404": [],
         "202504": [],
         default: [
             "system_ext_202504.cil",
@@ -1060,21 +1073,14 @@ phony {
         "system_ext_service_contexts_test",
         "system_ext_mac_permissions.xml",
         "system_ext_bug_map",
-        // $(addprefix system_ext_,$(addsuffix .compat.cil,$(PLATFORM_SEPOLICY_COMPAT_VERSIONS))) \
         "system_ext_29.0.compat.cil",
         "system_ext_30.0.compat.cil",
         "system_ext_31.0.compat.cil",
         "system_ext_32.0.compat.cil",
         "system_ext_33.0.compat.cil",
         "system_ext_34.0.compat.cil",
+        "system_ext_202404.compat.cil",
     ] + select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
-        "202404": [],
-        default: [
-            "system_ext_202404.compat.cil",
-        ],
-    }) + select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
-        // TODO(b/391513934): clean up once we can simplify complex select statements.
-        "202404": [],
         "202504": [],
         default: [
             "system_ext_202504.compat.cil",
@@ -1098,6 +1104,7 @@ phony {
         "product_32.0.cil",
         "product_33.0.cil",
         "product_34.0.cil",
+        "product_202404.cil",
         "product_file_contexts",
         // "ifdef HAS_PRODUCT_SEPOLICY_DIR" in Android.mk can be ignored.
         "product_file_contexts_test",
@@ -1114,13 +1121,6 @@ phony {
         true: ["product_sepolicy_and_mapping.sha256"],
         default: [],
     }) + select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
-        "202404": [],
-        default: [
-            "product_202404.cil",
-        ],
-    }) + select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
-        // TODO(b/391513934): clean up once we can simplify complex select statements.
-        "202404": [],
         "202504": [],
         default: [
             "product_202504.cil",
@@ -1207,6 +1207,8 @@ phony {
         "32.0.compat.cil",
         "33.0.compat.cil",
         "34.0.compat.cil",
+        "202404.compat.cil",
+        "ashmem_compat_memfd_context.txt",
         "build_sepolicy",
         "fuzzer_bindings_test",
         "plat_29.0.cil",
@@ -1215,6 +1217,7 @@ phony {
         "plat_32.0.cil",
         "plat_33.0.cil",
         "plat_34.0.cil",
+        "plat_202404.cil",
         "plat_bug_map",
         "plat_file_contexts",
         "plat_file_contexts_data_test",
@@ -1235,14 +1238,6 @@ phony {
         "searchpolicy",
         "secilc",
     ] + select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
-        "202404": [],
-        default: [
-            "202404.compat.cil",
-            "plat_202404.cil",
-        ],
-    }) + select(soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"), {
-        // TODO(b/391513934): clean up once we can simplify complex select statements.
-        "202404": [],
         "202504": [],
         default: [
             "202504.compat.cil",
@@ -1267,15 +1262,6 @@ phony {
             "treble_sepolicy_tests_32.0",
             "treble_sepolicy_tests_33.0",
             "treble_sepolicy_tests_34.0",
-        ],
-    }) + select((
-        soong_config_variable("ANDROID", "PLATFORM_SEPOLICY_VERSION"),
-        soong_config_variable("ANDROID", "ASAN_ENABLED"),
-        product_variable("selinux_ignore_neverallows"),
-    ), {
-        ("202404", true, true): [],
-        (default, true, true): [],
-        (default, default, default): [
             "treble_sepolicy_tests_202404",
         ],
     }) + select((
@@ -1283,7 +1269,6 @@ phony {
         soong_config_variable("ANDROID", "ASAN_ENABLED"),
         product_variable("selinux_ignore_neverallows"),
     ), {
-        ("202404", default, default): [], // TODO(b/391513934): clean up once we can simplify complex select statements.
         ("202504", true, true): [],
         (default, true, true): [],
         (default, default, default): [

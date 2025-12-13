@@ -5,6 +5,7 @@ allow debugfs_type { debugfs debugfs_tracing debugfs_tracing_debug }:filesystem 
 allow dev_type tmpfs:filesystem associate;
 allow encryptedstore_file encryptedstore_fs:filesystem associate;
 allow extra_apk_file zipfusefs:filesystem associate;
+allow tenant_apk_file zipfusefs:filesystem associate;
 allow file_type labeledfs:filesystem associate;
 allow file_type tmpfs:filesystem associate;
 allow file_type rootfs:filesystem associate;
@@ -35,3 +36,14 @@ type perfetto_configs_data_file, file_type, data_file_type, core_data_file_type;
 
 # Type for /sys/kernel/mm/pgsize_migration/enabled
 type sysfs_pgsize_migration, fs_type, sysfs_type;
+
+# /data/tombstones - core dumps
+# This is not required, but added to make tombstoned happy.
+type tombstone_data_file, file_type, data_file_type, core_data_file_type;
+
+# tombstone sockets
+type tombstoned_crash_socket, file_type, coredomain_socket;
+type tombstoned_intercept_socket, file_type, coredomain_socket;
+
+type heapprofd_socket, file_type, coredomain_socket;
+type traced_perf_socket, file_type, coredomain_socket;

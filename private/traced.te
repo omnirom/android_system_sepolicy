@@ -80,6 +80,14 @@ set_prop(traced, traced_oome_heap_session_count_prop)
 # Allow traced to talk to statsd for logging metrics.
 unix_socket_send(traced, statsdw, statsd)
 
+# Allow traced to collect traces from AVF managed VMs.
+# In case of pVMs the guest pVM should ensure that tracing collection is only enabled if the
+# pVM is debuggable.
+# For Microdroid pVMs this is ensured via the following measures:
+#   1. Microdroid sepolicy only defines tracing rules for debuggable VMs.
+#   2. The microdroid_manager implements tracing-related IGuestAgent APIs only for debuggable VMs.
+allow traced self:vsock_socket { accept bind create getopt listen read setopt shutdown write };
+
 ###
 ### Neverallow rules
 ###

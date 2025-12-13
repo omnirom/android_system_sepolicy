@@ -1,0 +1,22 @@
+# omapi subsystem
+type omapi, domain;
+type omapi_exec, system_file_type, exec_type, file_type;
+typeattribute omapi coredomain;
+
+init_daemon_domain(omapi)
+
+# talk to secure_element HAL
+hal_client_domain(omapi, hal_secure_element)
+
+# allow omapi to contact package_native service
+allow omapi package_native_service:service_manager find;
+
+# associate omapi_service
+add_service(omapi, omapi_service)
+
+# omapi is a binder service
+binder_service(omapi)
+
+# allow omapi to read vendor_uuid_mapping_config files
+allow omapi vendor_uuid_mapping_config_file:file r_file_perms;
+

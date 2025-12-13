@@ -77,6 +77,10 @@ allow microdroid_manager kmsg_device:chr_file w_file_perms;
 # Let microdroid_manager to create a vsock connection back to the host VM
 allow microdroid_manager self:vsock_socket { create_socket_perms_no_ioctl };
 
+# Let microdroid_manager to host the dump service
+# TODO(b/418877672): use IGuestAgent rather than raw vsock.
+allow microdroid_manager self:vsock_socket { listen accept };
+
 # Allow microdroid_manager to read the CID of the VM.
 allow microdroid_manager vsock_device:chr_file { ioctl open read };
 
@@ -95,6 +99,9 @@ set_prop(microdroid_manager, ctl_authfs_prop)
 set_prop(microdroid_manager, ctl_seriallogging_prop)
 set_prop(microdroid_manager, ctl_zipfuse_prop)
 
+# Allow microdroid_manager to set servicemanager.ready once it starts the IServiceManager service
+set_prop(microdroid_manager, servicemanager_prop)
+
 # Allow microdroid_manager to wait for linkerconfig to be ready
 get_prop(microdroid_manager, apex_config_prop)
 
@@ -112,6 +119,8 @@ set_prop(microdroid_manager, microdroid_lifecycle_prop)
 
 # Allow microdroid_manager to shutdown the device when verification fails
 set_prop(microdroid_manager, powerctl_prop)
+
+set_prop(microdroid_manager, pageout_bomb_prop)
 
 # Allow microdroid_manager to read bootconfig so that it can reject a bootconfig
 # that is different from what is recorded in the instance.img file.
@@ -133,6 +142,10 @@ allow microdroid_manager sysfs_zram:dir { search };
 allow microdroid_manager sysfs_zram:file rw_file_perms;
 allow microdroid_manager ram_device:blk_file rw_file_perms;
 
+# Allow microdroid_manager to configure virtio-balloon driver properties.
+allow microdroid_manager sysfs_balloon:dir { search open read };
+allow microdroid_manager sysfs_balloon:file { rw_file_perms getattr };
+
 # Allow microdroid_manager to read/write failure serial device
 # tcdrain requires ioctl.
 allow microdroid_manager serial_device:chr_file { w_file_perms ioctl };
@@ -140,12 +153,60 @@ allow microdroid_manager serial_device:chr_file { w_file_perms ioctl };
 # Allow microdroid_manager to handle extra_apks
 allow microdroid_manager extra_apk_file:dir create_dir_perms;
 
+# Allow microdroid_manager to handle tenant_apks
+allow microdroid_manager tenant_apk_file:dir create_dir_perms;
+allow microdroid_manager tenant_apk_file:file getattr;
+
 # Allow microdroid_manager to write kmsg_debug (stdio_to_kmsg).
 allow microdroid_manager kmsg_debug_device:chr_file w_file_perms;
+
+allow microdroid_manager sysfs:dir { search r_dir_perms };
+allow microdroid_manager cgroup_v2:dir { search r_dir_perms create_dir_perms };
+allow microdroid_manager cgroup_v2:file rw_file_perms;
+
+# Allow microdroid_manager to listen for changes to the microdroid_manager.encrypted_store.status
+# sysprop, so that it can wait until encryptedstore is ready before starting payload.
+get_prop(microdroid_manager, microdroid_encrypted_store_status_prop);
+
+# Allow microdroid_manager to listen for the microdroid_manager.encrypted_store.setup sysprop, so
+# that it can setup encrypted store per payload request.
+get_prop(microdroid_manager, microdroid_encrypted_store_setup_prop);
+
+# Allow microdroid_manager to read /proc/*/maps for dump
+r_dir_file(microdroid_manager, domain)
+allow microdroid_manager self:global_capability_class_set sys_ptrace;
+
+# /proc/zoneinfo can be useful for logging zone-specific information, such as
+# watermarks.
+allow microdroid_manager proc_zoneinfo:file r_file_perms;
+
+# /proc/vmstats can be useful for logging system-wide metrics about the memory
+# management subsystem, such as stats on how compaction is behaving.
+allow microdroid_manager proc_vmstat:file r_file_perms;
+
+# /proc/pagetypeinfo can be useful for seeing the spread of N-order pages in
+# the system.
+allow microdroid_manager proc_pagetypeinfo:file r_file_perms;
+
+# Allow microdroid_manager to read various /proc nodes for dump
+allow microdroid_manager {
+    proc
+    proc_pressure_cpu
+    proc_pressure_io
+    proc_pressure_mem
+}:file r_file_perms;
+
+# Allow microdroid_manager to start & stop traced_relay service by setting
+# persist.traced.enable sysprop.
+set_prop(microdroid_manager, traced_enabled_prop);
 
 # Domains other than microdroid can't write extra_apks
 neverallow { domain -microdroid_manager -init -vendor_init } extra_apk_file:file no_w_file_perms;
 neverallow { domain -microdroid_manager -init -vendor_init } extra_apk_file:dir no_w_dir_perms;
+
+# Domains other than microdroid can't write tenant_apks
+neverallow { domain -microdroid_manager -init -vendor_init } tenant_apk_file:file no_w_file_perms;
+neverallow { domain -microdroid_manager -init -vendor_init } tenant_apk_file:dir no_w_dir_perms;
 
 # Only microdroid_payload and a few other critical binaries can be run by microdroid_manager,
 # in their own domains.

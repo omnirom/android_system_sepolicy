@@ -1,0 +1,23 @@
+divert(-1)
+# Macros for Netlink messages. See nlmsg_defines.
+
+# This is the whole range for netlink_route_socket. This is equivalent to the
+# older: { nlmsg_read nlmsg_write nlmsg_readpriv nlmsg_getneigh }.
+# If possible, prefer to define the exact nlmsg required by your domain.
+define(`priv_route_socket_nlmsgs', `{ RTM_NEWLINK-RTM_GETTUNNEL }')
+
+# This is a subset of nlmsg_read without RTM_GETLINK, RTM_GETNEIGH nor
+# RTM_GETNEIGHTBL.
+define(`unpriv_route_socket_nlmsgs', `
+{
+  RTM_GETADDR RTM_GETROUTE RTM_GETRULE
+  RTM_GETQDISC RTM_GETTCLASS RTM_GETTFILTER
+  RTM_GETACTION RTM_GETMULTICAST RTM_GETANYCAST
+  RTM_GETADDRLABEL RTM_GETDCB RTM_GETNETCONF
+  RTM_GETMDB RTM_GETNSID RTM_NEWSTATS RTM_GETSTATS
+  RTM_NEWCACHEREPORT RTM_GETCHAIN RTM_GETNEXTHOP
+  RTM_GETVLAN RTM_GETNEXTHOPBUCKET RTM_GETTUNNEL
+}
+')
+
+divert(0)
